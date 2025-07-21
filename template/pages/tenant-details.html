@@ -1,0 +1,58 @@
+<div class="max-w-6xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <a href="#" data-page="tenant-manager" class="text-sm text-gray-500 hover:text-gray-700 flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Quay lại Quản lý Tenant
+        </a>
+        <div class="flex items-center space-x-2">
+            <button id="suspend-tenant-btn" class="text-sm bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600">Tạm ngưng Tenant</button>
+            <button id="delete-tenant-btn" class="text-sm bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">Xóa Tenant</button>
+        </div>
+    </div>
+
+    <div class="card bg-white rounded-lg shadow p-6 border border-gray-200 mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 id="details-tenant-name" class="text-2xl font-bold text-gray-900">Tên Tenant</h1>
+                <p class="text-sm text-gray-500">Gói dịch vụ: <span id="details-tenant-plan" class="font-semibold text-blue-600"></span></p>
+            </div>
+            <div>
+                <span id="details-tenant-status" class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full">
+                    Trạng thái
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="card bg-white rounded-lg shadow p-4 border">
+            <p class="text-sm font-medium text-gray-500">Số lượng người dùng</p>
+            <p id="details-user-count" class="text-2xl font-semibold"></p>
+        </div>
+        <div class="card bg-white rounded-lg shadow p-4 border">
+            <p class="text-sm font-medium text-gray-500">Hóa đơn tháng này</p>
+            <p class="text-2xl font-semibold">450 / 500</p>
+        </div>
+        <div class="card bg-white rounded-lg shadow p-4 border">
+            <p class="text-sm font-medium text-gray-500">Lượt gọi API (24h)</p>
+            <p class="text-2xl font-semibold">1,234 / 10,000</p>
+        </div>
+    </div>
+
+    <div class="card bg-white rounded-lg shadow p-6 border border-gray-200">
+         <h3 class="text-lg font-semibold text-gray-900 mb-4">Quản lý Nhanh</h3>
+         <div id="quick-actions-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="#" data-page="users" class="block p-4 bg-gray-50 hover:bg-gray-100 rounded-lg text-center">
+                <i class="fas fa-users text-2xl text-blue-500 mb-2"></i>
+                <p class="font-medium">Xem Người dùng</p>
+            </a>
+            <a href="#" data-page="billing" class="block p-4 bg-gray-50 hover:bg-gray-100 rounded-lg text-center">
+                <i class="fas fa-file-invoice-dollar text-2xl text-green-500 mb-2"></i>
+                <p class="font-medium">Xem Thanh toán</p>
+            </a>
+            <a href="#" data-page="audit-logs" class="block p-4 bg-gray-50 hover:bg-gray-100 rounded-lg text-center">
+                <i class="fas fa-clipboard-list text-2xl text-yellow-500 mb-2"></i>
+                <p class="font-medium">Xem Audit Logs</p>
+            </a>
+         </div>
+    </div>
+</div>

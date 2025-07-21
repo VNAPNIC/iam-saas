@@ -1,0 +1,68 @@
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Quản lý Access Key</h1>
+    <button id="create-key-group-btn" class="text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+        <i class="fas fa-plus mr-2"></i> Tạo Nhóm Key mới
+    </button>
+</div>
+
+<div class="card bg-white rounded-lg shadow p-4 border border-gray-200 mb-6">
+    <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-search text-gray-400"></i>
+        </div>
+        <input type="text" id="search-groups-input" placeholder="Tìm kiếm nhóm theo tên..."
+            class="w-full text-sm border-gray-300 rounded-md p-2 pl-10">
+    </div>
+</div>
+
+<div id="key-groups-container" class="space-y-6">
+</div>
+
+<div id="create-key-group-modal"
+    class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+        <h2 class="text-lg font-semibold mb-4">Tạo Nhóm Key mới</h2>
+        <form id="create-key-group-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium">Tên Nhóm</label>
+                <input type="text" id="key-group-name" class="mt-1 w-full border rounded-md p-2" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Gán Vai trò Service</label>
+                <select id="key-group-role" class="mt-1 w-full border rounded-md p-2 bg-white">
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium">Loại Key</label>
+                <select id="key-type" class="mt-1 w-full border rounded-md p-2 bg-white">
+                    <option value="user-key">User Key (Client to Service)</option>
+                    <option value="direct-key">Direct Key (Service to Service)</option>
+                </select>
+            </div>
+            <div class="flex justify-end space-x-2 pt-4">
+                <button type="button" id="cancel-create-key-group-btn"
+                    class="bg-gray-300 px-4 py-2 rounded-md">Hủy</button>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Tạo Nhóm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="show-key-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+        <h2 class="text-lg font-semibold text-gray-900 mb-2">Access Key đã được tạo!</h2>
+        <p class="text-sm text-red-600 bg-red-50 p-3 rounded-md mb-4">⚠️ Đây là lần duy nhất bạn có thể xem Key này. Hãy
+            sao chép và lưu trữ nó ở một nơi an toàn.</p>
+        <div class="relative">
+            <input type="text" id="api-key-display" readonly class="w-full p-3 pr-10 bg-gray-100 rounded-md font-mono">
+            <button id="copy-key-btn"
+                class="absolute top-1/2 right-2 -translate-y-1/2 text-gray-500 hover:text-gray-800">
+                <i class="fas fa-copy text-lg"></i>
+            </button>
+        </div>
+        <div class="mt-6 text-right">
+            <button id="close-show-key-btn" class="text-sm bg-blue-600 text-white px-4 py-2 rounded-md">Đã hiểu,
+                Đóng</button>
+        </div>
+    </div>
+</div>

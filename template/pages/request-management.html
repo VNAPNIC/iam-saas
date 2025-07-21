@@ -1,0 +1,100 @@
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Hộp thư Yêu cầu</h1>
+</div>
+
+<div class="mb-4 border-b border-gray-200">
+    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+        <a href="#" id="tab-tenant-requests" class="tab active">
+            Phê duyệt Tenant
+            <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">2</span>
+        </a>
+        <a href="#" id="tab-quota-requests" class="tab">
+            Yêu cầu Quota
+            <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">1</span>
+        </a>
+    </nav>
+</div>
+
+<div id="tab-content-container">
+    <div id="content-tenant-requests" class="tab-content">
+        <div class="card bg-white rounded-lg shadow border border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium uppercase">Tên Tenant</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium uppercase">Gói Đăng ký</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium uppercase">Email Admin</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium uppercase">Ngày yêu cầu</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium uppercase">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y">
+                        <tr>
+                            <td class="px-4 py-3 font-medium">Delta Solutions</td>
+                            <td class="px-4 py-3">Pro</td>
+                            <td class="px-4 py-3">contact@delta.com</td>
+                            <td class="px-4 py-3">17/07/2025</td>
+                            <td class="px-4 py-3 text-right space-x-2">
+                                <button class="text-sm bg-green-500 text-white px-3 py-1 rounded-md" onclick="approveRequest('T1', 'Tenant')">Phê duyệt</button>
+                                <button class="text-sm bg-red-500 text-white px-3 py-1 rounded-md" onclick="openDenialModal('T1', 'Tenant')">Từ chối</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="content-quota-requests" class="tab-content hidden">
+         <div class="card bg-white rounded-lg shadow border border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium uppercase">Tenant</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium uppercase">Loại Quota</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium uppercase">Yêu cầu tăng lên</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium uppercase">Lý do</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium uppercase">Hành động</th>
+                        </tr>
+                    </thead>
+                     <tbody class="divide-y">
+                        <tr>
+                            <td class="px-4 py-3 font-medium">Acme Corp</td>
+                            <td class="px-4 py-3">Số lượng người dùng</td>
+                            <td class="px-4 py-3 font-semibold">200</td>
+                            <td class="px-4 py-3">Mở rộng cho dự án mới.</td>
+                            <td class="px-4 py-3 text-right space-x-2">
+                                <button class="text-sm bg-green-500 text-white px-3 py-1 rounded-md" onclick="approveRequest('Q1', 'Quota')">Phê duyệt</button>
+                                <button class="text-sm bg-red-500 text-white px-3 py-1 rounded-md" onclick="openDenialModal('Q1', 'Quota')">Từ chối</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="denial-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Lý do Từ chối</h2>
+        <form id="denial-form">
+            <textarea id="denial-reason" rows="4" class="w-full border rounded-md p-2" placeholder="Ví dụ: Thông tin đăng ký chưa hợp lệ..." required></textarea>
+            <div class="flex justify-end space-x-2 mt-4">
+                <button type="button" class="text-sm bg-gray-300 px-4 py-2 rounded-md" onclick="closeDenialModal()">Hủy</button>
+                <button type="submit" class="text-sm bg-red-500 text-white px-4 py-2 rounded-md">Xác nhận Từ chối</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .tab {
+        @apply border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm;
+    }
+    .tab.active {
+        @apply border-blue-500 text-blue-600;
+    }
+</style>

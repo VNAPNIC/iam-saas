@@ -1,0 +1,113 @@
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Quản lý Quyền</h1>
+    <div class="flex space-x-2">
+        <button class="text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center" onclick="openPermissionModal(null)">
+            <i class="fas fa-plus mr-2"></i> Thêm Quyền
+        </button>
+        <button class="text-sm bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 flex items-center" onclick="exportPermissions()">
+            <i class="fas fa-download mr-2"></i> Xuất
+        </button>
+    </div>
+</div>
+
+<div class="card bg-white rounded-lg shadow p-4 border border-gray-200 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Danh mục</label>
+            <select id="category-filter" class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 bg-white">
+                <option value="">Tất cả</option>
+                <option value="Users">Người dùng</option>
+                <option value="Roles">Vai trò</option>
+                <option value="Billing">Thanh toán</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
+            <div class="relative">
+                <input type="text" id="search-input" placeholder="Tìm kiếm quyền..." class="text-sm border border-gray-300 rounded-md pl-10 pr-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                <div class="absolute left-3 top-2.5 text-gray-400">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-end">
+            <button id="apply-filters" class="w-full text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                Áp dụng
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="card bg-white rounded-lg shadow border border-gray-200">
+    <div class="p-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">Tất cả các quyền</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên quyền</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khóa (Key)</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mô tả</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số vai trò</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Hành động</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Quản lý người dùng</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">users:manage</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Cho phép tạo, sửa, xóa người dùng.</td>
+                    <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">2 vai trò</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-blue-600 hover:text-blue-900 mr-3" onclick="openPermissionModal('1')">Sửa</button>
+                        <button class="text-red-600 hover:text-red-900" onclick="deletePermission('1')">Xóa</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Xem thanh toán</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">billing:view</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Cho phép xem lịch sử và thông tin thanh toán.</td>
+                    <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">1 vai trò</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-blue-600 hover:text-blue-900 mr-3" onclick="openPermissionModal('2')">Sửa</button>
+                        <button class="text-red-600 hover:text-red-900" onclick="deletePermission('2')">Xóa</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="permission-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h2 id="modal-title" class="text-lg font-semibold mb-4">Thêm Quyền</h2>
+        <form id="permission-form">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Tên quyền</label>
+                <input type="text" id="permission-name" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Khóa (Key)</label>
+                <input type="text" id="permission-key" class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="ví dụ: users:manage" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Mô tả</label>
+                <textarea id="permission-description" class="mt-1 block w-full border border-gray-300 rounded-md p-2" rows="3"></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Danh mục</label>
+                <select id="permission-category" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                    <option>Người dùng</option>
+                    <option>Vai trò</option>
+                    <option>Thanh toán</option>
+                    <option>Hệ thống</option>
+                </select>
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600" onclick="closePermissionModal()">Hủy</button>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>

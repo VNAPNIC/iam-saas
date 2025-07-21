@@ -1,0 +1,113 @@
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Cài đặt MFA</h1>
+    <div class="flex space-x-2">
+        <button class="text-sm bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 flex items-center" onclick="exportMfaHistory()">
+            <i class="fas fa-download mr-2"></i> Xuất Lịch sử
+        </button>
+    </div>
+</div>
+
+<div class="card bg-white rounded-lg shadow p-4 border border-gray-200 mb-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Cấu hình MFA Hiện tại</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái MFA</label>
+            <p id="mfa-status-display" class="text-sm text-green-600 font-semibold">Đã bật</p>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Phương thức được phép</label>
+            <p id="mfa-methods-display" class="text-sm text-gray-500">Authenticator App, Email</p>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Thời gian hết hạn OTP</label>
+            <p id="mfa-otp-expiry-display" class="text-sm text-gray-500">60 giây</p>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Chính sách áp dụng</label>
+            <p id="mfa-policy-display" class="text-sm text-gray-500">Bắt buộc đối với tất cả quản trị viên</p>
+        </div>
+    </div>
+    <div class="mt-6 flex space-x-2">
+        <button class="text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center" onclick="openMfaSettingsModal()">
+            <i class="fas fa-cog mr-2"></i> Chỉnh sửa Cấu hình
+        </button>
+        <button class="text-sm bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center" onclick="resetAllMfa()">
+            <i class="fas fa-sync-alt mr-2"></i> Reset MFA cho Toàn bộ Người dùng
+        </button>
+    </div>
+</div>
+
+<div class="card bg-white rounded-lg shadow border border-gray-200">
+    <div class="p-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">Lịch sử Thay đổi MFA</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hành động</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Người thực hiện</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thời gian</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chi tiết</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Bật MFA</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">john.doe@acme.com</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-07-16 18:30:00</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Bật các phương thức: Authenticator, Email</td>
+                </tr>
+                 <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Reset MFA</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">john.doe@acme.com</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-07-15 09:10:00</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Reset MFA cho người dùng: jane.cooper@acme.com</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="mfa-settings-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+        <h2 id="modal-title" class="text-lg font-semibold mb-4 text-gray-900">Chỉnh sửa Cấu hình MFA</h2>
+        <form id="mfa-settings-form">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Chính sách MFA</label>
+                <select id="mfa-policy" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                    <option value="disabled">Tắt</option>
+                    <option value="optional">Tùy chọn cho người dùng</option>
+                    <option value="required_all">Bắt buộc cho tất cả</option>
+                    <option value="required_admins">Bắt buộc cho quản trị viên</option>
+                </select>
+            </div>
+             <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Phương thức được phép</label>
+                <div class="mt-2 space-y-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="mfa_methods" value="authenticator" class="h-4 w-4 text-blue-600">
+                        <span class="ml-2 text-sm text-gray-700">Authenticator App</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="mfa_methods" value="email" class="h-4 w-4 text-blue-600">
+                        <span class="ml-2 text-sm text-gray-700">Email</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="mfa_methods" value="sms" class="h-4 w-4 text-blue-600">
+                        <span class="ml-2 text-sm text-gray-700">SMS</span>
+                    </label>
+                </div>
+                <p class="error-message hidden" id="mfa-methods-error">Vui lòng chọn ít nhất một phương thức.</p>
+            </div>
+             <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Thời gian hết hạn OTP (giây)</label>
+                <input type="number" id="mfa-otp-expiry" value="60" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600" onclick="closeMfaSettingsModal()">Hủy</button>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>

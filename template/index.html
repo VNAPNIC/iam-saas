@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IAM SaaS Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex h-screen overflow-hidden">
+        <div id="sidebar" class="sidebar bg-white w-64 h-full flex flex-col border-r border-gray-200 shadow-sm">
+            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center text-white font-bold">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <span class="logo-text ml-2 text-xl font-semibold text-gray-900">IAM SaaS</span>
+                </div>
+                <button id="toggle-sidebar" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center text-blue-500">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <span class="sidebar-text ml-2 font-medium text-gray-900">Super Admin</span>
+                </div>
+            </div>
+
+            <nav id="main-nav" class="flex-1 overflow-y-auto">
+                <div class="p-2">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 mb-2 sidebar-text">
+                        Dashboard</div>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="overview">
+                        <i class="fas fa-tachometer-alt w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Overview</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="analytics">
+                        <i class="fas fa-chart-line w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Analytics</span>
+                    </a>
+                </div>
+                <div class="p-2">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 mb-2 sidebar-text">
+                        Giám sát</div>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="security-dashboard">
+                        <i class="fas fa-user-shield w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Bảo mật</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="alerts">
+                        <i class="fas fa-bell w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Alerts</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="access-key-alerts">
+                        <i class="fas fa-exclamation-triangle w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Cảnh báo Access Key</span>
+                    </a>
+                </div>
+                <div class="p-2">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 mb-2 sidebar-text">
+                        Identity</div>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="tenant-manager">
+                        <i class="fas fa-building w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Quản lý Tenant</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="request-management">
+                        <i class="fas fa-inbox w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Quản lý Yêu cầu</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="users">
+                        <i class="fas fa-users w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Users</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="roles">
+                        <i class="fas fa-user-tag w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Roles</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="applications">
+                        <i class="fas fa-cubes w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Applications</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="access-keys">
+                        <i class="fas fa-key w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Access Keys</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="service-roles">
+                        <i class="fas fa-user-shield w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Service Roles</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="permissions">
+                        <i class="fas fa-lock w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Permissions</span>
+                    </a>
+                </div>
+                <div class="p-2">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 mb-2 sidebar-text">
+                        Security</div>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="mfa-settings">
+                        <i class="fas fa-shield-alt w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">MFA Settings</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="policy-config">
+                        <i class="fas fa-gavel w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Chính sách Truy cập</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="policy-simulator">
+                        <i class="fas fa-user-check w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Kiểm tra Quyền</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="sso-integration">
+                        <i class="fas fa-exchange-alt w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">SSO Integration</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="audit-logs">
+                        <i class="fas fa-clipboard-list w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Audit Logs</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="session-management">
+                        <i class="fas fa-user-clock w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Quản lý Phiên</span>
+                    </a>
+                </div>
+                <div class="p-2">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 mb-2 sidebar-text">
+                        Report</div>
+                    <a href="#" class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="support-tickets">
+                        <i class="fas fa-ticket-alt w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Support Tickets</span>
+                    </a>
+                </div>
+
+                <div class="p-2">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 mb-2 sidebar-text">
+                        Settings</div>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="integrations">
+                        <i class="fas fa-puzzle-piece w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Tích hợp</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="webhooks">
+                        <i class="fas fa-plug w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Webhooks</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="plans">
+                        <i class="fas fa-file-invoice-dollar w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Plans</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="subscriptions">
+                        <i class="fas fa-credit-card w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Subscriptions</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="billing">
+                        <i class="fas fa-file-invoice-dollar w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Billing</span>
+                    </a>
+                    <a href="#"
+                        class="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        data-page="tenant-settings">
+                        <i class="fas fa-cog w-5 text-center"></i>
+                        <span class="sidebar-text ml-3">Tenant Settings</span>
+                    </a>
+                </div>
+            </nav>
+            <div class="p-4 border-t border-gray-200">
+                <a href="#" class="flex items-center" data-page="profile">
+                    <img class="w-8 h-8 rounded-full"
+                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                        alt="Super Admin profile">
+                    <div class="ml-3 sidebar-text">
+                        <p class="text-sm font-medium text-gray-700">Super Admin</p>
+                        <p class="text-xs text-gray-500">System Admin</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div id="content-area" class="content-area flex-1 flex flex-col overflow-hidden">
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between px-4 py-3">
+                    <div class="flex items-center">
+                        <button id="mobile-menu-btn"
+                            class="mobile-menu-btn mr-2 text-gray-500 hover:text-gray-700 md:hidden">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 id="header-title" class="text-lg font-semibold text-gray-900">Dashboard</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <select id="language-selector" class="text-sm border border-gray-300 rounded-md px-3 py-2">
+                            <option value="en">English</option>
+                            <option value="vn">Tiếng Việt</option>
+                        </select>
+                        <button id="dark-mode-toggle" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <div class="relative">
+                            <button id="notifications-toggle" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-bell"></i>
+                                <span
+                                    class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 border-2 border-white dark:border-gray-800"></span>
+                            </button>
+                            <div id="notifications-popup"
+                                class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl overflow-hidden z-20 border border-gray-200">
+                                <div class="py-2 px-4 border-b border-gray-200">
+                                    <h3 class="font-semibold text-gray-900">Thông báo</h3>
+                                </div>
+                                <div class="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                                    <a href="#" data-page="subscriptions"
+                                        class="flex items-start px-4 py-3 hover:bg-gray-100 transition-colors">
+                                        <div
+                                            class="w-10 h-10 bg-red-100 text-red-500 rounded-full flex-shrink-0 flex items-center justify-center">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <p class="text-sm font-medium text-gray-900">Gói dịch vụ sắp hết hạn</p>
+                                            <p class="text-xs text-gray-500">Gói Premium của Acme Corp sẽ hết hạn trong
+                                                3 ngày.</p>
+                                            <p class="text-xs text-gray-400 mt-1">5 phút trước</p>
+                                        </div>
+                                    </a>
+                                    <a href="#" data-page="users"
+                                        class="flex items-start px-4 py-3 hover:bg-gray-100 transition-colors">
+                                        <div
+                                            class="w-10 h-10 bg-green-100 text-green-500 rounded-full flex-shrink-0 flex items-center justify-center">
+                                            <i class="fas fa-user-plus"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <p class="text-sm font-medium text-gray-900">Người dùng mới đăng ký</p>
+                                            <p class="text-xs text-gray-500">Người dùng jane.doe@beta.inc vừa đăng ký.
+                                            </p>
+                                            <p class="text-xs text-gray-400 mt-1">1 giờ trước</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="py-2 px-4 border-t border-gray-200 dark:border-gray-200 text-center">
+                                    <a href="#" data-page="alerts"
+                                        class="text-sm text-blue-500 hover:underline dark:text-blue-400">Xem tất cả
+                                        thông báo</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-700">
+                                <a href="#" data-page="support">
+                                    <i class="fas fa-question-circle"></i>
+                                </a>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main id="main-content" class="flex-1 overflow-y-auto p-4">
+            </main>
+        </div>
+    </div>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="confirmation-modal"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="card bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 id="confirmation-title" class="text-lg font-semibold text-gray-900 mb-4">Xác nhận Hành động</h2>
+            <p id="confirmation-message" class="text-sm text-gray-600 mb-6">Bạn có chắc chắn muốn tiếp tục?</p>
+            <div class="flex justify-end space-x-2">
+                <button id="confirmation-cancel-btn" class="text-sm bg-gray-300 px-4 py-2 rounded-md">Hủy</button>
+                <button id="confirmation-confirm-btn" class="text-sm bg-red-600 text-white px-4 py-2 rounded-md">Xác
+                    nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

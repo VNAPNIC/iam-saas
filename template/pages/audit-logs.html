@@ -1,0 +1,87 @@
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Nhật ký Kiểm tra</h1>
+    <div class="flex space-x-2">
+        <button class="text-sm bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 flex items-center" onclick="exportAuditLogs()">
+            <i class="fas fa-download mr-2"></i> Xuất Nhật ký
+        </button>
+    </div>
+</div>
+
+<div class="card bg-white rounded-lg shadow p-4 border border-gray-200 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Hành động</label>
+            <select id="action-filter" class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 bg-white">
+                <option value="">Tất cả</option>
+                <option value="login">Đăng nhập</option>
+                <option value="user_created">Tạo người dùng</option>
+                <option value="role_updated">Cập nhật vai trò</option>
+                <option value="sso_updated">Cập nhật SSO</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Người dùng</option>
+            <input type="text" id="user-filter" placeholder="Email hoặc ID người dùng" class="w-full text-sm border border-gray-300 rounded-md px-3 py-2">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Khoảng thời gian</label>
+            <input type="date" id="date-filter" class="w-full text-sm border border-gray-300 rounded-md px-3 py-2">
+        </div>
+        <div class="flex items-end">
+            <button id="apply-filters" class="w-full text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                Lọc
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="card bg-white rounded-lg shadow border border-gray-200">
+    <div class="p-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">Chi tiết Nhật ký</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hành động</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Người thực hiện</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đối tượng</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thời gian</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chi tiết</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">role_updated</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">admin@saas.com</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Role: Editor</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-07-17 14:30:00</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">192.168.1.1</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Cập nhật quyền cho vai trò Editor.</td>
+                </tr>
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">login_success</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">john.doe@acme.com</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">N/A</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-07-17 14:25:10</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">203.0.113.25</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Đăng nhập thành công qua email/mật khẩu.</td>
+                </tr>
+                 <tr>
+                    <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">login_failed</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">unknown@example.com</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">N/A</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-07-17 14:22:05</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">198.51.100.10</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sai mật khẩu.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div class="text-sm text-gray-500">
+            Hiển thị <span class="font-medium">1</span> đến <span class="font-medium">3</span> của <span class="font-medium">3</span> bản ghi
+        </div>
+        </div>
+</div>

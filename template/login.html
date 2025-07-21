@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - IAM SaaS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md p-4">
+        <div class="card bg-white rounded-lg shadow-lg p-6 border border-gray-200">
+            <div class="flex items-center justify-center mb-6">
+                <div id="logo-container"
+                    class="w-12 h-12 bg-blue-500 rounded-md flex items-center justify-center text-white font-bold">
+                    <i class="fas fa-lock fa-lg"></i>
+                </div>
+                <div class="ml-4">
+                    <h1 class="text-xl font-semibold text-gray-900">IAM SaaS</h1>
+                    <p class="text-sm text-gray-500">Chào mừng trở lại!</p>
+                </div>
+            </div>
+
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="email"
+                        class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                        placeholder="nhap@email.com" required>
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Mật khẩu</label>
+                    <input type="password" id="password"
+                        class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                        placeholder="Nhập mật khẩu" required>
+                </div>
+                <div class="flex items-center justify-between">
+                    <a href="forgot-password.html" class="text-sm text-blue-500 hover:text-blue-700">Quên mật khẩu?</a>
+                </div>
+                <button type="submit"
+                    class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Đăng nhập
+                </button>
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-gray-300"></div>
+                    <span class="flex-shrink mx-4 text-gray-500 text-sm">hoặc</span>
+                    <div class="flex-grow border-t border-gray-300"></div>
+                </div>
+                <button type="button" onclick="loginWithSSO()"
+                    class="w-full bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center justify-center">
+                    <i class="fas fa-shield-alt mr-2"></i> Đăng nhập với SSO
+                </button>
+            </form>
+            <p class="text-sm text-center mt-4 text-gray-600">
+                Chưa có tài khoản? <a href="signup.html" class="text-blue-500 hover:text-blue-700">Đăng ký ngay</a>
+            </p>
+            <p class="error-message hidden mt-4 text-center" id="login-error">Email hoặc mật khẩu không đúng.</p>
+        </div>
+
+        <div class="flex justify-center mt-4 space-x-4">
+            <button id="dark-mode-toggle" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-moon"></i>
+            </button>
+            <select id="language-selector" class="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white">
+                <option value="en">English</option>
+                <option value="vn">Tiếng Việt</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            darkModeToggle.addEventListener('click', () => {
+                const isDarkMode = document.body.classList.toggle('dark-mode');
+                darkModeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            });
+
+            // Check initial theme
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+
+
+            // Login form submission
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const loginError = document.getElementById('login-error');
+
+                loginError.classList.add('hidden');
+
+                // Simulate login validation
+                if (email === 'super.admin@saas.com' && password === 'password') {
+                    alert('Đăng nhập thành công! Đang chuyển hướng đến dashboard...');
+                    window.location.href = 'index.html'; // Redirect to the main dashboard
+                } else {
+                    loginError.classList.remove('hidden');
+                    console.log('Audit log: Failed login attempt (Level: LOW)');
+                }
+            });
+        });
+
+        function loginWithSSO() {
+            alert('Đang chuyển hướng đến nhà cung cấp SSO...');
+            // In a real app, this would redirect to the SSO provider's login page
+            console.log('Audit log: Initiated SSO login (Level: LOW)');
+        }
+    </script>
+</body>
+
+</html>

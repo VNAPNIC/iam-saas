@@ -1,0 +1,69 @@
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-8">
+        <div class="card bg-white rounded-lg shadow p-6 border border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-question-circle text-blue-500 mr-3"></i>
+                Câu hỏi Thường gặp (FAQs)
+            </h2>
+            <div class="space-y-4">
+                <details class="group">
+                    <summary class="flex items-center justify-between cursor-pointer text-gray-800">
+                        <span class="font-medium">Làm thế nào để cấu hình SSO với Okta?</span>
+                        <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <p class="text-gray-600 mt-2 pl-4 border-l-2">
+                        Để cấu hình SSO, bạn cần vào trang "SSO Integration", chọn Okta và làm theo hướng dẫn chi tiết được cung cấp. Bạn sẽ cần sao chép SCIM Base URL và API Token từ hệ thống của chúng tôi và dán vào ứng dụng của bạn trên Okta.
+                    </p>
+                </details>
+                <details class="group">
+                    <summary class="flex items-center justify-between cursor-pointer text-gray-800">
+                        <span class="font-medium">Tôi có thể mời nhiều người dùng cùng lúc không?</span>
+                         <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <p class="text-gray-600 mt-2 pl-4 border-l-2">
+                        Có, tại trang "Quản lý Người dùng", bạn có thể sử dụng chức năng "Mời hàng loạt" bằng cách tải lên một tệp CSV chứa danh sách email và vai trò tương ứng của người dùng.
+                    </p>
+                </details>
+            </div>
+        </div>
+        
+        <div class="card bg-white rounded-lg shadow p-6 border border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                 <i class="fas fa-book text-green-500 mr-3"></i>
+                Tài liệu Hướng dẫn
+            </h2>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="#" class="block p-4 bg-gray-50 hover:bg-gray-100 rounded-lg">
+                    <p class="font-semibold text-gray-800">Tích hợp Webhook</p>
+                    <p class="text-sm text-gray-600">Hướng dẫn chi tiết về các sự kiện và xác thực HMAC.</p>
+                </a>
+                 <a href="#" class="block p-4 bg-gray-50 hover:bg-gray-100 rounded-lg">
+                    <p class="font-semibold text-gray-800">Video Tutorials</p>
+                    <p class="text-sm text-gray-600">Xem các video hướng dẫn trực quan của chúng tôi.</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-white rounded-lg shadow p-6 border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <i class="fas fa-ticket-alt text-red-500 mr-3"></i>
+            Gửi Yêu cầu Hỗ trợ
+        </h2>
+        <form id="support-ticket-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Chủ đề</label>
+                <input type="text" placeholder="Ví dụ: Lỗi tích hợp SIEM" class="mt-1 block w-full border rounded-md p-2">
+            </div>
+             <div>
+                <label class="block text-sm font-medium text-gray-700">Mô tả chi tiết</label>
+                <textarea rows="5" placeholder="Vui lòng mô tả vấn đề bạn đang gặp phải..." class="mt-1 block w-full border rounded-md p-2"></textarea>
+            </div>
+             <div>
+                <label class="block text-sm font-medium text-gray-700">Đính kèm tệp</label>
+                <input type="file" class="mt-1 block w-full text-sm">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700">Gửi Ticket</button>
+        </form>
+    </div>
+</div>

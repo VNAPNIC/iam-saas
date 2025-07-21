@@ -1,0 +1,239 @@
+/* General Body and Font Styles */
+body {
+    padding: 0;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+.sidebar.collapsed {
+    width: 70px;
+}
+.sidebar.collapsed .sidebar-text,
+.sidebar.collapsed .logo-text {
+    display: none;
+}
+.sidebar.collapsed .nav-item {
+    justify-content: center;
+}
+
+/* Card, Header, Background Styles */
+.card, .bg-white, header {
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* Form Elements */
+input, select, textarea {
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* Error & Status Messages */
+.error-message { color: #EF4444; font-size: 0.875rem; margin-top: 0.25rem; }
+.severity-low { background-color: #D1FAE5; color: #059669; }
+.severity-medium { background-color: #FEF3C7; color: #D97706; }
+.severity-high { background-color: #FEE2E2; color: #EF4444; }
+.status-unread { background-color: #E5E7EB; color: #4B5563; }
+.status-read { background-color: #DBEAFE; color: #1E40AF; }
+.status-resolved { background-color: #D1FAE5; color: #059669; }
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #111827; /* Darker background */
+    color: #d1d5db;
+}
+.dark-mode .sidebar {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+.dark-mode header,
+.dark-mode .card,
+.dark-mode .bg-white {
+    background-color: #1f2937 !important;
+    border-color: #374151;
+}
+.dark-mode .text-gray-900 { color: #f9fafb !important; }
+.dark-mode .text-gray-800 { color: #f3f4f6 !important; }
+.dark-mode .text-gray-700 { color: #e5e7eb !important; }
+.dark-mode .text-gray-600 { color: #d1d5db !important; }
+.dark-mode .text-gray-500 { color: #9ca3af !important; }
+
+.dark-mode .border-gray-200 { border-color: #374151 !important; }
+.dark-mode .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #374151 !important;
+}
+.dark-mode .bg-gray-50 { background-color: #374151 !important; }
+.dark-mode .hover\:bg-gray-50:hover { background-color: #374151 !important; }
+
+.dark-mode input, .dark-mode select, .dark-mode textarea {
+    background-color: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+}
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+    color: #9ca3af;
+}
+.dark-mode .bg-blue-50 {
+    background-color: #1e40af !important;
+}
+.dark-mode .text-blue-600 {
+    color: #60a5fa !important;
+}
+
+/* Modal/Dialog Dark Mode Fix */
+.dark-mode .fixed.inset-0 {
+    background-color: rgba(10, 10, 10, 0.7);
+}
+.dark-mode .fixed > .bg-white {
+    background-color: #1f2937 !important;
+}
+
+/* Chart Container Styles */
+.chart-container {
+    height: 300px;
+    position: relative;
+}
+.sparkline-container {
+    height: 50px;
+}
+
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        transform: translateX(-100%);
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    .content-area {
+        margin-left: 0 !important;
+    }
+    .mobile-menu-btn {
+        display: block !important;
+    }
+}
+@media (min-width: 769px) {
+    .sidebar {
+        position: relative;
+        transform: translateX(0);
+    }
+    .mobile-menu-btn {
+        display: none !important;
+    }
+}
+
+/* Explicitly set light mode background for select */
+select {
+    background-color: #ffffff;
+    color: #111827;
+}
+
+/* Dark Mode Override for select */
+.dark-mode select {
+    background-color: #374151; /* Dark gray for dark mode */
+    color: #f9fafb;
+    border-color: #4b5563;
+}
+
+.dark-mode .bg-gray-200.text-gray-800 {
+    background-color: #374151 !important; /* Màu nền tối hơn một chút */
+    color: #9ca3af !important;      /* Màu chữ xám nhạt để dễ đọc */
+}
+
+/* Custom Styles for Notifications Popup */
+#notifications-popup {
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+#notifications-popup.hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+}
+
+/* FIX: Notifications Popup Dark Mode Colors */
+.dark-mode #notifications-popup {
+    background-color: #1a202c; /* Nền tối hơn */
+    border-color: #4a5568;    /* Viền sẫm hơn */
+}
+
+.dark-mode #notifications-popup .py-2.px-4.border-b {
+    border-color: #4a5568;
+}
+
+.dark-mode #notifications-popup h3 {
+    color: #f7fafc; /* Chữ tiêu đề màu sáng */
+}
+
+.dark-mode #notifications-popup a {
+    color: #e2e8f0; /* Chữ thông báo màu sáng hơn */
+}
+
+.dark-mode #notifications-popup a:hover {
+    background-color: #2d3748; /* Nền khi hover tối hơn nữa */
+}
+
+.dark-mode #notifications-popup .text-gray-500 {
+    color: #a0aec0; /* Chữ xám nhạt hơn */
+}
+
+.dark-mode #notifications-popup .text-blue-500 {
+    color: #66a7ff; /* Màu xanh dương sáng hơn */
+}
+
+.dark-mode #notifications-popup .border-t {
+    border-color: #4a5568;
+}
+
+/* MỚI: CSS cho Loading Indicator (Spinner) */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+}
+
+#loading-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* MỚI: CSS cho Dark Mode của Loading Overlay */
+.dark-mode #loading-overlay {
+    background-color: rgba(17, 24, 39, 0.5);
+}
+
+.dark-mode .spinner {
+    border-color: #374151;
+    border-top-color: #60a5fa;
+}

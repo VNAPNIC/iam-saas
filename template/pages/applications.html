@@ -1,0 +1,85 @@
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Quản lý Ứng dụng</h1>
+    <button id="add-app-btn" class="text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">
+        <i class="fas fa-plus mr-2"></i> Đăng ký Ứng dụng mới
+    </button>
+</div>
+
+<div id="empty-state" class="hidden text-center card bg-white rounded-lg shadow p-8 border border-gray-200">
+    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100">
+        <i class="fas fa-cubes text-2xl text-blue-600"></i>
+    </div>
+    <h3 class="mt-4 text-lg font-medium text-gray-900">Chưa có ứng dụng nào được đăng ký</h3>
+    <p class="mt-2 text-sm text-gray-500">Hãy đăng ký ứng dụng đầu tiên của bạn để bắt đầu tích hợp với hệ thống IAM.</p>
+    <div class="mt-6">
+        <button id="add-app-btn-empty" class="text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+            Đăng ký Ứng dụng đầu tiên
+        </button>
+    </div>
+</div>
+
+<div id="apps-table-container" class="card bg-white rounded-lg shadow border border-gray-200">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tên Ứng dụng</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client ID</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ngày tạo</th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Hành động</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <tr>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Hệ thống CRM nội bộ</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-mono">abc...xyz</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">18/07/2025</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-blue-500 hover:text-blue-700">Chi tiết</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="app-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+        <h2 id="modal-title" class="text-lg font-semibold text-gray-900 mb-4">Đăng ký Ứng dụng mới</h2>
+        <form id="app-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Tên Ứng dụng</label>
+                <input type="text" id="app-name" placeholder="Ví dụ: My Awesome App" class="mt-1 block w-full border rounded-md p-2 text-sm" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Redirect URIs</label>
+                <textarea id="app-redirect-uris" rows="3" placeholder="https://myapp.com/callback&#10;https://staging.myapp.com/callback" class="mt-1 block w-full border rounded-md p-2 text-sm font-mono" required></textarea>
+                <p class="text-xs text-gray-500 mt-1">Mỗi URL trên một dòng. Đây là các URL được phép chuyển hướng về sau khi đăng nhập thành công.</p>
+            </div>
+            <div class="flex justify-end space-x-2 pt-4">
+                <button type="button" id="cancel-app-modal-btn" class="text-sm bg-gray-300 px-4 py-2 rounded-md">Hủy</button>
+                <button type="submit" class="text-sm bg-blue-600 text-white px-4 py-2 rounded-md">Tạo Ứng dụng</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="credentials-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+        <h2 class="text-lg font-semibold text-gray-900 mb-2">Tạo Ứng dụng thành công!</h2>
+        <p class="text-sm text-gray-600 mb-4">Đây là thông tin xác thực cho ứng dụng của bạn. Vui lòng sao chép và lưu trữ chúng một cách an toàn. Bạn sẽ không thể xem lại Client Secret sau khi đóng cửa sổ này.</p>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Client ID</label>
+                <input type="text" id="client-id-display" readonly class="mt-1 w-full p-2 bg-gray-100 rounded-md font-mono">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Client Secret</label>
+                <input type="text" id="client-secret-display" readonly class="mt-1 w-full p-2 bg-gray-100 rounded-md font-mono">
+            </div>
+        </div>
+        <div class="mt-6 text-right">
+            <button id="close-credentials-modal-btn" class="text-sm bg-blue-600 text-white px-4 py-2 rounded-md">Đã hiểu, Đóng</button>
+        </div>
+    </div>
+</div>

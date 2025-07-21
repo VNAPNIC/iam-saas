@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IAM SaaS - Secure Identity and Access Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .bg-gradient-orange {
+            background: linear-gradient(135deg, #f86823 0%, #fa6220 50%, #ef8b33 100%);
+        }
+        .btn-gradient {
+            background: linear-gradient(90deg, #fa6220 0%, #ef8b33 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(248, 104, 35, 0.3);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .stats-number {
+            font-size: 2.5rem;
+            transition: all 1s ease-in-out;
+        }
+        #matrix-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 text-[#656565]">
+    <!-- Header -->
+    <header class="bg-[#333338] text-white sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="mr-4">
+                        <img src="https://example.com/logo.png" alt="IAM SaaS Logo" class="h-10">
+                    </div>
+                    <h1 class="text-2xl font-bold">IAM<span class="text-[#f86823]">SaaS</span></h1>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#features" class="hover:text-[#f86823] transition">Features</a>
+                    <a href="#solutions" class="hover:text-[#f86823] transition">Solutions</a>
+                    <a href="#pricing" class="hover:text-[#f86823] transition">Pricing</a>
+                    <a href="#demo" class="hover:text-[#f86823] transition">Demo</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="px-4 py-2 rounded-md hover:text-[#f86823] transition">Login</a>
+                    <a href="#" class="btn-gradient text-white px-6 py-2 rounded-md">Get Started</a>
+                    <button class="md:hidden focus:outline-none" id="menu-btn">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="md:hidden hidden mt-4 pb-4" id="mobile2menu">
+                <a href="#features" class="block py-2 hover:text-[#f86823]">Features</a>
+                <a href="#solutions" class="block py-2 hover:text-[#f86823]">Solutions</a>
+                <a href="#pricing" class="block py-2 hover:text-[#f86823]">Pricing</a>
+                <a href="#demo" class="block py-2 hover:text-[#f86823]">Demo</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section with Matrix Effect -->
+    <section class="bg-[#333338] text-white py-20 relative overflow-hidden">
+        <canvas id="matrix-canvas"></canvas>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-6">Empower Your Business with Advanced Identity Management</h1>
+                    <p class="text-xl text-[#d6d8e2] mb-8">Secure, scalable IAM with SSO, MFA, and granular access controls.</p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#" class="btn-gradient text-white px-8 py-4 rounded-md text-center font-semibold text-lg">Start Free Trial</a>
+                        <a href="#demo" class="border border-white text-white px-8 py-4 rounded-md text-center font-medium hover:bg-white hover:text-[#333338] transition duration-300">Request Demo</a>
+                    </div>
+                </div>
+                <div class="md:w-1/2">
+                    <div class="bg-white rounded-xl shadow-2xl overflow-hidden transform hover:scale-105 transition duration-300">
+                        <img src="./images/hero-dashboard.png" alt="IAM Dashboard" class="w-full">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-[#fff7f4]">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-[#f86823] font-bold uppercase tracking-wider">Features</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-[#333338] mt-2 mb-4">Powerful Tools for Identity Management</h2>
+                <p class="max-w-2xl mx-auto text-lg text-[#656565]">Everything you need to secure and manage access across your organization.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="feature-card bg-white rounded-xl p-8 shadow-md transition duration-300">
+                    <div class="text-[#f86823] mb-4"><i class="fas fa-user-shield text-4xl"></i></div>
+                    <h3 class="text-xl font-bold text-[#333338] mb-3">Multi-Tenant Isolation</h3>
+                    <p class="text-[#656565]">Securely isolate tenant data with dedicated instances and RBAC.</p>
+                </div>
+                <div class="feature-card bg-white rounded-xl p-8 shadow-md transition duration-300">
+                    <div class="text-[#f86823] mb-4"><i class="fas fa-fingerprint text-4xl"></i></div>
+                    <h3 class="text-xl font-bold text-[#333338] mb-3">SSO & MFA</h3>
+                    <p class="text-[#656565]">Enable single sign-on and multi-factor authentication with ease.</p>
+                </div>
+                <div class="feature Hoclass="feature-card bg-white rounded-xl p-8 shadow-md transition duration-300">
+                    <div class="text-[#f86823] mb-4"><i class="fas fa-users-cog text-4xl"></i></div>
+                    <h3 class="text-xl font-bold text-[#333338] mb-3">Granular Access Control</h3>
+                    <p class="text-[#656565]">Fine-tune permissions with RBAC and ABAC policies.</p>
+                </div>
+                <div class="feature-card bg-white rounded-xl p-8 shadow-md transition duration-300">
+                    <div class="text-[#f86823] mb-4"><i class="fas fa-bell text-4xl"></i></div>
+                    <h3 class="text-xl font-bold text-[#333338] mb-3">Real-Time Audit Logs</h3>
+                    <p class="text-[#656565]">Track every action with detailed logs and SIEM integration.</p>
+                </div>
+                <div class="feature-card bg-white rounded-xl p-8 shadow-md transition duration-300">
+                    <div class="text-[#f86823] mb-4"><i class="fas fa-random text-4xl"></i></div>
+                    <h3 class="text-xl font-bold text-[#333338] mb-3">Seamless Integrations</h3>
+                    <p class="text-[#656565]">Connect with HRIS, ERP, and CRM via SCIM or webhooks.</p>
+                </div>
+                <div class="feature-card bg-white rounded-xl p-8 shadow-md transition duration-300">
+                    <div class="text-[#f86823] mb-4"><i class="fas fa-chart-line text-4xl"></i></div>
+                    <h3 class="text-xl font-bold text-[#333338] mb-3">Usage Analytics</h3>
+                    <p class="text-[#656565]">Gain insights with customizable dashboards and reports.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solutions Section -->
+        <section id="solutions" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <span class="text-[#f86823] font-bold uppercase tracking-wider">Solutions</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-[#333338] mt-2 mb-4">Tailored IAM for Every Industry</h2>
+                    <p class="max-w-2xl mx-auto text-lg text-[#656565]">Solutions designed to meet your specific compliance and workflow needs.</p>
+                </div>
+                <div class="mb-12">
+                    <div class="flex flex-wrap justify-center border-b border-gray-200">
+                        <button class="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-[#f86823] transition active:border-[#f86823]" data-tab="tab1">Healthcare</button>
+                        <button class="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-[#f86823] transition" data-tab="tab2">Finance</button>
+                        <button class="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-[#f86823] transition" data-tab="tab3">Enterprise</button>
+                        <button class="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-[#f86823] transition" data-tab="tab4">Government</button>
+                        <button class="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-[#f86823] transition" data-tab="tab5">Startups</button>
+                    </div>
+                </div>
+                <div class="tab-content-container">
+                    <div class="tab-content active fade-in" id="tab1">
+                        <div class="flex flex-col md:flex-row items-center gap-12">
+                            <div class="md:w-1/2">
+                                <h3 class="text-2xl font-bold text-[#333338] mb-4">HIPAA-Compliant IAM for Healthcare</h3>
+                                <p class="text-[#656565] mb-6">Secure patient data with compliance-ready IAM tools.</p>
+                                <ul class="space-y-3 mb-8">
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Break-glass emergency access</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Automatic session timeouts</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>EHR integrations (Epic, Cerner)</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>PHI access audit trails</li>
+                                </ul>
+                                <a href="#" class="btn-gradient text-white px-6 py-3 rounded-md inline-block">Learn More</a>
+                            </div>
+                            <div class="md:w-1/2">
+                                <img src="https://example.com/healthcare-iam.jpg" alt="Healthcare IAM" class="rounded-lg shadow-md">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content fade-in" id="tab2">
+                        <div class="flex flex-col md:flex-row items-center gap-12">
+                            <div class="md:w-1/2">
+                                <h3 class="text-2xl font-bold text-[#333338] mb-4">Financial Services Compliance</h3>
+                                <p class="text-[#656565] mb-6">Meet PCI DSS, SOX, and GLBA with robust IAM.</p>
+                                <ul class="space-y-3 mb-8">
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Privileged access management</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Multi-level approvals</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Banking platform integration</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Automated provisioning</li>
+                                </ul>
+                                <a href="#" class="btn-gradient text-white px-6 py-3 rounded-md inline-block">Learn More</a>
+                            </div>
+                            <div class="md:w-1/2">
+                                <img src="https://example.com/finance-iam.jpg" alt="Finance IAM" class="rounded-lg shadow-md">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content fade-in" id="tab3">
+                        <div class="flex flex-col md:flex-row items-center gap-12">
+                            <div class="md:w-1/2">
+                                <h3 class="text-2xl font-bold text-[#333338] mb-4">Enterprise-Grade IAM</h3>
+                                <p class="text-[#656565] mb-6">Scale securely with enterprise-ready features.</p>
+                                <ul class="space-y-3 mb-8">
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Unlimited user support</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Multi-region deployment</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Custom integrations</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>24/7 support</li>
+                                </ul>
+                                <a href="#" class="btn-gradient text-white px-6 py-3 rounded-md inline-block">Learn More</a>
+                            </div>
+                            <div class="md:w-1/2">
+                                <img src="https://example.com/enterprise-iam.jpg" alt="Enterprise IAM" class="rounded-lg shadow-md">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content fade-in" id="tab4">
+                        <div class="flex flex-col md:flex-row items-center gap-12">
+                            <div class="md:w-1/2">
+                                <h3 class="text-2xl font-bold text-[#333338] mb-4">Government Security Standards</h3>
+                                <p class="text-[#656565] mb-6">Comply with FedRAMP, FISMA, and more.</p>
+                                <ul class="space-y-3 mb-8">
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>High-impact security controls</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Data residency options</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Secure audit logging</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Dedicated compliance support</li>
+                                </ul>
+                                <a href="#" class="btn-gradient text-white px-6 py-3 rounded-md inline-block">Learn More</a>
+                            </div>
+                            <div class="md:w-1/2">
+                                <img src="https://example.com/government-iam.jpg" alt="Government IAM" class="rounded-lg shadow-md">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content fade-in" id="tab5">
+                        <div class="flex flex-col md:flex-row items-center gap-12">
+                            <div class="md:w-1/2">
+                                <h3 class="text-2xl font-bold text-[#333338] mb-4">IAM for Startups</h3>
+                                <p class="text-[#656565] mb-6">Affordable security for fast-growing teams.</p>
+                                <ul class="space-y-3 mb-8">
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Scalable user management</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>SSO for key tools</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Easy onboarding</li>
+                                    <li class="flex items-start"><i class="fas fa-check text-[#f86823] mt-1 mr-2"></i>Priority support</li>
+                                </ul>
+                                <a href="#" class="btn-gradient text-white px-6 py-3 rounded-md inline-block">Learn More</a>
+                            </div>
+                            <div class="md:w-1/2">
+                                <img src="https://example.com/startups-iam.jpg" alt="Startups IAM" class="rounded-lg shadow-md">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="py-16 bg-gradient-orange text-white">
+            <div class="container mx-auto px-6">
+                <div class="grid md:grid-cols-4 gap-8 text-center">
+                    <div class="p-6">
+                        <div class="stats-number text-4xl font-bold mb-2" data-target="99.9">0</div>
+                        <div class="text-xl">Uptime SLA (%)</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="stats-number text-4xl font-bold mb-2" data-target="10000">0</div>
+                        <div class="text-xl">Requests/Sec</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="stats-number text-4xl font-bold mb-2" data-target="1000000">0</div>
+                        <div class="text-xl">Concurrent Users</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="stats-number text-4xl font-bold mb-2" data-target="14">0</div>
+                        <div class="text-xl">Global Regions</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="py-20 bg-[#f9f9f9]">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <span class="text-[#f86823] font-bold uppercase tracking-wider">Pricing</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-[#333338] mt-2 mb-4">Simple, Flexible Plans</h2>
+                    <p class="max-w-2xl mx-auto text-lg text-[#656565]">Pick a plan that scales with your business, all with top-tier security.</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="p-8">
+                            <div class="text-[#f86823] font-bold mb-1">Trial</div>
+                            <div class="text-4xl font-bold text-[#333338] mb-4">$0<span class="text-xl text-[#656565]">/mo</span></div>
+                            <p class="text-[#656565] mb-6">Test the platform risk-free.</p>
+                            <ul class="space-y-3 mb-8">
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>14-day free trial</li>
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>100 users</li>
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>50 invoices</li>
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>1,000 API calls</li>
+                            </ul>
+                            <a href="#" class="block w-full bg-gray-200 text-[#333338] text-center py-3 rounded-md hover:bg-gray-300 transition">Start Free Trial</a>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-xl overflow-hidden relative transform scale-105">
+                        <div class="absolute top-0 right-0 bg-[#f86823] text-white px-4 py-1 text-xs font-bold rounded-bl-lg">POPULAR</div>
+                        <div class="p-8">
+                            <div class="text-[#f86823] font-bold mb-1">Basic</div>
+                            <div class="text-4xl font-bold text-[#333338] mb-4">$50<span class="text-xl text-[#656565]">/mo</span></div>
+                            <p class="text-[#656565] mb-6">Ideal for small businesses.</p>
+                            <ul class="space-y-3 mb-8">
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>1,000 users</li>
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>500 invoices</li>
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>10,000 API calls</li>
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>Single sign-on (SSO)</li>
+                            </ul>
+                            <a href="#" class="btn-gradient block w-full text-white text-center py-3 rounded-md">Get Started</a>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="p-8">
+                            <div class="text-[#f86823] font-bold mb-1">Pro</div>
+                            <div class="text-4xl font-bold text-[#333338] mb-4">$200<span class="text-xl text-[#656565]">/mo</span></div>
+                            <p class="text-[#656565] mb-6">For growing teams.</p>
+                            <ul class="space-y-3 mb-8">
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>10,000 users</li>
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>5,000 invoices</li>
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>100,000 API calls</li>
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>Advanced SSO</li>
+                            </ul>
+                            <a href="#" class="btn-gradient block w-full text-white text-center py-3 rounded-md">Get Started</a>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="p-8">
+                            <div class="text-[#f86823] font-bold mb-1">Enterprise</div>
+                            <div class="text-4xl font-bold text-[#333338] mb-4">Custom</div>
+                            <p class="text-[#656565] mb-6">For large-scale needs.</p>
+                            <ul class="space-y-3 mb-8">
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>Unlimited users</li>
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>Unlimited invoices</li>
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>Custom API limits</li>
+                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i>Multi-region support</li>
+                            </ul>
+                            <a href="#" class="block w-full border border-[#f86823] text-[#f86823] text-center py-3 rounded-md hover:bg-[#f86823] hover:text-white transition">Contact Sales</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-12 text-center">
+                    <p class="text-[#656565]">All plans include multi-tenant support, GDPR/HIPAA compliance, and enterprise-grade security features.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo Section -->
+        <section id="demo" class="py-20 bg-[#333338] text-white">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col md:flex-row items-center gap-12">
+                    <div class="md:w-1/2">
+                        <span class="text-[#f86823] font-bold uppercase tracking-wider">Demo</span>
+                        <h2 class="text-3xl md:text-4xl font-bold mt-2 mb-6">See IAM SaaS in Action</h2>
+                        <p class="text-xl text-[#d6d8e2] mb-8">Explore how our platform secures your business with a live demo or personalized walkthrough.</p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <a href="#" class="btn-gradient text-white px-8 py-4 rounded-md text-center font-semibold">Watch Video</a>
+                            <a href="#" class="border border-white text-white px-8 py-4 rounded-md text-center font-medium hover:bg-white hover:text-[#333338] transition duration-300">Request a Demo</a>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+                            <img src="https://example.com/demo-video.jpg" alt="Demo Video Thumbnail" class="w-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-[#333338] text-white py-10">
+            <div class="container mx-auto px-6">
+                <div class="grid md:grid-cols-4 gap-8">
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">IAM SaaS</h3>
+                        <p class="text-[#d6d8e2]">Secure identity and access management for your business.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Product</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#features" class="hover:text-[#f86823] transition">Features</a></li>
+                            <li><a href="#solutions" class="hover:text-[#f86823] transition">Solutions</a></li>
+                            <li><a href="#pricing" class="hover:text-[#f86823] transition">Pricing</a></li>
+                            <li><a href="#demo" class="hover:text-[#f86823] transition">Demo</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Support</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="hover:text-[#f86823] transition">Help Center</a></li>
+                            <li><a href="#" class="hover:text-[#f86823] transition">Contact Us</a></li>
+                            <li><a href="#" class="hover:text-[#f86823] transition">Documentation</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Connect</h3>
+                        <div class="flex space-x-4">
+                            <a href="#" class="hover:text-[#f86823] transition"><i class="fab fa-twitter text-xl"></i></a>
+                            <a href="#" class="hover:text-[#f86823] transition"><i class="fab fa-linkedin text-xl"></i></a>
+                            <a href="#" class="hover:text-[#f86823] transition"><i class="fab fa-github text-xl"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 text-center text-[#d6d8e2]">
+                    <p>© 2025 IAM SaaS. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+
+        <script>
+            // Matrix effect
+            const canvas = document.getElementById('matrix-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            const fontSize = 16;
+            const columns = canvas.width / fontSize;
+            const drops = Array(Math.floor(columns)).fill(1);
+
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#f86823';
+                ctx.font = `${fontSize}px monospace`;
+                drops.forEach((y, i) => {
+                    const text = letters[Math.floor(Math.random() * letters.length)];
+                    ctx.fillText(text, i * fontSize, y * fontSize);
+                    if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                    drops[i]++;
+                });
+            }
+            setInterval(drawMatrix, 50);
+
+            // Mobile menu toggle
+            document.getElementById('menu-btn').addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.toggle('hidden');
+            });
+
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'border-[#f86823]'));
+                    btn.classList.add('active', 'border-[#f86823]');
+                    const tabId = btn.getAttribute('data-tab');
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === tabId) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+
+            // Stats animation
+            const statsNumbers = document.querySelectorAll('.stats-number');
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = parseFloat(entry.target.getAttribute('data-target'));
+                        let count = 0;
+                        const increment = target / 50;
+                        const updateCount = () => {
+                            count += increment;
+                            if (count >= target) {
+                                entry.target.textContent = target % 1 === 0 ? target : target.toFixed(1);
+                            } else {
+                                entry.target.textContent = Math.floor(count);
+                                requestAnimationFrame(updateCount);
+                            }
+                        };
+                        updateCount();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+            statsNumbers.forEach(num => observer.observe(num));
+        </script>
+</body>
+</html>

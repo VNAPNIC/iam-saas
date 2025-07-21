@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khôi phục Tài khoản - IAM SaaS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css"> </head>
+<body class="bg-gray-100">
+    <button id="dark-mode-toggle" class="fixed top-4 right-4 bg-white text-gray-700 rounded-full p-2 shadow-md focus:outline-none dark:bg-gray-800 dark:text-gray-300 z-10">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <div class="flex items-center justify-center min-h-screen w-full">
+        <div class="w-full max-w-md p-4">
+            <div class="card bg-white rounded-lg shadow-lg p-6 border border-gray-200">
+                <div class="text-center mb-6">
+                    <h1 class="text-xl font-semibold text-gray-900">Khôi phục Tài khoản</h1>
+                    <p class="text-sm text-gray-500">Chọn phương thức để xác minh danh tính.</p>
+                </div>
+
+                <div class="tab-container p-1 bg-gray-100 rounded-lg flex mb-4">
+                    <button id="tab-recovery-code" class="tab flex-1 py-2 px-4 text-sm font-medium rounded-md focus:outline-none">Mã khôi phục</button>
+                    <button id="tab-security-questions" class="tab flex-1 py-2 px-4 text-sm font-medium rounded-md focus:outline-none">Câu hỏi Bảo mật</button>
+                </div>
+
+                <div id="content-recovery-code" class="tab-content">
+                    <form id="recovery-code-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Mã khôi phục</label>
+                            <input type="text" placeholder="Nhập 16 ký tự mã khôi phục" class="mt-1 block w-full border rounded-md p-2">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Xác minh</button>
+                    </form>
+                </div>
+
+                <div id="content-security-questions" class="tab-content hidden">
+                    <form id="security-questions-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tên trường tiểu học của bạn là gì?</label>
+                            <input type="text" class="mt-1 block w-full border rounded-md p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tên người bạn thân thời thơ ấu?</label>
+                            <input type="text" class="mt-1 block w-full border rounded-md p-2">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md">Xác minh</button>
+                    </form>
+                </div>
+                
+                <p class="text-sm text-center mt-4">
+                    <a href="login.html" class="text-blue-500 hover:underline">Quay lại trang Đăng nhập</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* CSS đã sửa lỗi và thiết kế lại */
+        .tab-container {
+            transition: background-color 0.3s;
+        }
+        .dark-mode .tab-container {
+            background-color: #374151; /* Nền xám đậm cho container tab */
+        }
+        .tab {
+            background-color: transparent; /* Tab không được chọn sẽ trong suốt */
+            color: #4b5563; /* Màu chữ xám cho tab không được chọn */
+            transition: all 0.2s ease-in-out;
+        }
+        .dark-mode .tab {
+            color: #d1d5db;
+        }
+        /* Trạng thái active của tab */
+        .tab.active {
+            background-color: white;
+            color: #1f2937;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        .dark-mode .tab.active {
+             background-color: #4b5563; /* Màu nền tối hơn cho tab được chọn */
+             color: #f9fafb;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = {
+                'recovery-code': document.getElementById('tab-recovery-code'),
+                'security-questions': document.getElementById('tab-security-questions')
+            };
+            const contents = {
+                'recovery-code': document.getElementById('content-recovery-code'),
+                'security-questions': document.getElementById('content-security-questions')
+            };
+
+            function switchTab(activeTabId) {
+                Object.keys(tabs).forEach(tabId => {
+                    const isTabActive = tabId === activeTabId;
+                    tabs[tabId].classList.toggle('active', isTabActive);
+                    contents[tabId].classList.toggle('hidden', !isTabActive);
+                });
+            }
+
+            tabs['recovery-code'].addEventListener('click', () => switchTab('recovery-code'));
+            tabs['security-questions'].addEventListener('click', () => switchTab('security-questions'));
+
+            // Set initial active tab
+            switchTab('recovery-code');
+
+            // Dark Mode
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            darkModeToggle.addEventListener('click', () => {
+                const isDarkMode = document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+                darkModeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            });
+
+             // Form submissions
+            document.getElementById('recovery-code-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Xác minh thành công! Đang chuyển hướng...');
+            });
+            document.getElementById('security-questions-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Xác minh thành công! Đang chuyển hướng...');
+            });
+        });
+    </script>
+</body>
+</html>

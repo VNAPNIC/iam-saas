@@ -1,0 +1,72 @@
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card bg-white rounded-lg shadow p-6 border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Thông số Mô phỏng</h2>
+        <form id="simulator-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Người dùng cần kiểm tra</label>
+                <input type="email" id="user-email" placeholder="ví dụ: john.doe@acme.com" class="mt-1 block w-full border rounded-md p-2" required>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Hành động cần kiểm tra</label>
+                <input type="text" id="action-key" placeholder="ví dụ: invoice.create" class="mt-1 block w-full border rounded-md p-2" required>
+            </div>
+            
+            <div class="border-t pt-4">
+                 <h3 class="text-md font-semibold text-gray-800 mb-2">Thuộc tính Ngữ cảnh (Tùy chọn)</h3>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700">Địa chỉ IP</label>
+                        <input type="text" id="context-ip" placeholder="192.168.1.10" class="mt-1 block w-full border rounded-md p-2">
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700">Thời gian</label>
+                        <input type="time" id="context-time" class="mt-1 block w-full border rounded-md p-2">
+                    </div>
+                 </div>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                 <button type="submit" class="w-full text-lg bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 flex items-center justify-center">
+                    <i class="fas fa-play-circle mr-2"></i>Chạy Kiểm tra
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card bg-white rounded-lg shadow p-6 border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Kết quả Phân tích</h2>
+        <div id="result-container" class="text-center p-8 bg-gray-50 rounded-lg">
+            <p class="text-gray-500">Nhập thông tin và chạy kiểm tra để xem kết quả.</p>
+        </div>
+    </div>
+</div>
+
+<template id="result-template-allowed">
+    <div class="text-center p-8 bg-green-50 dark:bg-green-900/20 rounded-lg">
+        <i class="fas fa-check-circle fa-4x text-green-500 mb-4"></i>
+        <h3 class="text-2xl font-bold text-green-600">CHO PHÉP</h3>
+        <p class="text-gray-600 mt-2">Người dùng <strong class="user-email"></strong> có quyền thực hiện hành động <strong class="action-key"></strong>.</p>
+        <div class="text-left mt-4 text-sm">
+            <h4 class="font-semibold">Lý do:</h4>
+            <ul class="list-disc list-inside space-y-1 text-gray-500">
+                <li>Được cấp quyền từ vai trò: <strong class="role-name"></strong></li>
+                <li>Thỏa mãn chính sách: <strong class="policy-name"></strong></li>
+            </ul>
+        </div>
+    </div>
+</template>
+
+<template id="result-template-denied">
+     <div class="text-center p-8 bg-red-50 dark:bg-red-900/20 rounded-lg">
+        <i class="fas fa-times-circle fa-4x text-red-500 mb-4"></i>
+        <h3 class="text-2xl font-bold text-red-600">TỪ CHỐI</h3>
+        <p class="text-gray-600 mt-2">Người dùng <strong class="user-email"></strong> không có quyền thực hiện hành động <strong class="action-key"></strong>.</p>
+         <div class="text-left mt-4 text-sm">
+            <h4 class="font-semibold">Lý do:</h4>
+            <ul class="list-disc list-inside space-y-1 text-gray-500">
+                <li class="reason-item"></li>
+            </ul>
+        </div>
+    </div>
+</template>

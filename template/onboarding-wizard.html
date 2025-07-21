@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chào mừng đến với IAM SaaS - Hướng dẫn Thiết lập</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <button id="dark-mode-toggle" class="fixed top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white bg-white dark:bg-gray-800 p-2 rounded-full shadow-md z-10">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <div class="w-full max-w-2xl">
+        <div class="card bg-white rounded-lg shadow-lg p-8">
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div class="step active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <p class="step-label">Tùy chỉnh</p>
+                    </div>
+                    <div class="flex-1 border-t-2 transition-colors duration-500 mx-4" id="progress-bar-1"></div>
+                    <div class="step" data-step="2">
+                        <div class="step-circle">2</div>
+                        <p class="step-label">Mời thành viên</p>
+                    </div>
+                     <div class="flex-1 border-t-2 transition-colors duration-500 mx-4" id="progress-bar-2"></div>
+                    <div class="step" data-step="3">
+                        <div class="step-circle">3</div>
+                        <p class="step-label">Hoàn tất</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="wizard-content">
+                <div id="step-1" class="wizard-step">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-900">Tùy chỉnh Giao diện Tenant của bạn</h2>
+                    <p class="text-gray-600 mb-6">Cá nhân hóa hệ thống với logo và màu sắc thương hiệu.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Logo Công ty</label>
+                            <input type="file" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Ngôn ngữ Mặc định</label>
+                            <select class="mt-1 block w-full border rounded-md p-2 bg-white">
+                                <option>Tiếng Việt</option>
+                                <option>English</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-8 text-right">
+                        <button onclick="goToStep(2)" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Tiếp tục</button>
+                    </div>
+                </div>
+
+                <div id="step-2" class="wizard-step hidden">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-900">Mời thành viên đầu tiên</h2>
+                    <p class="text-gray-600 mb-6">Bắt đầu xây dựng đội nhóm của bạn.</p>
+                    <div class="space-y-4">
+                         <div>
+                            <label class="block text-sm font-medium text-gray-700">Email thành viên</gabel>
+                            <input type="email" placeholder="nhap@email.com" class="mt-1 block w-full border rounded-md p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Gán vai trò</label>
+                            <select class="mt-1 block w-full border rounded-md p-2 bg-white">
+                                <option>Nhân viên</option>
+                                <option>Quản lý</option>
+                                <option>Kế toán</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-8 flex justify-between">
+                        <button onclick="goToStep(1)" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-300">Quay lại</button>
+                        <button onclick="goToStep(3)" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Mời & Tiếp tục</button>
+                    </div>
+                </div>
+
+                <div id="step-3" class="wizard-step hidden text-center">
+                    <i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i>
+                    <h2 class="text-2xl font-bold mb-2 text-gray-900">Thiết lập Hoàn tất!</h2>
+                    <p class="text-gray-600 mb-6">Bạn đã sẵn sàng để khám phá hệ thống IAM SaaS.</p>
+                     <div class="mt-8">
+                        <a href="index.html" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 text-lg">Đi đến Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .step .step-circle { width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; background-color: #e5e7eb; color: #4b5563; transition: all 0.5s; margin: 0 auto; }
+        .step .step-label { margin-top: 0.5rem; font-size: 0.875rem; color: #6b7280; transition: all 0.5s; }
+        .step.active .step-circle { background-color: #2563eb; color: white; }
+        .step.active .step-label { color: #2563eb; font-weight: 600; }
+        #progress-bar-1, #progress-bar-2 { transition: border-color 0.5s; }
+    </style>
+
+    <script>
+        // Logic của Wizard
+        let currentStep = 1;
+        function goToStep(step) {
+            document.getElementById(`step-${currentStep}`).classList.add('hidden');
+            document.getElementById(`step-${step}`).classList.remove('hidden');
+            document.querySelectorAll('.step').forEach((s, index) => {
+                const stepNumber = index + 1;
+                s.classList.toggle('active', stepNumber <= step);
+                if (index > 0) {
+                    document.getElementById(`progress-bar-${index}`).classList.toggle('border-blue-500', stepNumber <= step);
+                }
+            });
+            currentStep = step;
+        }
+
+        // Logic cho Dark Mode
+        document.addEventListener('DOMContentLoaded', () => {
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            
+            // Hàm cập nhật theme
+            const updateTheme = () => {
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                darkModeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+                localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+            };
+
+            // Kiểm tra theme đã lưu hoặc theme hệ thống
+            if (localStorage.getItem('darkMode') === 'enabled' || 
+               (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.body.classList.add('dark-mode');
+            }
+            updateTheme();
+
+            // Gán sự kiện click
+            darkModeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                updateTheme();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <div class="card bg-white rounded-lg shadow border border-gray-200 p-6 flex flex-col">
+        <div class="flex items-center mb-4">
+            <img src="https://www.okta.com/sites/default/files/Okta_Logo_BrightBlue_Medium.png" alt="Okta Logo" class="h-10 w-10 mr-4">
+            <div>
+                <h3 class="font-bold text-lg text-gray-900">SCIM User Provisioning</h3>
+                <p class="text-xs text-gray-500">Tự động đồng bộ người dùng từ Okta, Azure AD.</p>
+            </div>
+        </div>
+        <div class="flex-grow"></div>
+        <div class="flex items-center justify-between">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full status-unread">Chưa kết nối</span>
+            <button class="text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" onclick="openIntegrationModal('scim')">Cấu hình</button>
+        </div>
+    </div>
+
+    <div class="card bg-white rounded-lg shadow border border-gray-200 p-6 flex flex-col">
+        <div class="flex items-center mb-4">
+             <img src="https://www.splunk.com/content/dam/splunk2/images/2021-splunk-logo.png" alt="Splunk Logo" class="h-10 w-auto mr-4">
+            <div>
+                <h3 class="font-bold text-lg text-gray-900">SIEM Log Forwarding</h3>
+                <p class="text-xs text-gray-500">Đẩy Audit Log tới Splunk, ELK.</p>
+            </div>
+        </div>
+        <div class="flex-grow"></div>
+        <div class="flex items-center justify-between">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đã kết nối</span>
+            <button class="text-sm bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700" onclick="openIntegrationModal('siem')">Quản lý</button>
+        </div>
+    </div>
+    
+    <div class="card bg-white rounded-lg shadow border border-gray-200 p-6 flex flex-col">
+        <div class="flex items-center mb-4">
+             <img src="https://www.salesforce.com/content/dam/web/en_us/www/images/nav/salesforce-cloud-logo-nav.png" alt="Salesforce Logo" class="h-10 w-auto mr-4">
+            <div>
+                <h3 class="font-bold text-lg text-gray-900">Salesforce / HRIS</h3>
+                <p class="text-xs text-gray-500">Đồng bộ dữ liệu qua Webhook.</p>
+            </div>
+        </div>
+         <div class="flex-grow"></div>
+        <div class="flex items-center justify-between">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full status-unread">Chưa kết nối</span>
+            <button class="text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" onclick="openIntegrationModal('salesforce')">Kết nối</button>
+        </div>
+    </div>
+
+</div>
+
+<div id="integration-modal-container">
+    <div id="scim-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+            <h2 class="text-lg font-semibold mb-4 text-gray-900">Cấu hình SCIM</h2>
+            <p class="text-sm text-gray-600 mb-4">Sử dụng các thông tin dưới đây để cấu hình trong nhà cung cấp định danh (IdP) của bạn.</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">SCIM Base URL (Tenant URL)</label>
+                    <input type="text" readonly value="https://api.iamsaas.com/scim/v2/your-tenant-id" class="mt-1 block w-full bg-gray-100 border rounded-md p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">API Token (Secret Token)</label>
+                    <input type="text" readonly value="**********" class="mt-1 block w-full bg-gray-100 border rounded-md p-2">
+                </div>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button type="button" class="text-sm bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600" onclick="closeIntegrationModal('scim')">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="siem-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+            <h2 class="text-lg font-semibold mb-4 text-gray-900">Cấu hình Đẩy Log tới SIEM</h2>
+            <form id="siem-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Trạng thái</label>
+                    <select id="siem-status" class="mt-1 block w-full border rounded-md p-2 bg-white">
+                        <option value="enabled">Bật</option>
+                        <option value="disabled">Tắt</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">URL Điểm cuối của SIEM (Endpoint URL)</label>
+                    <input type="url" id="siem-url" placeholder="https://your-siem-instance.com/api/logs" class="mt-1 block w-full border rounded-md p-2 text-sm" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Header Xác thực (Authorization Header)</label>
+                    <input type="text" id="siem-auth-header" placeholder="ví dụ: Bearer your_secret_token" class="mt-1 block w-full border rounded-md p-2 text-sm">
+                </div>
+                <div class="border-t pt-4">
+                    <button type="button" class="text-sm text-blue-600 hover:text-blue-800" onclick="testSiemConnection()">
+                        <i class="fas fa-plug mr-2"></i>Kiểm tra kết nối
+                    </button>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" class="text-sm bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600" onclick="closeIntegrationModal('siem')">Đóng</button>
+                    <button type="submit" class="text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="salesforce-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+         <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+            <h2 class="text-lg font-semibold mb-4 text-gray-900">Kết nối Salesforce</h2>
+            <p class="text-sm text-gray-600 mb-4">Để kết nối, vui lòng điều hướng đến trang <a href="#" data-page="webhooks" class="text-blue-500 hover:underline">Quản lý Webhook</a> và tạo một webhook mới cho các sự kiện của Salesforce.</p>
+            <div class="flex justify-end mt-6">
+                <button type="button" class="text-sm bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600" onclick="closeIntegrationModal('salesforce')">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>

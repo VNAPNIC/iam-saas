@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác thực Email - IAM SaaS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css"> </head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md p-4">
+        <div class="card bg-white rounded-lg shadow-lg p-6 border border-gray-200 text-center">
+            <div id="status-icon" class="mb-4">
+                </div>
+
+            <h1 id="status-title" class="text-xl font-semibold text-gray-900 mb-2">Đang xác thực...</h1>
+            
+            <p id="status-message" class="text-sm text-gray-600">Vui lòng chờ trong giây lát.</p>
+            
+            <div class="mt-6">
+                 <a href="login.html" id="action-button" class="hidden w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    Đi đến trang Đăng nhập
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const statusIcon = document.getElementById('status-icon');
+            const statusTitle = document.getElementById('status-title');
+            const statusMessage = document.getElementById('status-message');
+            const actionButton = document.getElementById('action-button');
+
+            // Simulate token validation from URL
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+
+            // Simulate a delay for verification process
+            setTimeout(() => {
+                if (token === 'valid-token-123') {
+                    // Success state
+                    statusIcon.innerHTML = `<i class="fas fa-check-circle fa-3x text-green-500"></i>`;
+                    statusTitle.textContent = 'Xác thực Thành công!';
+                    statusMessage.textContent = 'Email của bạn đã được xác thực. Bây giờ bạn có thể đăng nhập.';
+                    actionButton.classList.remove('hidden');
+                     console.log('Audit log: Email verification successful (Level: LOW)');
+                } else {
+                    // Error state
+                    statusIcon.innerHTML = `<i class="fas fa-times-circle fa-3x text-red-500"></i>`;
+                    statusTitle.textContent = 'Xác thực Thất bại';
+                    statusMessage.textContent = 'Liên kết xác thực không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.';
+                    actionButton.textContent = 'Gửi lại liên kết';
+                    actionButton.href = '#'; // Change this to trigger resend logic
+                    actionButton.onclick = () => alert('Đã gửi lại liên kết xác thực!');
+                    actionButton.classList.remove('hidden');
+                    console.log('Audit log: Email verification failed - Invalid token (Level: LOW)');
+                }
+            }, 1500); // 1.5 second delay
+        });
+    </script>
+</body>
+</html>
