@@ -29,18 +29,22 @@ CREATE INDEX ON "tenants" ("status");
 
 -- Bảng chứa thông tin người dùng, thuộc về một tenant cụ thể
 CREATE TABLE "users" (
-    "id" BIGSERIAL PRIMARY KEY,
-    "tenant_id" BIGINT NOT NULL,
-    "name" VARCHAR(255) NOT NULL,
-    "email" VARCHAR(255) NOT NULL UNIQUE,
+    "id" UUID PRIMARY KEY DEFAULT (gen_random_uuid()),
+    "tenant_id" UUID NOT NULL,
+    "email" VARCHAR(255) UNIQUE NOT NULL,
     "password_hash" VARCHAR(255) NOT NULL,
-    "status" VARCHAR(50) NOT NULL DEFAULT 'pending_verification', -- e.g., pending_verification, active, suspended
-    verification_token VARCHAR(255) NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'pending', -- e.g., pending, active, suspended
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE CASCADE
+    "full_name" VARCHAR(255),
+    "avatar_url" TEXT,
+    "phone_number" VARCHAR(20),
+    "status" VARCHAR(50) NOT NULL DEFAULT 'pending_verification',
+    "email_verified_at" TIMESTAMPTZ,
+    "phone_verified_at" TIMESTAMPTZ,
+    "last_login_at" TIMESTAMPTZ,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT (now()),
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT (now()),
+    FOREIGN KEY ("tenant_id") REFERENCES "tenants" ("id")
 );
+
 CREATE INDEX ON "users" ("tenant_id");
 CREATE INDEX ON "users" ("email");
 

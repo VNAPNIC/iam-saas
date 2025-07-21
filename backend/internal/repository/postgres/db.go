@@ -3,6 +3,7 @@ package postgres
 import (
 	"fmt"
 	"iam-saas/internal/config"
+	"iam-saas/internal/entities"
 	"log"
 
 	// Import domain models here
@@ -25,16 +26,10 @@ func NewDB(cfg *config.DatabaseConfig) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	// GORM's AutoMigrate is useful for initial setup and development.
-	// In production, it's better to use a dedicated migration tool.
 	log.Println("Running GORM AutoMigration...")
 	err = db.AutoMigrate(
-	// Add domain models here for auto-migration, e.g.,
-	// &domain.User{},
-	// &domain.Tenant{},
-	// &domain.Plan{},
-	// &domain.Role{},
-	// &domain.Permission{},
+		&entities.Tenant{},
+		&entities.User{},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("gorm automigration failed: %w", err)

@@ -25,8 +25,8 @@ func main() {
 	log.Println("✅ Database connection successful.")
 
 	// Initialize Repositories (Tầng dữ liệu)
-	userRepo := postgres.NewPostgresUserRepository(db)
-	tenantRepo := postgres.NewPostgresTenantRepository(db)
+	userRepo := postgres.NewuserRepository(db)
+	tenantRepo := postgres.NewtenantRepository(db)
 
 	// Initialize Services (Tầng nghiệp vụ)
 	userService := service.NewUserService(db, userRepo, tenantRepo)
