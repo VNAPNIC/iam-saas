@@ -1,5 +1,3 @@
-// File: backend/internal/domain/user.go
-
 package domain
 
 import (
@@ -9,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// UserRepository định nghĩa hợp đồng cho tầng repository của User.
+// UserRepository defines the contract for the User repository layer.
 type UserRepository interface {
 	Create(ctx context.Context, tx *gorm.DB, user *entities.User) error
 	FindByEmail(ctx context.Context, email string) (*entities.User, error)
@@ -19,9 +17,9 @@ type UserRepository interface {
 	ActivateUser(userID uint) error
 }
 
-// UserService định nghĩa hợp đồng cho tầng service của User.
+// UserService defines the contract for the User service layer.
 type UserService interface {
 	Login(ctx context.Context, email, password string) (*entities.User, string, error)
-	Register(ctx context.Context, name, email, password, tenantName string) (*entities.User, error)
+	Register(ctx context.Context, name, email, password, tenantName string) (*entities.User, string, error) // Add token
 	InviteUser(ctx context.Context, inviterID, tenantID int64, name, email string) (*entities.User, error)
 }

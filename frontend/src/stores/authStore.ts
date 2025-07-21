@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
 interface User {
   id: string;
@@ -16,33 +16,15 @@ interface AuthState {
   logout: () => void;
 }
 
-const storeName = 'auth-storage';
-
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
       token: null,
       isAuthenticated: false,
-      login: (token, user) => {
-        set({
-          isAuthenticated: true,
-          token,
-          user,
-        });
-      },
-      logout: () => {
-        set({
-          isAuthenticated: false,
-          token: null,
-          user: null,
-        });
-        localStorage.removeItem(storeName);
-      },
+      login: (token, user) => set({ user, token, isAuthenticated: true }),
+      logout: () => set({ user: null, token: null, isAuthenticated: false })
     }),
-    {
-      name: storeName,
-      storage: createJSONStorage(() => localStorage),
-    }
+    { name: 'auth-storage' }
   )
 );

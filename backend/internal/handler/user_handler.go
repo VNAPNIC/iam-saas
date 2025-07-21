@@ -75,13 +75,14 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	user, err := h.userService.Register(c.Request.Context(), req.Name, req.Email, req.Password, req.TenantName)
+	user, token, err := h.userService.Register(c.Request.Context(), req.Name, req.Email, req.Password, req.TenantName)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
 
 	response := NewSuccessResponse(gin.H{
+		"accessToken": token,
 		"user": gin.H{
 			"id":     user.ID,
 			"name":   user.Name,

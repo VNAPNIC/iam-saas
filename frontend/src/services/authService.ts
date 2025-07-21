@@ -1,5 +1,4 @@
 import apiClient from '@/lib/apiClient';
-import { i18nKeys } from '@/lib/i18n';
 
 interface RegisterRequest {
   tenantName: string;
@@ -25,18 +24,17 @@ export interface AuthData {
 
 interface ApiResponse {
   data: AuthData;
-  message: keyof typeof i18nKeys;
+  message: string;
   error: any;
 }
 
 export const authService = {
-  register: async (data: RegisterRequest): Promise<AuthData> => {
-    const response = await apiClient.post<ApiResponse>('/auth/register', data);
-    return response.data.data;
+  async register({ name, email, password, tenantName }: { name: string; email: string; password: string; tenantName: string }) {
+    const response = await apiClient.post('/auth/register', { name, email, password, tenantName });
+    return response.data.data.user;
   },
-
-  login: async (data: LoginRequest): Promise<AuthData> => {
-    const response = await apiClient.post<ApiResponse>('/auth/login', data);
+  async login({ email, password }: { email: string; password: string }) {
+    const response = await apiClient.post('/auth/login', { email, password });
     return response.data.data;
-  },
+  }
 };

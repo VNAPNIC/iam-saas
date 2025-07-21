@@ -50,21 +50,21 @@ func (s *userService) Login(ctx context.Context, email, password string) (*entit
 	return user, token, nil
 }
 
-func (s *userService) Register(ctx context.Context, name, email, password, tenantName string) (*entities.User, error) {
+func (s *userService) Register(ctx context.Context, name, email, password, tenantName string) (*entities.User, string, error) {
 	existingUser, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
-		return nil, app_error.NewInternalServerError(err)
+		return nil, "", app_error.NewInternalServerError(err)
 	}
 	if existingUser != nil {
-		return nil, app_error.NewConflictError("email", string(i18n.EmailAlreadyExists))
+		return nil, "", app_error.NewConflictError("email", string(i18n.EmailAlreadyExists))
 	}
 	hashedPassword, err := utils.HashPassword(password)
 	if err != nil {
-		return nil, app_error.NewInternalServerError(err)
+		return nil, "", app_error.NewInternalServerError(err)
 	}
 	tx := s.db.Begin()
 	if tx.Error != nil {
-		return nil, app_error.NewInternalServerError(tx.Error)
+		return nil, "", app_error.NewInternalServerError(tx.Error)
 	}
 	defer func() {
 		if r := recover(); r != nil {
@@ -74,24 +74,28 @@ func (s *userService) Register(ctx context.Context, name, email, password, tenan
 			tx.Rollback()
 		}
 	}()
-	newTenant := &entities.Tenant{Name: tenantName}
+	newTenant := &entities.Tenant{Name: tenantName, Status: "active"}
 	if err := s.tenantRepo.Create(ctx, tx, newTenant); err != nil {
-		return nil, app_error.NewInternalServerError(err)
+		return nil, "", app_error.NewInternalServerError(err)
 	}
 	newUser := &entities.User{
 		TenantID:     newTenant.ID,
 		Name:         name,
 		Email:        email,
 		PasswordHash: hashedPassword,
-		Status:       "pending_verification",
+		Status:       "active",
 	}
 	if err := s.userRepo.Create(ctx, tx, newUser); err != nil {
-		return nil, app_error.NewInternalServerError(err)
+		return nil, "", app_error.NewInternalServerError(err)
+	}
+	token, err := utils.GenerateToken(newUser.ID, newTenant.ID)
+	if err != nil {
+		return nil, "", app_error.NewInternalServerError(err)
 	}
 	if err := tx.Commit().Error; err != nil {
-		return nil, app_error.NewInternalServerError(err)
+		return nil, "", app_error.NewInternalServerError(err)
 	}
-	return newUser, nil
+	return newUser, token, nil
 }
 
 func (s *userService) InviteUser(ctx context.Context, inviterID, tenantID int64, name, email string) (*entities.User, error) {

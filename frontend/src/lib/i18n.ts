@@ -1,18 +1,87 @@
-export const i18nKeys = {
-  // Success messages
-  login_successful: 'Login Successful',
-  register_successful: 'Account created successfully. Please check your email for verification.',
-  action_successful: 'Action completed successfully',
+import { useUIStore, type Language } from '@/stores/uiStore';
 
-  // Error messages
-  login_failed: 'Login failed. Please check your email and password.',
-  invalid_input: 'Invalid input provided. Please check the fields.',
-  internal_server_error: 'An unexpected error occurred on our end. Please try again later.',
-  unauthorized: 'You are not authorized to perform this action.',
-  email_already_exists: 'This email address is already in use.',
-  tenant_name_is_required: 'Company name is required.',
-  
-  // Frontend-specific messages
-  register_failed: 'Registration failed. Please try again.',
+const translations = {
+  vn: {
+    title: 'IAM SaaS',
+    loginTitle: 'Đăng nhập vào tài khoản của bạn',
+    welcome: 'Chào mừng trở lại!',
+    emailLabel: 'Email',
+    emailPlaceholder: 'nhap@email.com',
+    passwordLabel: 'Mật khẩu',
+    passwordPlaceholder: 'Nhập mật khẩu',
+    passwordPlaceholderSignup: 'Ít nhất 8 ký tự',
+    forgotPassword: 'Quên mật khẩu?',
+    loginButton: 'Đăng nhập',
+    loginSuccess: 'Đăng nhập thành công.',
+    loginFailed: 'Đăng nhập thất bại.',
+    processing: 'Đang xử lý...',
+    or: 'hoặc',
+    ssoButton: 'Đăng nhập với SSO',
+    noAccount: 'Chưa có tài khoản?',
+    registerNow: 'Đăng ký ngay',
+    signupTitle: 'Tạo tài khoản',
+    signupWelcome: 'Bắt đầu hành trình của bạn',
+    fullNameLabel: 'Họ và tên',
+    fullNamePlaceholder: 'Nhập họ và tên',
+    confirmPasswordLabel: 'Xác nhận mật khẩu',
+    confirmPasswordPlaceholder: 'Nhập lại mật khẩu',
+    passwordMismatch: 'Mật khẩu không khớp.',
+    registerButton: 'Đăng ký',
+    hasAccount: 'Đã có tài khoản?',
+    loginNow: 'Đăng nhập',
+    tenantNameLabel: 'Tên công ty',
+    tenantNamePlaceholder: 'Nhập tên công ty',
+    signupSuccess: 'Tài khoản được tạo thành công!',
+    signupFailed: 'Đăng ký thất bại.',
+    emailAlreadyExists: 'Email đã được sử dụng.',
+    dashboard: 'Bảng điều khiển',
+    users: 'Người dùng',
+    settings: 'Cài đặt',
+    yourProfile: 'Hồ sơ của bạn',
+    logout: 'Đăng xuất'
+  },
+  en: {
+    title: 'IAM SaaS',
+    loginTitle: 'Sign in to your account',
+    welcome: 'Welcome back!',
+    emailLabel: 'Email',
+    emailPlaceholder: 'enter@email.com',
+    passwordLabel: 'Password',
+    passwordPlaceholder: 'Enter password',
+    passwordPlaceholderSignup: 'At least 8 characters',
+    forgotPassword: 'Forgot password?',
+    loginButton: 'Sign in',
+    loginSuccess: 'Login successful.',
+    loginFailed: 'Login failed.',
+    processing: 'Processing...',
+    or: 'or',
+    ssoButton: 'Sign in with SSO',
+    noAccount: "Don't have an account?",
+    registerNow: 'Register now',
+    signupTitle: 'Create your account',
+    signupWelcome: 'Start your journey',
+    fullNameLabel: 'Full Name',
+    fullNamePlaceholder: 'Enter your full name',
+    confirmPasswordLabel: 'Confirm Password',
+    confirmPasswordPlaceholder: 'Re-enter your password',
+    passwordMismatch: 'Passwords do not match.',
+    registerButton: 'Register',
+    hasAccount: 'Already have an account?',
+    loginNow: 'Sign in',
+    tenantNameLabel: 'Company Name',
+    tenantNamePlaceholder: 'Enter company name',
+    signupSuccess: 'Account created successfully!',
+    signupFailed: 'Registration failed.',
+    emailAlreadyExists: 'Email already in use.',
+    dashboard: 'Dashboard',
+    users: 'Users',
+    settings: 'Settings',
+    yourProfile: 'Your Profile',
+    logout: 'Logout'
+  }
+};
 
-} as const; // 'as const' để biến các key thành readonly và type-safe
+export function useTranslation() {
+  const { language } = useUIStore();
+  return translations[language];
+}

@@ -1,77 +1,90 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
+import { useTranslation } from '@/lib/i18n';
+import { useAuthStore } from '@/stores/authStore';
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(' ');
-}
-
-// SVG Icon được nhúng trực tiếp
-const HomeIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955a1.5 1.5 0 012.122 0l8.954 8.955M2.25 12l8.954 8.955a1.5 1.5 0 002.122 0l8.954-8.955M2.25 12h19.5" />
-  </svg>
-);
-
-const UsersIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-4.67c.625.93.998 2.004.998 3.102-.002 1.096-.375 2.072-.998 2.952z" />
-  </svg>
-);
-
-const SettingsIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.438.995s.145.755.438.995l1.003.827c.481.398.688 1.04.26 1.431l-1.296 2.247a1.125 1.125 0 01-1.37.49l-1.217-.456c-.355-.133-.75-.072-1.075.124a6.57 6.57 0 01-.22.127c-.332.183-.582.495-.645.87l-.213 1.281c-.09.542-.56.94-1.11.94h-2.593c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.063-.374-.313-.686-.645-.87a6.52 6.52 0 01-.22-.127c-.324-.196-.72-.257-1.075-.124l-1.217.456a1.125 1.125 0 01-1.37-.49l-1.296-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.437-.995s-.145-.755-.437-.995l-1.004-.827a1.125 1.125 0 01-.26-1.431l1.296-2.247a1.125 1.125 0 011.37-.49l1.217.456c.355.133.75.072 1.075-.124.073-.044.146-.087.22-.127.332-.183.582-.495.645-.87l.213-1.281z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-);
-
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Users', href: '/dashboard/users', icon: UsersIcon },
-  { name: 'Settings', href: '/dashboard/settings', icon: SettingsIcon },
-];
+const LockIcon = () => ( <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" /></svg> );
+const ChevronLeftIcon = () => ( <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg> );
+const UserShieldIcon = () => ( <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg> );
+const TachometerIcon = () => ( <svg className="w-5 h-5 text-center" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg> );
 
 export default function Sidebar() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  
   const pathname = usePathname();
+  const t = useTranslation();
+  const { user, logout } = useAuthStore();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [userMenuRef]);
 
   return (
-    <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-      <div className="flex flex-col px-6 overflow-y-auto bg-gray-900 grow gap-y-5">
-        <div className="flex items-center h-16 shrink-0">
-          <img
-            className="w-auto h-8"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-            alt="Your Company"
-            data-testid="company-logo"
-          />
+    <div id="sidebar" className={`sidebar bg-white w-64 h-full flex flex-col border-r border-gray-200 shadow-sm ${isCollapsed ? 'collapsed' : ''}`}>
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center text-white font-bold"><LockIcon /></div>
+          <span className="logo-text ml-2 text-xl font-semibold text-gray-900">IAM SaaS</span>
         </div>
-        <nav className="flex flex-col flex-1">
-          <ul role="list" className="flex flex-col flex-1 gap-y-7">
-            <li>
-              <ul role="list" className="-mx-2 space-y-1">
-                {navigation.map((item) => (
-                  <li key={item.name}>
-                    <Link
-                      href={item.href}
-                      className={classNames(
-                        pathname === item.href
-                          ? 'bg-gray-800 text-white'
-                          : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                        'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                      )}
-                      data-testid={`nav-${item.name.toLowerCase()}`}
-                    >
-                      <item.icon className="w-6 h-6 shrink-0" aria-hidden="true" />
-                      {item.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          </ul>
-        </nav>
+        <button onClick={() => setIsCollapsed(!isCollapsed)} className="text-gray-500 hover:text-gray-700"><ChevronLeftIcon /></button>
+      </div>
+
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center text-blue-500"><UserShieldIcon /></div>
+          <span className="sidebar-text ml-2 font-medium text-gray-900">{user?.name || 'Super Admin'}</span>
+        </div>
+      </div>
+
+      <nav id="main-nav" className="flex-1 overflow-y-auto p-2 space-y-2">
+        <a href="#" className="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+          <TachometerIcon />
+          <span className="sidebar-text ml-3">Overview</span>
+        </a>
+      </nav>
+      <div className="p-4 border-t border-gray-200 relative" ref={userMenuRef}>
+        <button
+          onClick={() => setUserMenuOpen(!userMenuOpen)}
+          className="flex items-center w-full"
+          data-testid="sidebar-user-menu-button"
+        >
+          <img className="w-8 h-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=258&h=258&q=80" alt="User profile"/>
+          <div className="ml-3 sidebar-text text-left">
+            <p className="text-sm font-medium text-gray-700">{user?.name || 'Super Admin'}</p>
+            <p className="text-xs text-gray-500">System Admin</p>
+          </div>
+        </button>
+        {userMenuOpen && (
+          <div className="absolute bottom-full mb-2 w-[calc(100%-2rem)] bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
+            <div className="py-1">
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                data-testid="sidebar-logout-button"
+              >
+                {t.logout}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,23 +1,38 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "react-hot-toast";
+'use client';
 
-const inter = Inter({ subsets: ["latin"] });
+import { useEffect } from 'react';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { Toaster } from 'react-hot-toast';
+import { useUIStore } from '@/stores/uiStore';
 
-export const metadata: Metadata = {
-  title: "IAM SaaS",
-  description: "Identity and Access Management SaaS",
-};
+const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const { theme, setTheme } = useUIStore();
+
+  useEffect(() => {
+    const isSystemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (isSystemDark) {
+      setTheme('dark');
+    }
+  }, [setTheme]);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, [theme]);
+
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className={inter.className}>
+      <body>
         {children}
         <Toaster position="top-right" />
       </body>
