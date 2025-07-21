@@ -1,4 +1,3 @@
--- Kích hoạt extension để sử dụng UUID nếu cần (ví dụ cho id của plan)
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Bảng chứa các gói dịch vụ (plans) mà một tenant có thể đăng ký
@@ -29,20 +28,21 @@ CREATE INDEX ON "tenants" ("status");
 
 -- Bảng chứa thông tin người dùng, thuộc về một tenant cụ thể
 CREATE TABLE "users" (
-    "id" UUID PRIMARY KEY DEFAULT (gen_random_uuid()),
-    "tenant_id" UUID NOT NULL,
+    "id" BIGSERIAL PRIMARY KEY,
+    "tenant_id" BIGINT NOT NULL,
     "email" VARCHAR(255) UNIQUE NOT NULL,
     "password_hash" VARCHAR(255) NOT NULL,
-    "full_name" VARCHAR(255),
+    "name" VARCHAR(255),
     "avatar_url" TEXT,
     "phone_number" VARCHAR(20),
     "status" VARCHAR(50) NOT NULL DEFAULT 'pending_verification',
+    "verification_token" VARCHAR(255),
     "email_verified_at" TIMESTAMPTZ,
     "phone_verified_at" TIMESTAMPTZ,
     "last_login_at" TIMESTAMPTZ,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT (now()),
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT (now()),
-    FOREIGN KEY ("tenant_id") REFERENCES "tenants" ("id")
+    FOREIGN KEY ("tenant_id") REFERENCES "tenants" ("id") ON DELETE CASCADE
 );
 
 CREATE INDEX ON "users" ("tenant_id");

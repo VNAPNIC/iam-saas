@@ -1,103 +1,98 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/services/authService';
+import toast from 'react-hot-toast';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const login = useAuthStore((state) => state.login);
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuthStore();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
+    setLoading(true);
     try {
-      const { data } = await authService.login({ email, password });
-      login(data.token, {
-          id: data.user.id,
-          email: data.user.email,
-          fullName: data.user.full_name,
-          tenantId: data.user.tenant_id
-      });
+      const responseData = await authService.login({ email, password });
+      login(responseData.accessToken, responseData.user);
+      toast.success('Login successful!');
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'login_failed');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Login failed.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center text-gray-900">Sign in to your account</h2>
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email address
-            </label>
-            <input
-              id="email"
-              data-testid="login-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              id="password"
-              data-testid="login-password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link href="/forgot-password"className="font-medium text-indigo-600 hover:text-indigo-500">
-                Forgot your password?
-              </Link>
+    <main className="auth-container">
+      <div className="auth-card">
+        <div>
+          <h2 className="auth-title" data-testid="login-title">
+            Sign in to your account
+          </h2>
+          <p className="auth-subtitle">
+            Or{' '}
+            <Link href="/signup" data-testid="signup-link">
+              create a new account
+            </Link>
+          </p>
+        </div>
+
+        <div style={{ marginTop: '2rem' }}>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="email" className="form-label">
+                Email address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="form-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                data-testid="login-email"
+              />
             </div>
-          </div>
-          <div>
-            <button
-              type="submit"
-              data-testid="login-submit-button"
-              disabled={isLoading}
-              className="w-full px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-        </form>
-         <p className="text-sm text-center text-gray-600">
-          Not a member?{' '}
-          <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Sign up now
-          </Link>
-        </p>
+
+            <div className="form-group">
+              <label htmlFor="password" className="form-label">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="form-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                data-testid="login-password"
+              />
+            </div>
+
+            <div style={{ marginTop: '1.5rem' }}>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary"
+                data-testid="login-submit-button"
+              >
+                {loading ? 'Signing in...' : 'Sign in'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

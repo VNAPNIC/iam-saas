@@ -3,13 +3,15 @@ package entities
 import "time"
 
 type User struct {
-	ID                int64
-	TenantID          int64
-	Name              string
-	Email             string
-	PasswordHash      string
-	VerificationToken *string `gorm:"column:verification_token"`
-	Status            string  `gorm:"column:status;default:'pending'"`
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	ID                int64     `json:"id"`
+	TenantID          int64     `json:"tenantId"`
+	Name              string    `json:"name"`
+	Email             string    `json:"email"`
+	PasswordHash      string    `json:"-"` // Không bao giờ trả về password hash
+	VerificationToken *string   `json:"-"`
+	Status            string    `json:"status"`
+	AvatarURL         *string   `json:"avatarUrl"`
+	PhoneNumber       *string   `json:"phoneNumber"`
+	CreatedAt         time.Time `json:"createdAt"`
+	UpdatedAt         time.Time `json:"updatedAt"`
 }

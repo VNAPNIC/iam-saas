@@ -1,12 +1,11 @@
 import apiClient from '@/lib/apiClient';
 import { i18nKeys } from '@/lib/i18n';
 
-// Định nghĩa kiểu dữ liệu cho request và response
 interface RegisterRequest {
-  tenant_name: string;
+  tenantName: string;
   email: string;
   password?: string;
-  full_name?: string;
+  name?: string;
 }
 
 interface LoginRequest {
@@ -14,27 +13,30 @@ interface LoginRequest {
   password?: string;
 }
 
-interface AuthResponse {
-  data: {
-    token: string;
-    user: {
-      id: string;
-      email: string;
-      full_name: string;
-      tenant_id: string;
-    };
+export interface AuthData {
+  accessToken: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    tenantId: string;
   };
+}
+
+interface ApiResponse {
+  data: AuthData;
   message: keyof typeof i18nKeys;
+  error: any;
 }
 
 export const authService = {
-  register: async (data: RegisterRequest) => {
-    const response = await apiClient.post<AuthResponse>('/auth/register', data);
-    return response.data;
+  register: async (data: RegisterRequest): Promise<AuthData> => {
+    const response = await apiClient.post<ApiResponse>('/auth/register', data);
+    return response.data.data;
   },
 
-  login: async (data: LoginRequest) => {
-    const response = await apiClient.post<AuthResponse>('/auth/login', data);
-    return response.data;
+  login: async (data: LoginRequest): Promise<AuthData> => {
+    const response = await apiClient.post<ApiResponse>('/auth/login', data);
+    return response.data.data;
   },
 };
