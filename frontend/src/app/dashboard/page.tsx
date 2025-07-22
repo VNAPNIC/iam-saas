@@ -1,100 +1,140 @@
-'use client';
+"use client";
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Shield, Activity, LogOut, User } from 'lucide-react';
-import { useAuthStore } from '@/stores/authStore';
-import { useRouter } from 'next/navigation';
-import { useTranslation } from '@/lib/i18n';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Card component có vẻ là một phần của cấu trúc, tôi sẽ giữ lại nó.
+import { Download, Users, UserCheck, Shield, ClipboardList, UserPlus, Tag } from 'lucide-react';
 import Link from 'next/link';
 
-export default function DashboardPage() {
-  const { user, logout } = useAuthStore();
-  const router = useRouter();
-  const t = useTranslation();
+interface StatCardProps {
+    title: string;
+    value: string;
+    trend: string;
+    icon: React.ElementType;
+    color: string;
+}
 
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
-  };
-
-  return (
-    <div className="flex min-h-screen">
-      <aside className="w-64 bg-gray-800 text-white p-4">
-        <div className="flex items-center mb-6">
-          <h2 className="text-xl font-bold">{t.title}</h2>
+// Component Card thống kê
+const StatCard: React.FC<StatCardProps> = ({ title, value, trend, icon: Icon, color }) => (
+    <div className="card bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="flex items-center justify-between">
+            <div>
+                <p className="text-sm font-medium text-gray-500">{title}</p>
+                <p className="text-2xl font-semibold text-gray-900">{value}</p>
+            </div>
+            <div className={`p-3 rounded-full ${color.replace("text-", "bg-").replace("-500", "-100")} ${color}`}>
+                <Icon className="h-5 w-5" />
+            </div>
         </div>
-        <nav className="space-y-2">
-          <Link href="/dashboard" className="flex items-center p-2 hover:bg-gray-700 rounded">
-            <Users className="w-5 h-5 mr-2" />
-            {t.dashboard}
-          </Link>
-          <Link href="/users" className="flex items-center p-2 hover:bg-gray-700 rounded">
-            <Users className="w-5 h-5 mr-2" />
-            {t.users}
-          </Link>
-          <Link href="/settings" className="flex items-center p-2 hover:bg-gray-700 rounded">
-            <Shield className="w-5 h-5 mr-2" />
-            {t.settings}
-          </Link>
-        </nav>
-        <div className="absolute bottom-4 w-64 p-4">
-          <button
-            data-testid="sidebar-user-menu-button"
-            className="flex items-center w-full p-2 hover:bg-gray-700 rounded"
-          >
-            <User className="w-5 h-5 mr-2" />
-            {user?.name || 'User'}
-          </button>
-          <button
-            data-testid="sidebar-logout-button"
-            onClick={handleLogout}
-            className="flex items-center w-full p-2 hover:bg-gray-700 rounded mt-2"
-          >
-            <LogOut className="w-5 h-5 mr-2" />
-            {t.logout}
-          </button>
+        <div className="mt-2 flex items-center">
+            {/* Logic để hiển thị màu trend xanh hoặc đỏ cần được thêm vào sau */}
+            <span className="text-xs font-medium text-green-600">{trend}</span> 
         </div>
-      </aside>
-
-      <main className="flex-1 p-6 bg-gray-100">
-        <h1 className="text-3xl font-bold mb-6">{t.dashboard}</h1>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-full">
-                <Users className="w-6 h-6 text-blue-600" />
-              </div>
-              <CardTitle className="ml-4 text-sm font-medium text-gray-500">Total Users</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">1,257</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-full">
-                <Shield className="w-6 h-6 text-green-600" />
-              </div>
-              <CardTitle className="ml-4 text-sm font-medium text-gray-500">Active Roles</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">15</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex items-center">
-              <div className="p-3 bg-yellow-100 rounded-full">
-                <Activity className="w-6 h-6 text-yellow-600" />
-              </div>
-              <CardTitle className="ml-4 text-sm font-medium text-gray-500">API Calls (24h)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">89,123</p>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
+        <div className="h-8 mt-2 bg-gray-100 rounded-md">{/* Placeholder for sparkline */}</div>
     </div>
-  );
+);
+
+// Component Bảng hoạt động
+const ActivityTable = () => (
+    <div className="overflow-x-auto">
+        <table className="table min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+                <tr>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+                {/* Dữ liệu mẫu */}
+                <tr>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">User Login</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">jane.doe@example.com</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2025-07-16 19:50:00</td>
+                    <td className="px-4 py-3 whitespace-nowrap"><span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Success</span></td>
+                </tr>
+                 <tr>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Failed Login</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">unknown@example.com</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2025-07-16 18:50:00</td>
+                    <td className="px-4 py-3 whitespace-nowrap"><span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Failed</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+);
+
+// Component Hành động nhanh
+const QuickActions = () => (
+    <div className="space-y-3">
+        <Link href="/dashboard/users" className="w-full flex items-center justify-between px-4 py-3 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors">
+            <span className="font-medium">Invite User</span>
+            <UserPlus className="h-5 w-5" />
+        </Link>
+         <Link href="/dashboard/roles" className="w-full flex items-center justify-between px-4 py-3 bg-purple-50 text-purple-600 rounded-md hover:bg-purple-100 transition-colors">
+            <span className="font-medium">Create Role</span>
+            <Tag className="h-5 w-5" />
+        </Link>
+        <Link href="/dashboard/settings" className="w-full flex items-center justify-between px-4 py-3 bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors">
+            <span className="font-medium">Configure MFA</span>
+            <Shield className="h-5 w-5" />
+        </Link>
+    </div>
+);
+
+export default function DashboardOverviewPage() {
+    const { user } = useAuth();
+
+    return (
+        <div>
+            <div className="flex items-center justify-between mb-6">
+                <h1 className="text-2xl font-bold text-gray-900">Welcome, {user?.name || 'User'}!</h1>
+                <button className="text-sm bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 flex items-center">
+                    <Download className="mr-2 h-4 w-4" />
+                    Export Data
+                </button>
+            </div>
+
+            <div className="card bg-white rounded-lg shadow p-4 border border-gray-200 mb-6">
+                <div className="flex items-center space-x-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Time Range</label>
+                        <select className="text-sm border border-gray-300 rounded-md px-3 py-2 bg-white">
+                            <option value="month">Last 30 Days</option>
+                            <option value="week">Last 7 Days</option>
+                            <option value="day">Last 24 Hours</option>
+                        </select>
+                    </div>
+                    <div className="flex items-end">
+                        <button className="text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            Apply
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <StatCard title="Total Users" value="1,248" trend="+12.5%" icon={Users} color="text-blue-500" />
+                <StatCard title="Active Sessions" value="342" trend="+8.2%" icon={UserCheck} color="text-green-500" />
+                <StatCard title="MFA Enabled" value="89%" trend="+15%" icon={Shield} color="text-purple-500" />
+                <StatCard title="Audit Events" value="2,456" trend="-3.2%" icon={ClipboardList} color="text-yellow-500" />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="card bg-white rounded-lg shadow p-4 border border-gray-200 lg:col-span-2">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+                        <Link href="/dashboard/audit-logs" className="text-sm text-blue-500 hover:text-blue-700">View All</Link>
+                    </div>
+                    <ActivityTable />
+                </div>
+                
+                <div className="card bg-white rounded-lg shadow p-4 border border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+                    <QuickActions />
+                </div>
+            </div>
+        </div>
+    );
 }

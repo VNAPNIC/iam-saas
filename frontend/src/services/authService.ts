@@ -1,40 +1,59 @@
-import apiClient from '@/lib/apiClient';
+import apiClient from '../lib/apiClient';
 
-interface RegisterRequest {
+// Định nghĩa kiểu dữ liệu cho payload đăng ký
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
   tenantName: string;
-  email: string;
-  password?: string;
-  name?: string;
 }
 
-interface LoginRequest {
+// Định nghĩa kiểu dữ liệu cho payload đăng nhập
+export interface LoginPayload {
   email: string;
-  password?: string;
+  password: string;
 }
 
-export interface AuthData {
-  accessToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    tenantId: string;
+// Định nghĩa kiểu dữ liệu cho response từ API
+// (Dựa trên quy cách API đã định nghĩa)
+export interface AuthResponse {
+  data: {
+    user: any; // Nên định nghĩa một User interface chi tiết hơn
+    token: string;
   };
+  message: string;
 }
 
-interface ApiResponse {
-  data: AuthData;
-  message: string;
-  error: any;
+export interface ForgotPasswordPayload {
+  email: string;
 }
+
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+}
+
+const register = async (payload: RegisterPayload): Promise<AuthResponse> => {
+  const response = await apiClient.post<AuthResponse>('/public/register', payload);
+  return response.data;
+};
+
+const login = async (payload: LoginPayload): Promise<AuthResponse> => {
+  const response = await apiClient.post<AuthResponse>('/public/login', payload);
+  return response.data;
+};
+
+const forgotPassword = async (payload: ForgotPasswordPayload): Promise<void> => {
+  await apiClient.post('/public/forgot-password', payload);
+};
+
+const resetPassword = async (payload: ResetPasswordPayload): Promise<void> => {
+  await apiClient.post('/public/reset-password', payload);
+};
 
 export const authService = {
-  async register({ name, email, password, tenantName }: { name: string; email: string; password: string; tenantName: string }) {
-    const response = await apiClient.post('/auth/register', { name, email, password, tenantName });
-    return response.data.data.user;
-  },
-  async login({ email, password }: { email: string; password: string }) {
-    const response = await apiClient.post('/auth/login', { email, password });
-    return response.data.data;
-  }
+  register,
+  login,
+  forgotPassword,
+  resetPassword,
 };

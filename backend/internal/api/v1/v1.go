@@ -1,15 +1,24 @@
 package v1
 
 import (
+	"iam-saas/internal/handler"
+
 	"github.com/gin-gonic/gin"
 )
 
-type API_V1 struct {
-	router *gin.Engine
-}
+func RegisterRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, roleHandler *handler.RoleHandler) {
+	v1 := api.Group("/v1")
+	{
+		// Public routes
+		public := v1.Group("/public")
+		RegisterPublicRoutes(public, userHandler)
 
-func NewApiV1(router *gin.Engine) *API_V1 {
-	return &API_V1{
-		router: router,
+		// Protected routes
+		protected := v1.Group("/protected")
+		RegisterProtectedRoutes(protected, userHandler, roleHandler)
+
+		// Super Admin routes (nếu có)
+		// superAdmin := v1.Group("/super-admin")
+		// RegisterSuperAdminRoutes(superAdmin, userHandler)
 	}
 }

@@ -48,7 +48,11 @@ func NewConflictError(field string, message string) *AppError {
 	return &AppError{StatusCode: http.StatusConflict, Code: CodeConflict, Message: message}
 }
 
+func NewNotFoundError(message string) *AppError {
+	return &AppError{StatusCode: http.StatusNotFound, Code: CodeNotFound, Message: message}
+}
+
 // NewInvalidInputError creates an error for validation failures.
-func NewInvalidInputError(field string, message string) *AppError {
+func NewInvalidInputError(message string) *AppError {
 	return &AppError{StatusCode: http.StatusBadRequest, Code: CodeInvalidInput, Message: message}
 }

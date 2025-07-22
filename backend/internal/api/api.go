@@ -9,19 +9,16 @@ import (
 )
 
 // NewApi nhận các service đã được khởi tạo
-func NewApi(userService domain.UserService) *gin.Engine {
-	router := gin.Default()
+func NewApi(userService domain.UserService, roleService domain.RoleService) *gin.Engine {
+	r := gin.Default()
 
-	// Khởi tạo các handler và inject service tương ứng
+	// Khởi tạo Handlers
 	userHandler := handler.NewUserHandler(userService)
+	roleHandler := handler.NewRoleHandler(roleService)
 
-	// Định tuyến
-	apiV1 := router.Group("/api/v1")
-	{
-		// Đăng ký các route và truyền handler đã được inject
-		v1.RegisterPublicRoutes(apiV1, userHandler)
-		v1.RegisterProtectedRoutes(apiV1, userHandler)
-	}
+	// Định nghĩa các nhóm routes
+	api := r.Group("/api")
+	v1.RegisterRoutes(api, userHandler, roleHandler)
 
-	return router
+	return r
 }

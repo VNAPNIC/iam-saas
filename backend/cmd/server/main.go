@@ -27,12 +27,15 @@ func main() {
 	// Initialize Repositories (Tầng dữ liệu)
 	userRepo := postgres.NewuserRepository(db)
 	tenantRepo := postgres.NewtenantRepository(db)
+	roleRepo := postgres.NewRoleRepository(db)
+	permissionRepo := postgres.NewPermissionRepository(db)
 
 	// Initialize Services (Tầng nghiệp vụ)
 	userService := service.NewUserService(db, userRepo, tenantRepo)
+	roleService := service.NewRoleService(db, roleRepo, permissionRepo)
 
 	// Initialize API (Tầng giao tiếp)
-	router := api.NewApi(userService)
+	router := api.NewApi(userService, roleService)
 	log.Println("✅ API router initialized.")
 
 	// Start Server
