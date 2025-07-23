@@ -3,11 +3,6 @@ package postgres
 import (
 	"fmt"
 	"iam-saas/internal/config"
-	"iam-saas/internal/entities"
-	"log"
-
-	// Import domain models here
-	// "iam-saas/internal/domain"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -25,16 +20,6 @@ func NewDB(cfg *config.DatabaseConfig) (*gorm.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
-
-	log.Println("Running GORM AutoMigration...")
-	err = db.AutoMigrate(
-		&entities.Tenant{},
-		&entities.User{},
-	)
-	if err != nil {
-		return nil, fmt.Errorf("gorm automigration failed: %w", err)
-	}
-	log.Println("✅ GORM AutoMigration completed.")
 
 	return db, nil
 }

@@ -14,6 +14,5 @@ func RegisterPublicRoutes(rg *gin.RouterGroup, userHandler *handler.UserHandler)
 	public.POST("/login", userHandler.Login)
 	public.POST("/forgot-password", userHandler.ForgotPassword)
 	public.POST("/reset-password", userHandler.ResetPassword)
-
-	// Thêm các public API khác ở đây
+	public.POST("/accept-invitation", userHandler.AcceptInvitation)
 }

@@ -33,6 +33,11 @@ export interface ResetPasswordPayload {
   newPassword: string;
 }
 
+export interface AcceptInvitationPayload {
+  token: string;
+  password: string;
+}
+
 const register = async (payload: RegisterPayload): Promise<AuthResponse> => {
   const response = await apiClient.post<AuthResponse>('/public/register', payload);
   return response.data;
@@ -51,9 +56,14 @@ const resetPassword = async (payload: ResetPasswordPayload): Promise<void> => {
   await apiClient.post('/public/reset-password', payload);
 };
 
+const acceptInvitation = async (payload: AcceptInvitationPayload): Promise<void> => {
+  await apiClient.post('/public/accept-invitation', payload);
+};
+
 export const authService = {
   register,
   login,
   forgotPassword,
   resetPassword,
+  acceptInvitation,
 };

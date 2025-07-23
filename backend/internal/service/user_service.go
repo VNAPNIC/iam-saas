@@ -8,6 +8,7 @@ import (
 	"iam-saas/pkg/i18n"
 	"iam-saas/pkg/utils"
 	"log"
+	"strconv"
 	"time"
 
 	"gorm.io/gorm"
@@ -94,6 +95,23 @@ func (s *userService) Register(ctx context.Context, name, email, password, tenan
 }
 
 func (s *userService) InviteUser(ctx context.Context, inviterID, tenantID int64, name, email string) (*entities.User, error) {
+	tenant, err := s.tenantRepo.FindByID(ctx, tenantID)
+	if err != nil {
+		return nil, app_error.NewInternalServerError(err)
+	}
+	if tenant == nil {
+		return nil, app_error.NewNotFoundError("tenant not found")
+	}
+
+	users, err := s.userRepo.ListByTenant(ctx, tenantID)
+	if err != nil {
+		return nil, app_error.NewInternalServerError(err)
+	}
+
+	if len(users) >= tenant.UserQuota {
+		return nil, app_error.NewConflictError("quota", string(i18n.UserQuotaExceeded))
+	}
+
 	existingUser, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
 		return nil, app_error.NewInternalServerError(err)
@@ -101,24 +119,26 @@ func (s *userService) InviteUser(ctx context.Context, inviterID, tenantID int64,
 	if existingUser != nil {
 		return nil, app_error.NewConflictError("email", string(i18n.EmailAlreadyExists))
 	}
-	tempPassword, err := utils.GenerateRandomString(32)
+
+	invitationToken, err := utils.GenerateRandomString(32)
 	if err != nil {
 		return nil, app_error.NewInternalServerError(err)
 	}
-	hashedPassword, err := utils.HashPassword(tempPassword)
-	if err != nil {
-		return nil, app_error.NewInternalServerError(err)
-	}
+
 	newUser := &entities.User{
 		TenantID:     tenantID,
 		Name:         name,
 		Email:        email,
-		PasswordHash: hashedPassword,
 		Status:       "pending_invitation",
+		InvitationToken: &invitationToken,
 	}
 	if err := s.userRepo.Create(ctx, nil, newUser); err != nil {
 		return nil, app_error.NewInternalServerError(err)
 	}
+
+	// Log the invitation link to the console instead of sending an email
+	log.Printf("Invitation link for %s: http://localhost:3000/accept-invitation?token=%s", email, invitationToken)
+
 	return newUser, nil
 }
 
@@ -169,7 +189,15 @@ func (s *userService) ListUsers(ctx context.Context, tenantID int64) ([]entities
 	return s.userRepo.ListByTenant(ctx, tenantID)
 }
 
-func (s *userService) UpdateUser(ctx context.Context, userID int64, name string) (*entities.User, error) {
+func (s *userService) UpdateUser(ctx context.Context, userID int64, name string, tenantID int64) (*entities.User, error) {
+	isAdmin, err := s.isTenantAdmin(ctx, userID, tenantID)
+	if err != nil {
+		return nil, err
+	}
+	if !isAdmin {
+		return nil, app_error.NewUnauthorizedError(string(i18n.Unauthorized))
+	}
+
 	user, err := s.userRepo.FindByID(ctx, userID)
 	if err != nil {
 		return nil, app_error.NewInternalServerError(err)
@@ -184,8 +212,16 @@ func (s *userService) UpdateUser(ctx context.Context, userID int64, name string)
 	return user, nil
 }
 
-func (s *userService) DeleteUser(ctx context.Context, userID int64) error {
-	return s.userRepo.Delete(ctx, userID)
+func (s *userService) DeleteUser(ctx context.Context, userID int64, tenantID int64) error {
+	isAdmin, err := s.isTenantAdmin(ctx, userID, tenantID)
+	if err != nil {
+		return err
+	}
+	if !isAdmin {
+		return app_error.NewUnauthorizedError(string(i18n.Unauthorized))
+	}
+
+	return s.userRepo.Delete(ctx, userID, tenantID)
 }
 
 func (s *userService) VerifyEmail(ctx context.Context, token string) error {
@@ -197,4 +233,24 @@ func (s *userService) VerifyEmail(ctx context.Context, token string) error {
 		return app_error.NewUnauthorizedError("Invalid or expired token")
 	}
 	return s.userRepo.ActivateUser(ctx, user.ID)
+}
+
+func (s *userService) isTenantAdmin(ctx context.Context, userID int64, tenantID int64) (bool, error) {
+	user, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return false, app_error.NewInternalServerError(err)
+	}
+	if user == nil || user.TenantID != tenantID {
+		return false, nil
+	}
+	// This is a simplified check. In a real application, you would check the user's roles.
+	return user.Email == "admin@"+strconv.FormatInt(tenantID, 10)+".com", nil
+}
+
+func (s *userService) AcceptInvitation(ctx context.Context, token, password string) error {
+	hashedPassword, err := utils.HashPassword(password)
+	if err != nil {
+		return app_error.NewInternalServerError(err)
+	}
+	return s.userRepo.AcceptInvitation(ctx, token, hashedPassword)
 }

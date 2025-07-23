@@ -16,7 +16,7 @@ const invite = async (payload: InviteUserPayload) => {
   }
 };
 
-const getUsers = async () => {
+const listUsers = async () => {
   try {
     const response = await apiClient.get('/protected/users');
     return response.data.data; // API trả về { data: users, ... }
@@ -42,9 +42,28 @@ const deleteUser = async (userId: number) => {
   }
 };
 
+const updateProfile = async (payload: any) => {
+  try {
+    const response = await apiClient.put('/protected/me', payload);
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const changePassword = async (payload: any) => {
+  try {
+    await apiClient.put('/protected/me/password', payload);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const userService = {
   invite,
-  getUsers,
+  listUsers,
   updateUser,
   deleteUser,
+  updateProfile,
+  changePassword,
 };

@@ -7,6 +7,7 @@ type Tenant struct {
 	PlanID            int64     `json:"planId"`
 	Name              string    `json:"name"`
 	Status            string    `json:"status"` // pending_verification, active, suspended
+	UserQuota         int       `json:"userQuota"`
 	LogoURL           *string   `json:"logoUrl"`
 	PrimaryColor      *string   `json:"primaryColor"`
 	AllowPublicSignup bool      `json:"allowPublicSignup"`

@@ -5,7 +5,7 @@ BINARY_NAME=iam-server
 BINARY_PATH=./tmp/${BINARY_NAME}
 
 # Database configuration
-DB_URL=postgres://postgres:postgres@localhost:5432/iam_saas_db?sslmode=disable
+DB_URL=postgres://postgres:postgres@localhost:5432/iam_saas?sslmode=disable
 
 server:
 	@go build -o ${BINARY_PATH} ./cmd/server

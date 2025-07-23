@@ -1,6 +1,8 @@
 package utils
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"golang.org/x/crypto/bcrypt"
+)
 
 // HashPassword tạo ra một chuỗi hash từ mật khẩu sử dụng bcrypt.
 func HashPassword(password string) (string, error) {

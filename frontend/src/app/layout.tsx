@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
-import { useUIStore } from '@/stores/uiStore';
-
 import { AuthProvider } from '@/contexts/AuthContext';
+import { LanguageProvider } from '@/components/layout/LanguageProvider';
+import { useUIStore } from '@/stores/uiStore';
+import { useEffect } from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -15,14 +15,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { theme, setTheme } = useUIStore();
-
-  useEffect(() => {
-    const isSystemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (isSystemDark) {
-      setTheme('dark');
-    }
-  }, [setTheme]);
+  const theme = useUIStore((state) => state.theme);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -35,9 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <body>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </LanguageProvider>
         <Toaster position="top-right" />
       </body>
     </html>

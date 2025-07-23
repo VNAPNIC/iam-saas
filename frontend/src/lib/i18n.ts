@@ -1,87 +1,25 @@
-import { useUIStore, type Language } from '@/stores/uiStore';
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+import en from '../../public/locales/en.json';
+import vi from '../../public/locales/vi.json';
 
-const translations = {
-  vn: {
-    title: 'IAM SaaS',
-    loginTitle: 'Đăng nhập vào tài khoản của bạn',
-    welcome: 'Chào mừng trở lại!',
-    emailLabel: 'Email',
-    emailPlaceholder: 'nhap@email.com',
-    passwordLabel: 'Mật khẩu',
-    passwordPlaceholder: 'Nhập mật khẩu',
-    passwordPlaceholderSignup: 'Ít nhất 8 ký tự',
-    forgotPassword: 'Quên mật khẩu?',
-    loginButton: 'Đăng nhập',
-    loginSuccess: 'Đăng nhập thành công.',
-    loginFailed: 'Đăng nhập thất bại.',
-    processing: 'Đang xử lý...',
-    or: 'hoặc',
-    ssoButton: 'Đăng nhập với SSO',
-    noAccount: 'Chưa có tài khoản?',
-    registerNow: 'Đăng ký ngay',
-    signupTitle: 'Tạo tài khoản',
-    signupWelcome: 'Bắt đầu hành trình của bạn',
-    fullNameLabel: 'Họ và tên',
-    fullNamePlaceholder: 'Nhập họ và tên',
-    confirmPasswordLabel: 'Xác nhận mật khẩu',
-    confirmPasswordPlaceholder: 'Nhập lại mật khẩu',
-    passwordMismatch: 'Mật khẩu không khớp.',
-    registerButton: 'Đăng ký',
-    hasAccount: 'Đã có tài khoản?',
-    loginNow: 'Đăng nhập',
-    tenantNameLabel: 'Tên công ty',
-    tenantNamePlaceholder: 'Nhập tên công ty',
-    signupSuccess: 'Tài khoản được tạo thành công!',
-    signupFailed: 'Đăng ký thất bại.',
-    emailAlreadyExists: 'Email đã được sử dụng.',
-    dashboard: 'Bảng điều khiển',
-    users: 'Người dùng',
-    settings: 'Cài đặt',
-    yourProfile: 'Hồ sơ của bạn',
-    logout: 'Đăng xuất'
-  },
-  en: {
-    title: 'IAM SaaS',
-    loginTitle: 'Sign in to your account',
-    welcome: 'Welcome back!',
-    emailLabel: 'Email',
-    emailPlaceholder: 'enter@email.com',
-    passwordLabel: 'Password',
-    passwordPlaceholder: 'Enter password',
-    passwordPlaceholderSignup: 'At least 8 characters',
-    forgotPassword: 'Forgot password?',
-    loginButton: 'Sign in',
-    loginSuccess: 'Login successful.',
-    loginFailed: 'Login failed.',
-    processing: 'Processing...',
-    or: 'or',
-    ssoButton: 'Sign in with SSO',
-    noAccount: "Don't have an account?",
-    registerNow: 'Register now',
-    signupTitle: 'Create your account',
-    signupWelcome: 'Start your journey',
-    fullNameLabel: 'Full Name',
-    fullNamePlaceholder: 'Enter your full name',
-    confirmPasswordLabel: 'Confirm Password',
-    confirmPasswordPlaceholder: 'Re-enter your password',
-    passwordMismatch: 'Passwords do not match.',
-    registerButton: 'Register',
-    hasAccount: 'Already have an account?',
-    loginNow: 'Sign in',
-    tenantNameLabel: 'Company Name',
-    tenantNamePlaceholder: 'Enter company name',
-    signupSuccess: 'Account created successfully!',
-    signupFailed: 'Registration failed.',
-    emailAlreadyExists: 'Email already in use.',
-    dashboard: 'Dashboard',
-    users: 'Users',
-    settings: 'Settings',
-    yourProfile: 'Your Profile',
-    logout: 'Logout'
-  }
-};
+i18n
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    resources: {
+      en: {
+        translation: en,
+      },
+      vi: {
+        translation: vi,
+      },
+    },
+    fallbackLng: 'en',
+    interpolation: {
+      escapeValue: false, // not needed for react as it escapes by default
+    },
+  });
 
-export function useTranslation() {
-  const { language } = useUIStore();
-  return translations[language];
-}
+export default i18n;

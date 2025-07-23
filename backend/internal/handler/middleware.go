@@ -22,7 +22,6 @@ const (
 // AuthMiddleware tạo một middleware của Gin để xác thực token JWT.
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 1. Lấy header Authorization.
 		authHeader := c.GetHeader(AuthorizationHeaderKey)
 		if len(authHeader) == 0 {
 			err := app_error.NewUnauthorizedError(string(i18n.Unauthorized))
@@ -30,7 +29,6 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// 2. Tách header để lấy token. Format: "Bearer <token>"
 		fields := strings.Fields(authHeader)
 		if len(fields) < 2 {
 			err := app_error.NewUnauthorizedError(string(i18n.Unauthorized))
@@ -38,7 +36,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// 3. Kiểm tra loại token.
+		// Kiểm tra loại token.
 		authType := strings.ToLower(fields[0])
 		if authType != AuthorizationTypeBearer {
 			err := app_error.NewUnauthorizedError(string(i18n.Unauthorized))
@@ -46,7 +44,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// 4. Xác thực token.
+		// Xác thực token.
 		accessToken := fields[1]
 		payload, err := utils.ParseToken(accessToken)
 		if err != nil {
@@ -55,7 +53,6 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// 5. Lưu payload vào context và cho phép request đi tiếp.
 		c.Set(AuthPayloadKey, payload)
 		c.Next()
 	}

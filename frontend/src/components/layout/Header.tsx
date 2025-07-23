@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import { useUIStore, type Language } from '@/stores/uiStore';
-import { useTranslation } from '@/lib/i18n';
+import { useTranslation } from 'react-i18next';
 
 const BarsIcon = () => ( <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg> );
 const MoonIcon = () => ( <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg> );
@@ -17,7 +17,7 @@ const UserPlusIcon = () => ( <svg className="w-5 h-5" fill="currentColor" viewBo
 export default function Header() {
   const { theme, language, toggleTheme, setLanguage } = useUIStore();
   const { user, logout } = useAuthStore();
-  const t = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
 
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -47,7 +47,7 @@ export default function Header() {
           <button id="mobile-menu-btn" className="mobile-menu-btn mr-2 text-gray-500 hover:text-gray-700 md:hidden">
             <BarsIcon />
           </button>
-          <h1 id="header-title" className="text-lg font-semibold text-gray-900">{t.dashboard}</h1>
+          <h1 id="header-title" className="text-lg font-semibold text-gray-900">{t('dashboard')}</h1>
         </div>
         <div className="flex items-center space-x-4">
           <select
@@ -116,7 +116,7 @@ export default function Header() {
                         <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                     </div>
                     <div className="py-1">
-                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{t.yourProfile}</a>
+                        <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{t('yourProfile')}</a>
                     </div>
                     <div className="py-1 border-t">
                         <button
@@ -124,7 +124,7 @@ export default function Header() {
                             onClick={handleLogout}
                             className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
-                            {t.logout}
+                            {t('logout')}
                         </button>
                     </div>
                  </div>

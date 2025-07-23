@@ -19,4 +19,5 @@ type User struct {
 	UpdatedAt         time.Time  `json:"updatedAt"`
 	PasswordResetToken *string `json:"-"`
 	PasswordResetTokenExpiresAt *time.Time `json:"-"`
+	InvitationToken *string `json:"-"`
 }

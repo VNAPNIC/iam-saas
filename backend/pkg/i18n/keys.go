@@ -18,4 +18,5 @@ const (
 	Unauthorized         Key = "unauthorized"
 	EmailAlreadyExists   Key = "email_already_exists"
 	TenantNameIsRequired Key = "tenant_name_is_required"
+	UserQuotaExceeded    Key = "user_quota_exceeded"
 )

@@ -50,6 +50,11 @@ type updateUserRequest struct {
 	Name string `json:"name" binding:"required"`
 }
 
+type acceptInvitationRequest struct {
+	Token    string `json:"token" binding:"required"`
+	Password string `json:"password" binding:"required,min=8"`
+}
+
 // --- Handlers ---
 
 func (h *UserHandler) Login(c *gin.Context) {
@@ -142,13 +147,14 @@ func (h *UserHandler) GetMe(c *gin.Context) {
 }
 
 func (h *UserHandler) UpdateUser(c *gin.Context) {
+	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
 	userID, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 	var req updateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
-	user, err := h.userService.UpdateUser(c.Request.Context(), userID, req.Name)
+	user, err := h.userService.UpdateUser(c.Request.Context(), userID, req.Name, claims.TenantID)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -157,8 +163,22 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 }
 
 func (h *UserHandler) DeleteUser(c *gin.Context) {
+	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
 	userID, _ := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err := h.userService.DeleteUser(c.Request.Context(), userID); err != nil {
+	if err := h.userService.DeleteUser(c.Request.Context(), userID, claims.TenantID); err != nil {
+		h.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, NewSuccessResponse(nil, string(i18n.ActionSuccessful)))
+}
+
+func (h *UserHandler) AcceptInvitation(c *gin.Context) {
+	var req acceptInvitationRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
+		return
+	}
+	if err := h.userService.AcceptInvitation(c.Request.Context(), req.Token, req.Password); err != nil {
 		h.handleError(c, err)
 		return
 	}

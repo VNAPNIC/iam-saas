@@ -132,11 +132,16 @@ func (r *userRepository) ListByTenant(ctx context.Context, tenantID int64) ([]en
 }
 
 func (r *userRepository) Update(ctx context.Context, user *entities.User) error {
-	query := `UPDATE "users" SET name = ?, updated_at = NOW() WHERE id = ?`
-	return r.db.WithContext(ctx).Exec(query, user.Name, user.ID).Error
+	query := `UPDATE "users" SET name = ?, updated_at = NOW() WHERE id = ? AND tenant_id = ?`
+	return r.db.WithContext(ctx).Exec(query, user.Name, user.ID, user.TenantID).Error
 }
 
-func (r *userRepository) Delete(ctx context.Context, userID int64) error {
-	query := `DELETE FROM "users" WHERE id = ?`
-	return r.db.WithContext(ctx).Exec(query, userID).Error
+func (r *userRepository) Delete(ctx context.Context, userID int64, tenantID int64) error {
+	query := `DELETE FROM "users" WHERE id = ? AND tenant_id = ?`
+	return r.db.WithContext(ctx).Exec(query, userID, tenantID).Error
+}
+
+func (r *userRepository) AcceptInvitation(ctx context.Context, token, passwordHash string) error {
+	query := `UPDATE "users" SET password_hash = ?, status = 'active', invitation_token = NULL, updated_at = NOW() WHERE invitation_token = ?`
+	return r.db.WithContext(ctx).Exec(query, passwordHash, token).Error
 }

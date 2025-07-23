@@ -20,10 +20,12 @@ CREATE TABLE "tenants" (
     "logo_url" VARCHAR(255),
     "primary_color" VARCHAR(7),
     "allow_public_signup" BOOLEAN NOT NULL DEFAULT FALSE,
+    "user_quota" INT NOT NULL DEFAULT 5,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    FOREIGN KEY ("plan_id") REFERENCES "plans"("id") ON DELETE SET NULL
+    FOREIGN KEY ("plan_id") REFERENCES "plans" ("id") ON DELETE SET NULL
 );
+
 CREATE INDEX ON "tenants" ("status");
 
 -- Bảng chứa thông tin người dùng, thuộc về một tenant cụ thể
@@ -35,8 +37,11 @@ CREATE TABLE "users" (
     "name" VARCHAR(255),
     "avatar_url" TEXT,
     "phone_number" VARCHAR(20),
+    "password_reset_token" VARCHAR(255) NULL,
     "status" VARCHAR(50) NOT NULL DEFAULT 'pending_verification',
     "verification_token" VARCHAR(255),
+    "invitation_token" VARCHAR(255),
+    "password_reset_token_expires_at" TIMESTAMPTZ NULL,
     "email_verified_at" TIMESTAMPTZ,
     "phone_verified_at" TIMESTAMPTZ,
     "last_login_at" TIMESTAMPTZ,
@@ -46,15 +51,18 @@ CREATE TABLE "users" (
 );
 
 CREATE INDEX ON "users" ("tenant_id");
+
 CREATE INDEX ON "users" ("email");
+
+CREATE INDEX ON "users" ("password_reset_token");
 
 -- Bảng chứa các quyền (permissions) trong hệ thống
 CREATE TABLE "permissions" (
     "id" BIGSERIAL PRIMARY KEY,
-    "action" VARCHAR(100) NOT NULL,  -- e.g., 'create', 'read', 'update', 'delete'
+    "action" VARCHAR(100) NOT NULL, -- e.g., 'create', 'read', 'update', 'delete'
     "resource" VARCHAR(100) NOT NULL, -- e.g., 'users', 'products', 'settings'
     "description" TEXT,
-    UNIQUE("action", "resource")
+    UNIQUE ("action", "resource")
 );
 
 -- Bảng chứa các vai trò (roles)
@@ -66,8 +74,9 @@ CREATE TABLE "roles" (
     "is_system_role" BOOLEAN NOT NULL DEFAULT FALSE,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE CASCADE
+    FOREIGN KEY ("tenant_id") REFERENCES "tenants" ("id") ON DELETE CASCADE
 );
+
 CREATE INDEX ON "roles" ("tenant_id");
 
 -- Bảng trung gian gán quyền cho vai trò (Many-to-Many)
@@ -75,8 +84,8 @@ CREATE TABLE "role_permissions" (
     "role_id" BIGINT NOT NULL,
     "permission_id" BIGINT NOT NULL,
     PRIMARY KEY ("role_id", "permission_id"),
-    FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE,
-    FOREIGN KEY ("permission_id") REFERENCES "permissions"("id") ON DELETE CASCADE
+    FOREIGN KEY ("role_id") REFERENCES "roles" ("id") ON DELETE CASCADE,
+    FOREIGN KEY ("permission_id") REFERENCES "permissions" ("id") ON DELETE CASCADE
 );
 
 -- Bảng trung gian gán vai trò cho người dùng (Many-to-Many)
@@ -84,17 +93,19 @@ CREATE TABLE "user_roles" (
     "user_id" BIGINT NOT NULL,
     "role_id" BIGINT NOT NULL,
     PRIMARY KEY ("user_id", "role_id"),
-    FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE,
-    FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE
+    FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE,
+    FOREIGN KEY ("role_id") REFERENCES "roles" ("id") ON DELETE CASCADE
 );
 
 -- Chèn dữ liệu ban đầu cho plans, permissions và các vai trò hệ thống
-INSERT INTO "plans" ("name", "description", "price", "user_quota") VALUES
-('Free', 'Free plan with basic features', 0.00, 5),
-('Startup', 'For small teams', 29.00, 20);
+INSERT INTO "plans" (  "name", "description", "price", "user_quota")
+VALUES 
+( 'Free', 'Free plan with basic features', 0.00, 5 ),
+('Startup','For small teams',29.00,20);
 
-INSERT INTO "permissions" ("action", "resource", "description") VALUES
-('create', 'users', 'Allow creating new users'),
-('read', 'users', 'Allow reading user information'),
-('update', 'users', 'Allow updating user information'),
-('delete', 'users', 'Allow deleting users');
+INSERT INTO "permissions" ("action","resource","description")
+VALUES 
+('create','users','Allow creating new users'),
+('read','users','Allow reading user information'),
+('update','users','Allow updating user information'),
+('delete','users','Allow deleting users');

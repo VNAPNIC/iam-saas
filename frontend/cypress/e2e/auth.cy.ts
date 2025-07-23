@@ -1,85 +1,120 @@
-describe('Authentication Flow', () => {
+describe('Authentication and UI Features', () => {
+
   beforeEach(() => {
-    cy.intercept('POST', '**/api/v1/auth/register').as('registerRequest'); // Sửa URL
-    cy.intercept('POST', '**/api/v1/auth/login').as('loginRequest');
-    cy.window().then((win) => {
-      win.localStorage.setItem('ui-storage', JSON.stringify({ state: { language: 'en' }, version: 0 }));
+    // We still intercept to control API responses during tests
+    cy.intercept('POST', '**/public/login').as('loginRequest');
+    cy.intercept('POST', '**/public/register').as('registerRequest');
+    cy.intercept('POST', '**/public/forgot-password').as('forgotPasswordRequest');
+  });
+
+  context('Login Flow', () => {
+    it('should show an error for invalid credentials', () => {
+      cy.intercept('POST', '**/public/login', {
+        statusCode: 401,
+        body: { message: 'login_failed' },
+      }).as('failedLogin');
+
+      cy.visit('/login');
+      cy.get('#email').type('wrong@example.com');
+      cy.get('#password').type('wrongpassword');
+      cy.get('button[type="submit"]').click();
+      cy.wait('@failedLogin');
+      cy.get('[data-testid=error-message]').should('be.visible');
+    });
+
+    it('should login successfully and redirect', () => {
+      cy.intercept('POST', '**/public/login', {
+        statusCode: 200,
+        body: { data: { token: 'fake-jwt-token' } },
+      }).as('successfulLogin');
+      // Also mock the /me call that happens after login
+      cy.intercept('GET', '**/protected/me', {
+        statusCode: 200,
+        body: { data: { id: 1, name: 'Test User', email: 'test@example.com' } },
+      }).as('getMe');
+
+      cy.visit('/login');
+      cy.get('#email').type('test@example.com');
+      cy.get('#password').type('password123');
+      cy.get('button[type="submit"]').click();
+      cy.wait('@successfulLogin');
+      cy.wait('@getMe');
+      cy.url().should('include', '/dashboard');
     });
   });
 
   context('Signup Flow', () => {
-    it('should allow a user to sign up successfully', () => {
+    it('should show a client-side error if passwords do not match', () => {
       cy.visit('/signup');
-      const uniqueEmail = `test.user.${Date.now()}@example.com`;
-      cy.get('[data-testid="signup-tenant-name"]').type('My Test Company');
-      cy.get('[data-testid="signup-full-name"]').type('Test User');
-      cy.get('[data-testid="signup-email"]').type(uniqueEmail);
-      cy.get('[data-testid="signup-password"]').type('password123');
-      cy.get('[data-testid="signup-confirm-password"]').type('password123');
-      cy.get('[data-testid="signup-submit-button"]').click();
-      cy.wait('@registerRequest').then((interception) => {
-        console.log('Register response:', interception.response);
-      });
-      cy.wait('@registerRequest').its('response.statusCode').should('eq', 201);
-      cy.get('div[role="status"]').contains('Account created successfully!').should('be.visible');
-      cy.url().should('include', '/login');
+      cy.get('#name').type('Test User');
+      cy.get('#email').type('test@example.com');
+      cy.get('#password').type('password123');
+      cy.get('#confirmPassword').type('password1234'); // Mismatched password
+      cy.get('button[type="submit"]').click();
+      
+      // No network request should be made
+      cy.get('@registerRequest.all').should('have.length', 0);
+      cy.get('[data-testid=error-message]').should('be.visible').and('contain.text', 'Passwords do not match');
     });
 
-    it('should display an error message if email already exists', () => {
-      cy.intercept('POST', '**/api/v1/auth/register', {
-        statusCode: 409,
-        body: { message: 'email_already_exists', error: { code: 'EMAIL_ALREADY_EXISTS', details: null } }
-      }).as('registerConflictRequest');
+    it('should register a new user and show success alert', () => {
+      cy.intercept('POST', '**/public/register', {
+        statusCode: 201,
+        body: { message: 'register_successful' },
+      }).as('successfulRegister');
+
+      // Handle the alert pop-up
+      const alertStub = cy.stub();
+      cy.on('window:alert', alertStub);
+
       cy.visit('/signup');
-      cy.get('[data-testid="signup-tenant-name"]').type('Another Company');
-      cy.get('[data-testid="signup-full-name"]').type('Another User');
-      cy.get('[data-testid="signup-email"]').type('existing@example.com');
-      cy.get('[data-testid="signup-password"]').type('password123');
-      cy.get('[data-testid="signup-confirm-password"]').type('password123');
-      cy.get('[data-testid="signup-submit-button"]').click();
-      cy.get('[data-testid="signup-error"]').should('be.visible').and('contain.text', 'Email already in use.');
-      cy.url().should('include', '/signup');
+      cy.get('#name').type('New User');
+      cy.get('#email').type(`new_user_${Date.now()}@example.com`);
+      cy.get('#password').type('password123');
+      cy.get('#confirmPassword').type('password123');
+      cy.get('#tenantName').type('New Company');
+      cy.get('button[type="submit"]').click();
+      cy.wait('@successfulRegister').then(() => {
+        expect(alertStub.getCall(0)).to.be.calledWith('Registration successful! Please check your email for verification.');
+      });
+      cy.url().should('include', '/login');
     });
   });
 
-  context('Login & Logout Flow', () => {
-    beforeEach(() => {
-      cy.intercept('POST', '**/api/v1/auth/login', {
+  context('Forgot Password Flow', () => {
+    it('should show a success message after submitting', () => {
+      cy.intercept('POST', '**/public/forgot-password', {
         statusCode: 200,
-        body: {
-          data: {
-            accessToken: 'fake-jwt-token',
-            user: { id: '1', email: 'test@example.com', name: 'Test User', tenantId: '1' }
-          },
-          message: 'login_successful'
-        }
-      }).as('loginRequest');
-      cy.window().then((win) => {
-        win.localStorage.setItem('ui-storage', JSON.stringify({ state: { language: 'en' }, version: 0 }));
-      });
-    });
+      }).as('forgotPassword');
 
-    it('should allow an existing user to log in', () => {
-      cy.visit('/login');
-      cy.get('[data-testid="login-email"]').type('test@example.com');
-      cy.get('[data-testid="login-password"]').type('password123');
-      cy.get('[data-testid="login-submit-button"]').click();
-      cy.wait('@loginRequest');
-      cy.url().should('include', '/dashboard');
-      cy.window().its('localStorage').invoke('getItem', 'auth-storage').should('exist');
-    });
-
-    it('should allow a logged-in user to log out', () => {
-      const authState = {
-        state: { user: { id: '1', email: 'test@example.com', name: 'Test User', tenantId: '1' }, token: 'fake-jwt-token', isAuthenticated: true },
-        version: 0
-      };
-      cy.window().its('localStorage').invoke('setItem', 'auth-storage', JSON.stringify(authState));
-      cy.visit('/dashboard');
-      cy.get('[data-testid="sidebar-user-menu-button"]').click({ multiple: true }); // Thêm multiple: true
-      cy.get('[data-testid="sidebar-logout-button"]').click();
-      cy.url().should('include', '/login');
-      cy.window().its('localStorage').invoke('getItem', 'auth-storage').should('not.exist');
+      cy.visit('/forgot-password');
+      cy.get('#email').type('user@example.com');
+      cy.get('button[type="submit"]').click();
+      cy.wait('@forgotPassword');
+      cy.get('p').should('contain.text', 'If your email exists in our system');
     });
   });
+
+  context('UI Features', () => {
+    beforeEach(() => {
+      cy.visit('/login');
+    });
+
+    it('should toggle dark mode correctly', () => {
+      cy.get('body').should('not.have.class', 'dark-mode');
+      cy.get('[data-testid=theme-toggle]').click();
+      cy.get('body').should('have.class', 'dark-mode');
+      cy.get('[data-testid=theme-toggle]').click();
+      cy.get('body').should('not.have.class', 'dark-mode');
+    });
+
+    it('should switch language correctly', () => {
+      cy.get('h1').should('contain.text', 'IAM SaaS');
+      cy.get('select').select('vi');
+      cy.get('p').should('contain.text', 'Chào mừng trở lại!');
+      cy.get('select').select('en');
+      cy.get('p').should('contain.text', 'Welcome back!');
+    });
+  });
+
 });

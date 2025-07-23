@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
-import { useTranslation } from '@/lib/i18n';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 
 const LockIcon = () => ( <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" /></svg> );
@@ -18,7 +18,7 @@ export default function Sidebar() {
   const userMenuRef = useRef<HTMLDivElement>(null);
   
   const pathname = usePathname();
-  const t = useTranslation();
+  const { t } = useTranslation();
   const { user, logout } = useAuthStore();
   const router = useRouter();
 
@@ -57,7 +57,7 @@ export default function Sidebar() {
       <nav id="main-nav" className="flex-1 overflow-y-auto p-2 space-y-2">
         <a href="#" className="nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50">
           <TachometerIcon />
-          <span className="sidebar-text ml-3">Overview</span>
+          <span className="sidebar-text ml-3">{t('overview')}</span>
         </a>
       </nav>
       <div className="p-4 border-t border-gray-200 relative" ref={userMenuRef}>
@@ -80,7 +80,7 @@ export default function Sidebar() {
                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 data-testid="sidebar-logout-button"
               >
-                {t.logout}
+                {t('logout')}
               </button>
             </div>
           </div>
