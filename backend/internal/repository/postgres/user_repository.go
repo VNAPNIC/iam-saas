@@ -39,14 +39,21 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*entiti
 		FROM "users"
 		WHERE email = $1;
 	`
-	result := r.db.WithContext(ctx).Raw(query, email).First(&user)
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			return nil, nil
-		}
-		return nil, result.Error
+	rows, err := r.db.WithContext(ctx).Raw(query, email).Rows()
+	if err != nil {
+		return nil, err
 	}
-	return &user, nil
+	defer rows.Close()
+
+	if rows.Next() {
+		err := rows.Scan(&user.ID, &user.TenantID, &user.Name, &user.Email, &user.PasswordHash, &user.Status, &user.AvatarURL, &user.PhoneNumber, &user.VerificationToken, &user.EmailVerifiedAt, &user.PhoneVerifiedAt, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		return &user, nil
+	}
+
+	return nil, nil // Record not found
 }
 
 func (r *userRepository) FindByID(ctx context.Context, id int64) (*entities.User, error) {
@@ -56,14 +63,21 @@ func (r *userRepository) FindByID(ctx context.Context, id int64) (*entities.User
 		FROM "users"
 		WHERE id = $1;
 	`
-	result := r.db.WithContext(ctx).Raw(query, id).First(&user)
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			return nil, nil
-		}
-		return nil, result.Error
+	rows, err := r.db.WithContext(ctx).Raw(query, id).Rows()
+	if err != nil {
+		return nil, err
 	}
-	return &user, nil
+	defer rows.Close()
+
+	if rows.Next() {
+		err := rows.Scan(&user.ID, &user.TenantID, &user.Name, &user.Email, &user.PasswordHash, &user.Status, &user.AvatarURL, &user.PhoneNumber, &user.VerificationToken, &user.EmailVerifiedAt, &user.PhoneVerifiedAt, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		return &user, nil
+	}
+
+	return nil, nil // Record not found
 }
 
 func (r *userRepository) UpdateVerificationToken(ctx context.Context, userID int64, token string) error {
@@ -73,15 +87,22 @@ func (r *userRepository) UpdateVerificationToken(ctx context.Context, userID int
 
 func (r *userRepository) FindUserByVerificationToken(ctx context.Context, token string) (*entities.User, error) {
 	var user entities.User
-	sql := "SELECT id, name, email, phone_number, created_at, updated_at, status FROM users WHERE verification_token = ? LIMIT 1"
-	err := r.db.WithContext(ctx).Raw(sql, token).Scan(&user).Error
+	sql := "SELECT id, name, email, phone_number, created_at, updated_at, status FROM users WHERE verification_token = $1 LIMIT 1"
+	rows, err := r.db.WithContext(ctx).Raw(sql, token).Rows()
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil
-		}
 		return nil, err
 	}
-	return &user, nil
+	defer rows.Close()
+
+	if rows.Next() {
+		err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.PhoneNumber, &user.CreatedAt, &user.UpdatedAt, &user.Status)
+		if err != nil {
+			return nil, err
+		}
+		return &user, nil
+	}
+
+	return nil, nil // Record not found
 }
 
 func (r *userRepository) ActivateUser(ctx context.Context, userID int64) error {
@@ -99,16 +120,23 @@ func (r *userRepository) FindByPasswordResetToken(ctx context.Context, token str
 	query := `
 		SELECT id, tenant_id, name, email, password_hash, status, avatar_url, phone_number, verification_token, email_verified_at, phone_verified_at, last_login_at, created_at, updated_at, password_reset_token, password_reset_token_expires_at
 		FROM "users"
-		WHERE password_reset_token = ?;
+		WHERE password_reset_token = $1;
 	`
-	result := r.db.WithContext(ctx).Raw(query, token).First(&user)
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			return nil, nil
-		}
-		return nil, result.Error
+	rows, err := r.db.WithContext(ctx).Raw(query, token).Rows()
+	if err != nil {
+		return nil, err
 	}
-	return &user, nil
+	defer rows.Close()
+
+	if rows.Next() {
+		err := rows.Scan(&user.ID, &user.TenantID, &user.Name, &user.Email, &user.PasswordHash, &user.Status, &user.AvatarURL, &user.PhoneNumber, &user.VerificationToken, &user.EmailVerifiedAt, &user.PhoneVerifiedAt, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt, &user.PasswordResetToken, &user.PasswordResetTokenExpiresAt)
+		if err != nil {
+			return nil, err
+		}
+		return &user, nil
+	}
+
+	return nil, nil // Record not found
 }
 
 func (r *userRepository) UpdatePassword(ctx context.Context, userID int64, newPasswordHash string) error {
@@ -121,13 +149,24 @@ func (r *userRepository) ListByTenant(ctx context.Context, tenantID int64) ([]en
 	query := `
 		SELECT id, tenant_id, name, email, status, avatar_url, phone_number, created_at, updated_at
 		FROM "users"
-		WHERE tenant_id = ?
+		WHERE tenant_id = $1
 		ORDER BY created_at DESC;
 	`
-	result := r.db.WithContext(ctx).Raw(query, tenantID).Scan(&users)
-	if result.Error != nil {
-		return nil, result.Error
+	rows, err := r.db.WithContext(ctx).Raw(query, tenantID).Rows()
+	if err != nil {
+		return nil, err
 	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user entities.User
+		err := rows.Scan(&user.ID, &user.TenantID, &user.Name, &user.Email, &user.Status, &user.AvatarURL, &user.PhoneNumber, &user.CreatedAt, &user.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
 	return users, nil
 }
 
@@ -144,4 +183,28 @@ func (r *userRepository) Delete(ctx context.Context, userID int64, tenantID int6
 func (r *userRepository) AcceptInvitation(ctx context.Context, token, passwordHash string) error {
 	query := `UPDATE "users" SET password_hash = ?, status = 'active', invitation_token = NULL, updated_at = NOW() WHERE invitation_token = ?`
 	return r.db.WithContext(ctx).Exec(query, passwordHash, token).Error
+}
+
+func (r *userRepository) GetUserRoleIDs(ctx context.Context, userID int64) ([]int64, error) {
+	var roleIDs []int64
+	query := `
+		SELECT role_id
+		FROM user_roles
+		WHERE user_id = $1;
+	`
+	rows, err := r.db.WithContext(ctx).Raw(query, userID).Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var roleID int64
+		if err := rows.Scan(&roleID); err != nil {
+			return nil, err
+		}
+		roleIDs = append(roleIDs, roleID)
+	}
+
+	return roleIDs, nil
 }

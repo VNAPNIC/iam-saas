@@ -10,9 +10,11 @@ import (
 func RegisterPublicRoutes(rg *gin.RouterGroup, userHandler *handler.UserHandler) {
 	public := rg.Group("/")
 
-	public.POST("/register", userHandler.Register)
 	public.POST("/login", userHandler.Login)
+	public.POST("/refresh-token", userHandler.RefreshToken)
 	public.POST("/forgot-password", userHandler.ForgotPassword)
 	public.POST("/reset-password", userHandler.ResetPassword)
 	public.POST("/accept-invitation", userHandler.AcceptInvitation)
+	public.POST("/verify-email", userHandler.VerifyEmail)
+	public.GET("/tenant-config/:tenantKey", userHandler.GetTenantConfig)
 }

@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"fmt"
 	"iam-saas/internal/domain"
+	"iam-saas/internal/entities"
 	"iam-saas/pkg/app_error"
 	"iam-saas/pkg/i18n"
 	"iam-saas/pkg/utils"
@@ -25,16 +27,24 @@ type loginRequest struct {
 	Password string `json:"password" binding:"required,min=8"`
 }
 
+type loginResponse struct {
+	AccessToken  string          `json:"accessToken"`
+	RefreshToken string          `json:"refreshToken"`
+	User         *entities.User  `json:"user"`
+	IsOnboarded  bool            `json:"isOnboarded"`
+}
+
 type registerRequest struct {
-	Name       string `json:"name" binding:"required"`
-	Email      string `json:"email" binding:"required,email"`
-	Password   string `json:"password" binding:"required,min=8"`
-	TenantName string `json:"tenantName" binding:"required"`
+	Name      string `json:"name" binding:"required"`
+	Email     string `json:"email" binding:"required,email"`
+	Password  string `json:"password" binding:"required,min=8"`
+	TenantKey string `json:"tenantKey" binding:"required"`
 }
 
 type inviteUserRequest struct {
-	Name  string `json:"name" binding:"required"`
-	Email string `json:"email" binding:"required,email"`
+	Name    string  `json:"name" binding:"required"`
+	Email   string  `json:"email" binding:"required,email"`
+	RoleIDs []int64 `json:"roleIds"`
 }
 
 type forgotPasswordRequest struct {
@@ -63,12 +73,17 @@ func (h *UserHandler) Login(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
-	user, token, err := h.userService.Login(c.Request.Context(), req.Email, req.Password)
+	user, accessToken, refreshToken, err := h.userService.Login(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, NewSuccessResponse(gin.H{"accessToken": token, "user": user}, string(i18n.LoginSuccessful)))
+	tenant, err := h.userService.GetTenantConfig(c.Request.Context(), user.TenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, NewSuccessResponse(loginResponse{accessToken, refreshToken, user, tenant.IsOnboarded}, string(i18n.LoginSuccessful)))
 }
 
 func (h *UserHandler) Register(c *gin.Context) {
@@ -77,12 +92,49 @@ func (h *UserHandler) Register(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
-	user, token, err := h.userService.Register(c.Request.Context(), req.Name, req.Email, req.Password, req.TenantName)
+	user, accessToken, refreshToken, err := h.userService.Register(c.Request.Context(), req.Name, req.Email, req.Password, req.TenantKey)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
-	c.JSON(http.StatusCreated, NewSuccessResponse(gin.H{"accessToken": token, "user": user}, string(i18n.RegisterSuccessful)))
+	c.JSON(http.StatusCreated, NewSuccessResponse(gin.H{"accessToken": accessToken, "refreshToken": refreshToken, "user": user}, string(i18n.RegisterSuccessful)))
+}
+
+type createTenantRequest struct {
+	Name string `json:"name" binding:"required"`
+	Key  string `json:"key" binding:"required"`
+}
+
+func (h *UserHandler) CreateTenant(c *gin.Context) {
+	var req createTenantRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
+		return
+	}
+	tenant, err := h.userService.CreateTenant(c.Request.Context(), req.Name, req.Key)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusCreated, NewSuccessResponse(tenant, string(i18n.ActionSuccessful)))
+}
+
+type refreshTokenRequest struct {
+	RefreshToken string `json:"refreshToken" binding:"required"`
+}
+
+func (h *UserHandler) RefreshToken(c *gin.Context) {
+	var req refreshTokenRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
+		return
+	}
+	accessToken, newRefreshToken, err := h.userService.RefreshToken(c.Request.Context(), req.RefreshToken)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, NewSuccessResponse(gin.H{"accessToken": accessToken, "refreshToken": newRefreshToken}, string(i18n.ActionSuccessful)))
 }
 
 func (h *UserHandler) ForgotPassword(c *gin.Context) {
@@ -108,8 +160,19 @@ func (h *UserHandler) ResetPassword(c *gin.Context) {
 		h.handleError(c, err)
 		return
 	}
+
+	// Revoke all refresh tokens for the user after password reset
+	user, err := h.userService.GetMe(c.Request.Context(), c.MustGet(AuthPayloadKey).(*utils.Claims).UserID)
+	if err == nil && user != nil {
+		if err := h.userService.RevokeRefreshTokens(c.Request.Context(), user.ID); err != nil {
+			// Log the error, but don't block the main flow
+			fmt.Printf("Error revoking refresh tokens for user %d: %v\n", user.ID, err)
+		}
+	}
+
 	c.JSON(http.StatusOK, NewSuccessResponse(nil, string(i18n.ActionSuccessful)))
 }
+
 
 func (h *UserHandler) ListUsers(c *gin.Context) {
 	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
@@ -159,6 +222,14 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 		h.handleError(c, err)
 		return
 	}
+
+	// Revoke all refresh tokens for the user after profile update
+	if user != nil {
+		if err := h.userService.RevokeRefreshTokens(c.Request.Context(), user.ID); err != nil {
+			fmt.Printf("Error revoking refresh tokens for user %d: %v\n", user.ID, err)
+		}
+	}
+
 	c.JSON(http.StatusOK, NewSuccessResponse(user, string(i18n.ActionSuccessful)))
 }
 
@@ -169,6 +240,12 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 		h.handleError(c, err)
 		return
 	}
+
+	// Revoke all refresh tokens for the user after deletion
+	if err := h.userService.RevokeRefreshTokens(c.Request.Context(), userID); err != nil {
+		fmt.Printf("Error revoking refresh tokens for user %d: %v\n", userID, err)
+	}
+
 	c.JSON(http.StatusOK, NewSuccessResponse(nil, string(i18n.ActionSuccessful)))
 }
 
@@ -183,6 +260,54 @@ func (h *UserHandler) AcceptInvitation(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, NewSuccessResponse(nil, string(i18n.ActionSuccessful)))
+}
+
+type verifyEmailRequest struct {
+	Token string `json:"token" binding:"required"`
+}
+
+func (h *UserHandler) VerifyEmail(c *gin.Context) {
+	var req verifyEmailRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
+		return
+	}
+	if err := h.userService.VerifyEmail(c.Request.Context(), req.Token); err != nil {
+		h.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, NewSuccessResponse(nil, string(i18n.EmailVerificationSuccessful)))
+}
+
+func (h *UserHandler) GetTenantConfig(c *gin.Context) {
+	tenantKey := c.Param("tenantKey")
+	tenant, err := h.userService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, NewSuccessResponse(tenant, string(i18n.ActionSuccessful)))
+}
+
+type updateTenantBrandingRequest struct {
+	LogoURL           *string `json:"logoUrl"`
+	PrimaryColor      *string `json:"primaryColor"`
+	AllowPublicSignup *bool   `json:"allowPublicSignup"`
+}
+
+func (h *UserHandler) UpdateTenantBranding(c *gin.Context) {
+	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
+	var req updateTenantBrandingRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
+		return
+	}
+	tenant, err := h.userService.UpdateTenantBranding(c.Request.Context(), claims.TenantID, req.LogoURL, req.PrimaryColor, *req.AllowPublicSignup)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, NewSuccessResponse(tenant, string(i18n.ActionSuccessful)))
 }
 
 func (h *UserHandler) handleError(c *gin.Context, err error) {

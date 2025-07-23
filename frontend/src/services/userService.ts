@@ -1,69 +1,49 @@
-import apiClient from '../lib/apiClient';
+import apiClient from '@/lib/apiClient';
+import { User } from '@/types/user';
 
-export interface InviteUserPayload {
-  name: string;
-  email: string;
-  role: string; // Backend có thể cần xử lý việc gán vai trò này
+export interface ListUsersResponse {
+    data: User[];
+    // Add pagination info later
 }
 
-const invite = async (payload: InviteUserPayload) => {
-  try {
-    // Endpoint này là một API được bảo vệ
-    const response = await apiClient.post('/protected/users/invite', payload);
+export interface InviteUserPayload {
+    name: string;
+    email: string;
+    role: string;
+}
+
+const listUsers = async (): Promise<ListUsersResponse> => {
+    const response = await apiClient.get<ListUsersResponse>('/protected/users');
     return response.data;
-  } catch (error) {
-    throw error;
-  }
 };
 
-const listUsers = async () => {
-  try {
-    const response = await apiClient.get('/protected/users');
-    return response.data.data; // API trả về { data: users, ... }
-  } catch (error) {
-    throw error;
-  }
+const updateProfile = async (tenantKey: string, profile: Partial<User>): Promise<void> => {
+    await apiClient.put(`/protected/me`, profile);
 };
 
-const updateUser = async (userId: number, payload: any) => {
-  try {
-    const response = await apiClient.put(`/protected/users/${userId}`, payload);
-    return response.data.data;
-  } catch (error) {
-    throw error;
-  }
+const changePassword = async (tenantKey: string, passwordData: any): Promise<void> => {
+    await apiClient.put(`/protected/me/password`, passwordData);
 };
 
-const deleteUser = async (userId: number) => {
-  try {
-    await apiClient.delete(`/protected/users/${userId}`);
-  } catch (error) {
-    throw error;
-  }
+const updateTenantBranding = async (tenantKey: string, brandingData: any): Promise<void> => {
+    await apiClient.put(`/protected/tenant/branding`, brandingData);
 };
 
-const updateProfile = async (payload: any) => {
-  try {
-    const response = await apiClient.put('/protected/me', payload);
-    return response.data.data;
-  } catch (error) {
-    throw error;
-  }
+const invite = async (tenantKey: string, payload: InviteUserPayload): Promise<User> => {
+    const response = await apiClient.post<User>(`/protected/users/invite`, payload);
+    return response.data;
 };
 
-const changePassword = async (payload: any) => {
-  try {
-    await apiClient.put('/protected/me/password', payload);
-  } catch (error) {
-    throw error;
-  }
+const updateUser = async (tenantKey: string, userId: string, userData: Partial<User>): Promise<User> => {
+    const response = await apiClient.put<User>(`/protected/users/${userId}`, userData);
+    return response.data;
 };
 
 export const userService = {
-  invite,
-  listUsers,
-  updateUser,
-  deleteUser,
-  updateProfile,
-  changePassword,
+    listUsers,
+    updateProfile,
+    changePassword,
+    updateTenantBranding,
+    invite,
+    updateUser,
 };

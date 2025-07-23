@@ -9,26 +9,41 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// TODO: Chuyển chuỗi secret này ra biến môi trường trong môi trường production
-var jwtSecret = []byte("your-very-secret-key-that-is-long-and-secure")
+var (
+	jwtSecret          []byte
+	accessTokenExpiry  time.Duration
+	refreshTokenExpiry time.Duration
+)
+
+func ConfigureJWT(secret string, accessExpiryMinutes, refreshExpiryMinutes int) {
+	jwtSecret = []byte(secret)
+	accessTokenExpiry = time.Duration(accessExpiryMinutes) * time.Minute
+	refreshTokenExpiry = time.Duration(refreshExpiryMinutes) * time.Minute
+}
 
 type Claims struct {
-	UserID   int64 `json:"user_id"`
-	TenantID int64 `json:"tenant_id"`
+	UserID    int64   `json:"user_id"`
+	TenantID  int64   `json:"tenant_id"`
+	TenantKey string  `json:"tenant_key"`
+	UserEmail string  `json:"user_email"`
+	RoleIDs   []int64 `json:"role_ids"`
 	jwt.RegisteredClaims
 }
 
-// GenerateToken tạo một token JWT mới cho người dùng.
-func GenerateToken(userID, tenantID int64) (string, error) {
-	expirationTime := time.Now().Add(24 * time.Hour)
+// GenerateToken tạo một token JWT mới cho người dùng với thời gian hết hạn tùy chỉnh.
+func GenerateToken(userID, tenantID int64, tenantKey, userEmail string, roleIDs []int64, expiration time.Duration) (string, error) {
+	expirationTime := time.Now().Add(expiration)
 
 	claims := &Claims{
-		UserID:   userID,
-		TenantID: tenantID,
+		UserID:    userID,
+		TenantID:  tenantID,
+		TenantKey: tenantKey,
+		UserEmail: userEmail,
+		RoleIDs:   roleIDs,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Subject:   string(rune(userID)),
+			Subject:   fmt.Sprintf("%d", userID), // Use Sprintf for subject
 		},
 	}
 
@@ -36,6 +51,16 @@ func GenerateToken(userID, tenantID int64) (string, error) {
 	tokenString, err := token.SignedString(jwtSecret)
 
 	return tokenString, err
+}
+
+// GenerateAccessToken tạo một access token với thời gian hết hạn ngắn (15 phút).
+func GenerateAccessToken(userID, tenantID int64, tenantKey, userEmail string, roleIDs []int64) (string, error) {
+	return GenerateToken(userID, tenantID, tenantKey, userEmail, roleIDs, accessTokenExpiry)
+}
+
+// GenerateRefreshToken tạo một refresh token với thời gian hết hạn dài hơn (7 ngày).
+func GenerateRefreshToken(userID, tenantID int64, tenantKey, userEmail string, roleIDs []int64) (string, error) {
+	return GenerateToken(userID, tenantID, tenantKey, userEmail, roleIDs, refreshTokenExpiry)
 }
 
 // ParseToken xác thực một chuỗi token và trả về các claims nếu hợp lệ.

@@ -6,6 +6,7 @@ import (
 	"iam-saas/internal/config"
 	"iam-saas/internal/repository/postgres"
 	"iam-saas/internal/service"
+	"iam-saas/pkg/utils"
 	"log"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -20,6 +21,10 @@ func main() {
 		log.Fatalf("❌ could not load config: %v", err)
 	}
 	log.Println("✅ Configuration loaded successfully.")
+
+	// Configure JWT
+	utils.ConfigureJWT(cfg.JWT.SecretKey, cfg.JWT.AccessTokenExpiry, cfg.JWT.RefreshTokenExpiry)
+	log.Println("✅ JWT configured successfully.")
 
 	// Run Database Migrations
 	if err := runMigrations(cfg); err != nil {
@@ -38,14 +43,29 @@ func main() {
 	userRepo := postgres.NewuserRepository(db)
 	tenantRepo := postgres.NewtenantRepository(db)
 	roleRepo := postgres.NewRoleRepository(db)
-	permissionRepo := postgres.NewPermissionRepository(db)
+	planRepo := postgres.NewPlanRepository(db)
+	requestRepo := postgres.NewRequestRepository(db)
+	policyRepo := postgres.NewPolicyRepository(db)
+	ssoRepo := postgres.NewSsoRepository(db)
+	accessKeyRepo := postgres.NewAccessKeyRepository(db)
+	webhookRepo := postgres.NewWebhookRepository(db)
+	ticketRepo := postgres.NewTicketRepository(db)
+	refreshTokenRepo := postgres.NewRefreshTokenRepository(db)
 
 	// Initialize Services (Tầng nghiệp vụ)
-	userService := service.NewUserService(db, userRepo, tenantRepo)
-	roleService := service.NewRoleService(db, roleRepo, permissionRepo)
+	userService := service.NewUserService(db, userRepo, tenantRepo, refreshTokenRepo)
+	roleService := service.NewRoleService(db, roleRepo)
+	tenantService := service.NewTenantService(db, tenantRepo)
+	planService := service.NewPlanService(db, planRepo)
+	requestService := service.NewRequestService(db, requestRepo, tenantRepo, userRepo)
+	policyService := service.NewPolicyService(db, policyRepo)
+	ssoService := service.NewSsoService(db, ssoRepo)
+	accessKeyService := service.NewAccessKeyService(db, accessKeyRepo)
+	webhookService := service.NewWebhookService(db, webhookRepo)
+	ticketService := service.NewTicketService(db, ticketRepo)
 
 	// Initialize API (Tầng giao tiếp)
-	router := api.NewApi(userService, roleService)
+	router := api.NewApi(userService, roleService, tenantService, planService, requestService, policyService, ssoService, accessKeyService, webhookService, ticketService)
 	log.Println("✅ API router initialized.")
 
 	// Start Server

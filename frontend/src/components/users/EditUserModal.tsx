@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { userService } from '@/services/userService';
+import { useParams } from 'next/navigation';
 
 interface EditUserModalProps {
     isOpen: boolean;
@@ -15,6 +16,8 @@ export default function EditUserModal({ isOpen, onClose, user, onUserUpdated }: 
     const [email, setEmail] = useState('');
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const params = useParams();
+    const tenantKey = params.tenantKey as string;
 
     useEffect(() => {
         if (user) {
@@ -29,7 +32,7 @@ export default function EditUserModal({ isOpen, onClose, user, onUserUpdated }: 
         setError(null);
 
         try {
-            const updatedUser = await userService.updateUser(user.id, { name });
+            const updatedUser = await userService.updateUser(tenantKey, user.id, { name });
             onUserUpdated(updatedUser);
             onClose();
         } catch (err: any) {

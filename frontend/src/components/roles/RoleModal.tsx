@@ -1,16 +1,16 @@
-"use client";
-
 import React, { useState, useEffect } from 'react';
 import { roleService } from '@/services/roleService';
+import { useParams } from 'next/navigation';
 
 interface RoleModalProps {
     isOpen: boolean;
     onClose: () => void;
     role: any; // Define more specific type later
     onSave: (savedRole: any) => void;
+    tenantKey: string;
 }
 
-export default function RoleModal({ isOpen, onClose, role, onSave }: RoleModalProps) {
+export default function RoleModal({ isOpen, onClose, role, onSave, tenantKey }: RoleModalProps) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [permissions, setPermissions] = useState<any[]>([]);
@@ -27,7 +27,7 @@ export default function RoleModal({ isOpen, onClose, role, onSave }: RoleModalPr
                 .then(setPermissions)
                 .catch(() => setError("Could not load permissions."));
         }
-    }, [isOpen]);
+    }, [isOpen, tenantKey]);
 
     // Điền thông tin form nếu là chế độ edit
     useEffect(() => {
@@ -66,8 +66,8 @@ export default function RoleModal({ isOpen, onClose, role, onSave }: RoleModalPr
 
         try {
             const savedRole = isEditMode 
-                ? await roleService.updateRole(role.id, payload)
-                : await roleService.createRole(payload);
+                ? await roleService.updateRole(tenantKey, role.id, payload)
+                : await roleService.createRole(tenantKey, payload);
             onSave(savedRole);
             onClose();
         } catch (err: any) {

@@ -8,27 +8,36 @@ import (
 	"gorm.io/gorm"
 )
 
+// RefreshTokenRepository defines the contract for the RefreshToken repository layer.
+type RefreshTokenRepository interface {
+	Create(ctx context.Context, tx *gorm.DB, refreshToken *entities.RefreshToken) error
+	FindByToken(ctx context.Context, token string) (*entities.RefreshToken, error)
+	Delete(ctx context.Context, token string) error
+	DeleteByUserID(ctx context.Context, userID int64) error
+}
+
 // UserRepository defines the contract for the User repository layer.
 type UserRepository interface {
 	Create(ctx context.Context, tx *gorm.DB, user *entities.User) error
 	FindByEmail(ctx context.Context, email string) (*entities.User, error)
 	FindByID(ctx context.Context, id int64) (*entities.User, error)
-	ListByTenant(ctx context.Context, tenantID int64) ([]entities.User, error)
-	Update(ctx context.Context, user *entities.User) error
-	Delete(ctx context.Context, userID int64, tenantID int64) error
 	UpdateVerificationToken(ctx context.Context, userID int64, token string) error
 	FindUserByVerificationToken(ctx context.Context, token string) (*entities.User, error)
 	ActivateUser(ctx context.Context, userID int64) error
 	SetPasswordResetToken(ctx context.Context, userID int64, token string, expiresAt time.Time) error
 	FindByPasswordResetToken(ctx context.Context, token string) (*entities.User, error)
 	UpdatePassword(ctx context.Context, userID int64, newPasswordHash string) error
+	ListByTenant(ctx context.Context, tenantID int64) ([]entities.User, error)
+	Update(ctx context.Context, user *entities.User) error
+	Delete(ctx context.Context, userID int64, tenantID int64) error
 	AcceptInvitation(ctx context.Context, token, passwordHash string) error
+	GetUserRoleIDs(ctx context.Context, userID int64) ([]int64, error)
 }
 
 // UserService defines the contract for the User service layer.
 type UserService interface {
-	Login(ctx context.Context, email, password string) (*entities.User, string, error)
-	Register(ctx context.Context, name, email, password, tenantName string) (*entities.User, string, error)
+	Login(ctx context.Context, email, password string) (*entities.User, string, string, error) // Returns user, accessToken, refreshToken
+	Register(ctx context.Context, name, email, password, tenantKey string) (*entities.User, string, string, error) // Returns user, accessToken, refreshToken
 	InviteUser(ctx context.Context, inviterID, tenantID int64, name, email string) (*entities.User, error)
 	ListUsers(ctx context.Context, tenantID int64) ([]entities.User, error)
 	UpdateUser(ctx context.Context, userID int64, name string, tenantID int64) (*entities.User, error)
@@ -38,4 +47,9 @@ type UserService interface {
 	ForgotPassword(ctx context.Context, email string) error
 	ResetPassword(ctx context.Context, token, newPassword string) error
 	AcceptInvitation(ctx context.Context, token, password string) error
+	RefreshToken(ctx context.Context, refreshToken string) (string, string, error) // Returns new accessToken, newRefreshToken
+	RevokeRefreshTokens(ctx context.Context, userID int64) error
+	CreateTenant(ctx context.Context, name, key string) (*entities.Tenant, error)
+	GetTenantConfig(ctx context.Context, tenantKey string) (*entities.Tenant, error)
+	UpdateTenantBranding(ctx context.Context, tenantID int64, logoURL, primaryColor *string, allowPublicSignup bool) (*entities.Tenant, error)
 }

@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-// Giả sử có một service để gọi API invite
 import { userService } from '@/services/userService';
+import { useParams } from 'next/navigation';
 
 interface InviteUserModalProps {
     isOpen: boolean;
@@ -18,6 +18,8 @@ export default function InviteUserModal({ isOpen, onClose, onUserInvited }: Invi
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const { user } = useAuth();
+    const params = useParams();
+    const tenantKey = params.tenantKey as string;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -25,10 +27,10 @@ export default function InviteUserModal({ isOpen, onClose, onUserInvited }: Invi
         setError(null);
 
         try {
-            const invitedUser = await userService.invite({ name, email, role });
+            const invitedUser = await userService.invite(tenantKey, { name, email, role });
             alert('Invitation sent successfully!');
-            onUserInvited(invitedUser.data); // Gọi callback với dữ liệu user mới
-            onClose(); // Đóng modal
+            onUserInvited(invitedUser); // Call callback with the new user data
+            onClose(); // Close modal
         } catch (err: any) {
             setError(err.response?.data?.message || 'Failed to send invitation.');
         } finally {

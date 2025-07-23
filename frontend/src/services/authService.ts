@@ -1,17 +1,18 @@
-import apiClient from '../lib/apiClient';
+import apiClient, { publicApiClient, setTenantKey } from '../lib/apiClient';
 
 // Định nghĩa kiểu dữ liệu cho payload đăng ký
 export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
-  tenantName: string;
+  tenantKey: string;
 }
 
 // Định nghĩa kiểu dữ liệu cho payload đăng nhập
 export interface LoginPayload {
   email: string;
   password: string;
+  tenantKey: string;
 }
 
 // Định nghĩa kiểu dữ liệu cho response từ API
@@ -19,7 +20,9 @@ export interface LoginPayload {
 export interface AuthResponse {
   data: {
     user: any; // Nên định nghĩa một User interface chi tiết hơn
-    token: string;
+    accessToken: string;
+    refreshToken: string;
+    isOnboarded: boolean;
   };
   message: string;
 }
@@ -39,25 +42,33 @@ export interface AcceptInvitationPayload {
 }
 
 const register = async (payload: RegisterPayload): Promise<AuthResponse> => {
-  const response = await apiClient.post<AuthResponse>('/public/register', payload);
+  const response = await publicApiClient.post<AuthResponse>('/register', payload);
   return response.data;
 };
 
 const login = async (payload: LoginPayload): Promise<AuthResponse> => {
-  const response = await apiClient.post<AuthResponse>('/public/login', payload);
+  const response = await publicApiClient.post<AuthResponse>('/login', payload);
   return response.data;
 };
 
 const forgotPassword = async (payload: ForgotPasswordPayload): Promise<void> => {
-  await apiClient.post('/public/forgot-password', payload);
+  const response = await publicApiClient.post('/forgot-password', payload);
+  return response.data;
 };
 
 const resetPassword = async (payload: ResetPasswordPayload): Promise<void> => {
-  await apiClient.post('/public/reset-password', payload);
+  const response = await publicApiClient.post('/reset-password', payload);
+  return response.data;
 };
 
 const acceptInvitation = async (payload: AcceptInvitationPayload): Promise<void> => {
-  await apiClient.post('/public/accept-invitation', payload);
+  const response = await publicApiClient.post('/accept-invitation', payload);
+  return response.data;
+};
+
+const verifyEmail = async (payload: { token: string }): Promise<void> => {
+  const response = await publicApiClient.post('/verify-email', payload);
+  return response.data;
 };
 
 export const authService = {
@@ -66,4 +77,5 @@ export const authService = {
   forgotPassword,
   resetPassword,
   acceptInvitation,
+  verifyEmail,
 };

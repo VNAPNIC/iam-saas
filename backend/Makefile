@@ -11,6 +11,9 @@ server:
 	@go build -o ${BINARY_PATH} ./cmd/server
 	@./${BINARY_PATH}
 
+lint:
+	golangci-lint run --fix
+
 migrateup:
 	@echo "Running migrations up..."
 	migrate -path ./migrations -database "${DB_URL}" -verbose up

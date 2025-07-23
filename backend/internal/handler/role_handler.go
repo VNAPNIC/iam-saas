@@ -2,6 +2,7 @@ package handler
 
 import (
 	"iam-saas/internal/domain"
+	"iam-saas/internal/entities"
 	"iam-saas/pkg/app_error"
 	"iam-saas/pkg/i18n"
 	"iam-saas/pkg/utils"
@@ -42,8 +43,13 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 		return
 	}
 
-	role, err := h.roleService.CreateRole(c.Request.Context(), claims.TenantID, req.Name, req.Description, req.PermissionIDs)
-	if err != nil {
+	role := &entities.Role{
+		TenantID:    &claims.TenantID,
+		Name:        req.Name,
+		Description: req.Description,
+	}
+
+	if err := h.roleService.CreateRole(c.Request.Context(), role, req.PermissionIDs); err != nil {
 		h.handleError(c, err)
 		return
 	}
@@ -79,8 +85,13 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 		return
 	}
 
-	role, err := h.roleService.UpdateRole(c.Request.Context(), roleID, req.Name, req.Description, req.PermissionIDs)
-	if err != nil {
+	role := &entities.Role{
+		ID:          roleID,
+		Name:        req.Name,
+		Description: req.Description,
+	}
+
+	if err := h.roleService.UpdateRole(c.Request.Context(), role, req.PermissionIDs); err != nil {
 		h.handleError(c, err)
 		return
 	}

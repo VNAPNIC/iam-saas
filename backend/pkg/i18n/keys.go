@@ -12,11 +12,15 @@ const (
 	ActionSuccessful   Key = "action_successful"
 
 	// Error messages
-	LoginFailed          Key = "login_failed"
-	InvalidInput         Key = "invalid_input"
-	InternalServerError  Key = "internal_server_error"
-	Unauthorized         Key = "unauthorized"
-	EmailAlreadyExists   Key = "email_already_exists"
-	TenantNameIsRequired Key = "tenant_name_is_required"
-	UserQuotaExceeded    Key = "user_quota_exceeded"
+	LoginFailed                 Key = "login_failed"
+	InvalidInput                Key = "invalid_input"
+	InternalServerError         Key = "internal_server_error"
+	Unauthorized                Key = "unauthorized"
+	EmailAlreadyExists          Key = "email_already_exists"
+	TenantNameIsRequired        Key = "tenant_name_is_required"
+	UserQuotaExceeded           Key = "user_quota_exceeded"
+	TenantNotFound              Key = "tenant_not_found"
+	TenantKeyAlreadyExists      Key = "tenant_key_already_exists"
+	EmailVerificationSuccessful Key = "email_verification_successful"
+	EmailVerificationFailed     Key = "email_verification_failed"
 )

@@ -2,91 +2,77 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import apiClient from '@/lib/apiClient';
-
-// Định nghĩa kiểu dữ liệu cho User và Context
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  tenantId: number;
-}
+import apiClient, { setTenantKey } from '@/lib/apiClient';
+import { useAuthStore } from '@/stores/authStore';
+import { User } from '@/types/user';
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
-  login: (token: string) => Promise<void>;
+  accessToken: string | null;
+  refreshToken: string | null;
+  login: (accessToken: string, refreshToken: string, user: User, isOnboarded: boolean) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
-  isLoading: boolean; // Thêm trạng thái loading để xử lý lần tải đầu tiên
+  isLoading: boolean;
 }
 
-// Tạo Context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Tạo Provider Component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const { user, accessToken, refreshToken, login: authStoreLogin, logout: authStoreLogout, isAuthenticated } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const storedToken = localStorage.getItem('authToken');
-      if (storedToken) {
+      if (accessToken && user?.tenantKey) {
+        setTenantKey(user.tenantKey);
         try {
-          // Nếu có token, xác thực nó với backend để lấy thông tin user
-          apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-          // Giả sử có một endpoint /me để lấy thông tin user
           const { data } = await apiClient.get('/protected/me'); 
-          setUser(data.data);
-          setToken(storedToken);
+          authStoreLogin(accessToken, refreshToken || '', data.data); // Pass refreshToken as well
         } catch (error) {
-          // Token không hợp lệ, xóa nó đi
           console.error("Invalid token, logging out.");
-          localStorage.removeItem('authToken');
-          apiClient.defaults.headers.common['Authorization'] = null;
+          authStoreLogout();
         }
       }
       setIsLoading(false);
     };
     initializeAuth();
-  }, []);
+  }, [accessToken, refreshToken, authStoreLogin, authStoreLogout, user]);
 
-  const login = async (newToken: string) => {
+  const login = async (newAccessToken: string, newRefreshToken: string, newUser: User, isOnboarded: boolean) => {
     setIsLoading(true);
-    localStorage.setItem('authToken', newToken);
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    authStoreLogin(newAccessToken, newRefreshToken, newUser);
+    if (newUser.tenantKey) {
+        setTenantKey(newUser.tenantKey);
+    }
     try {
-        // Lấy thông tin user sau khi login thành công
         const { data } = await apiClient.get('/protected/me');
-        setUser(data.data);
-        setToken(newToken);
+        authStoreLogin(newAccessToken, newRefreshToken, data.data);
+        if (!isOnboarded) {
+            router.push(`/${newUser.tenantKey}/onboarding`);
+        } else {
+            router.push(`/${newUser.tenantKey}/dashboard`);
+        }
     } catch (error) {
         console.error("Failed to fetch user profile after login.", error);
-        // Xử lý lỗi nếu không lấy được profile
-        // Trong môi trường test, chúng ta vẫn muốn chuyển hướng
     } finally {
-        router.push('/dashboard');
         setIsLoading(false);
     }
   };
 
   const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('authToken');
-    apiClient.defaults.headers.common['Authorization'] = null;
+    authStoreLogout();
     router.push('/login');
   };
 
   const contextValue = {
     user,
-    token,
+    accessToken,
+    refreshToken,
     login,
     logout,
-    isAuthenticated: !!token,
+    isAuthenticated,
     isLoading,
   };
 
