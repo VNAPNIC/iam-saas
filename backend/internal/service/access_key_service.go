@@ -11,7 +11,7 @@ import (
 )
 
 type accessKeyService struct {
-	db          *gorm.DB
+	db            *gorm.DB
 	accessKeyRepo domain.AccessKeyRepository
 }
 
@@ -51,7 +51,7 @@ func (s *accessKeyService) CreateAccessKey(ctx context.Context, tenantID, groupI
 	newKey := &entities.AccessKey{
 		GroupID:     groupID,
 		AccessKeyID: accessKeyID,
-		SecretKey:   hashedSecretKey,
+		SecretAccessKeyHash:   hashedSecretKey,
 		Status:      "active",
 	}
 

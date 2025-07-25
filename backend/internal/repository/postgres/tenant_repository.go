@@ -21,7 +21,13 @@ func (r *tenantRepository) Create(ctx context.Context, tx *gorm.DB, tenant *enti
 	if tx != nil {
 		db = tx
 	}
-	return db.WithContext(ctx).Create(tenant).Error
+	query := `
+		INSERT INTO tenants (plan_id, name, status, logo_url, primary_color, allow_public_signup, key, is_onboarded, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+		RETURNING id, created_at, updated_at;
+	`
+	row := db.WithContext(ctx).Raw(query, tenant.PlanID, tenant.Name, tenant.Status, tenant.LogoURL, tenant.PrimaryColor, tenant.AllowPublicSignup, tenant.Key, tenant.IsOnboarded).Row()
+	return row.Scan(&tenant.ID, &tenant.CreatedAt, &tenant.UpdatedAt)
 }
 
 func (r *tenantRepository) FindByID(ctx context.Context, id int64) (*entities.Tenant, error) {

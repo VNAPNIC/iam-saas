@@ -8,86 +8,121 @@ import (
 )
 
 // RegisterProtectedRoutes đăng ký tất cả các API yêu cầu xác thực.
-func RegisterProtectedRoutes(rg *gin.RouterGroup, userHandler *handler.UserHandler, roleHandler *handler.RoleHandler, policyHandler *handler.PolicyHandler, ssoHandler *handler.SsoHandler, accessKeyHandler *handler.AccessKeyHandler, webhookHandler *handler.WebhookHandler, ticketHandler *handler.TicketHandler, roleService domain.RoleService) {
+func RegisterProtectedRoutes(
+	rg *gin.RouterGroup,
+	userHandler *handler.UserHandler,
+	roleHandler *handler.RoleHandler,
+	policyHandler *handler.PolicyHandler,
+	ssoHandler *handler.SsoHandler,
+	accessKeyHandler *handler.AccessKeyHandler,
+	webhookHandler *handler.WebhookHandler,
+	ticketHandler *handler.TicketHandler,
+	auditLogHandler *handler.AuditLogHandler,
+	subscriptionHandler *handler.SubscriptionHandler,
+	tokenService domain.TokenService,
+	roleService domain.RoleService,
+) {
 	// Endpoint để lấy thông tin user hiện tại
 	rg.GET("/me", userHandler.GetMe)
 	rg.PUT("/tenant/branding", userHandler.UpdateTenantBranding)
 
 	// Nhóm các API quản lý người dùng
 	users := rg.Group("/users")
-	users.Use(handler.AuthMiddleware(roleService, "users:read"))
+	users.Use(handler.AuthMiddleware(tokenService, roleService, "users:read"))
 	{
 		users.GET("", userHandler.ListUsers)
-		users.POST("/invite", handler.AuthMiddleware(roleService, "users:create"), userHandler.InviteUser)
-		users.PUT("/:id", handler.AuthMiddleware(roleService, "users:update"), userHandler.UpdateUser)
-		users.DELETE("/:id", handler.AuthMiddleware(roleService, "users:delete"), userHandler.DeleteUser)
+		users.POST("/invite", handler.AuthMiddleware(tokenService, roleService, "users:create"), userHandler.InviteUser)
+		users.PUT("/:id", handler.AuthMiddleware(tokenService, roleService, "users:update"), userHandler.UpdateUser)
+		users.DELETE("/:id", handler.AuthMiddleware(tokenService, roleService, "users:delete"), userHandler.DeleteUser)
 	}
 
 	// Nhóm các API quản lý vai trò
 	roles := rg.Group("/roles")
-	roles.Use(handler.AuthMiddleware(roleService, "roles:read"))
+	roles.Use(handler.AuthMiddleware(tokenService, roleService, "roles:read"))
 	{
-		roles.POST("", handler.AuthMiddleware(roleService, "roles:create"), roleHandler.CreateRole)
+		roles.POST("", handler.AuthMiddleware(tokenService, roleService, "roles:create"), roleHandler.CreateRole)
 		roles.GET("", roleHandler.ListRoles)
 		roles.GET("/:id", roleHandler.GetRole)
-		roles.PUT("/:id", handler.AuthMiddleware(roleService, "roles:update"), roleHandler.UpdateRole)
-		roles.DELETE("/:id", handler.AuthMiddleware(roleService, "roles:delete"), roleHandler.DeleteRole)
+		roles.PUT("/:id", handler.AuthMiddleware(tokenService, roleService, "roles:update"), roleHandler.UpdateRole)
+		roles.DELETE("/:id", handler.AuthMiddleware(tokenService, roleService, "roles:delete"), roleHandler.DeleteRole)
 	}
 
 	// API để lấy danh sách tất cả các quyền
-	rg.GET("/permissions", handler.AuthMiddleware(roleService, "roles:read"), roleHandler.ListPermissions)
+	rg.GET("/permissions", handler.AuthMiddleware(tokenService, roleService, "roles:read"), roleHandler.ListPermissions)
 
 	// Nhóm các API quản lý chính sách
 	policies := rg.Group("/policies")
-	policies.Use(handler.AuthMiddleware(roleService, "policies:read"))
+	policies.Use(handler.AuthMiddleware(tokenService, roleService, "policies:read"))
 	{
-		policies.POST("", handler.AuthMiddleware(roleService, "policies:create"), policyHandler.CreatePolicy)
+		policies.POST("", handler.AuthMiddleware(tokenService, roleService, "policies:create"), policyHandler.CreatePolicy)
 		policies.GET("", policyHandler.ListPolicies)
 		policies.GET("/:id", policyHandler.GetPolicy)
-		policies.PUT("/:id", handler.AuthMiddleware(roleService, "policies:update"), policyHandler.UpdatePolicy)
-		policies.DELETE("/:id", handler.AuthMiddleware(roleService, "policies:delete"), policyHandler.DeletePolicy)
-		policies.POST("/simulate", handler.AuthMiddleware(roleService, "policies:simulate"), policyHandler.SimulatePolicy)
+		policies.PUT("/:id", handler.AuthMiddleware(tokenService, roleService, "policies:update"), policyHandler.UpdatePolicy)
+		policies.DELETE("/:id", handler.AuthMiddleware(tokenService, roleService, "policies:delete"), policyHandler.DeletePolicy)
+		policies.POST("/simulate", handler.AuthMiddleware(tokenService, roleService, "policies:simulate"), policyHandler.SimulatePolicy)
 	}
 
 	// Nhóm các API quản lý SSO
 	sso := rg.Group("/sso-settings")
-	sso.Use(handler.AuthMiddleware(roleService, "sso:read"))
+	sso.Use(handler.AuthMiddleware(tokenService, roleService, "sso:read"))
 	{
 		sso.GET("", ssoHandler.GetSsoConfig)
-		sso.PUT("", handler.AuthMiddleware(roleService, "sso:update"), ssoHandler.UpdateSsoConfig)
-		sso.DELETE("", handler.AuthMiddleware(roleService, "sso:delete"), ssoHandler.DeleteSsoConfig)
-		sso.POST("/test", handler.AuthMiddleware(roleService, "sso:test"), ssoHandler.TestSsoConnection)
+		sso.PUT("", handler.AuthMiddleware(tokenService, roleService, "sso:update"), ssoHandler.UpdateSsoConfig)
+		sso.DELETE("", handler.AuthMiddleware(tokenService, roleService, "sso:delete"), ssoHandler.DeleteSsoConfig)
+		sso.POST("/test", handler.AuthMiddleware(tokenService, roleService, "sso:test"), ssoHandler.TestSsoConnection)
 	}
 
 	// Nhóm các API quản lý Access Key
 	accessKeys := rg.Group("/access-keys")
-	accessKeys.Use(handler.AuthMiddleware(roleService, "access_keys:read"))
+	accessKeys.Use(handler.AuthMiddleware(tokenService, roleService, "access_keys:read"))
 	{
-		accessKeys.POST("/groups", handler.AuthMiddleware(roleService, "access_keys:create_group"), accessKeyHandler.CreateAccessKeyGroup)
-		accessKeys.POST("/groups/:groupId/keys", handler.AuthMiddleware(roleService, "access_keys:create_key"), accessKeyHandler.CreateAccessKey)
+		accessKeys.POST("/groups", handler.AuthMiddleware(tokenService, roleService, "access_keys:create_group"), accessKeyHandler.CreateAccessKeyGroup)
+		accessKeys.POST("/groups/:groupId/keys", handler.AuthMiddleware(tokenService, roleService, "access_keys:create_key"), accessKeyHandler.CreateAccessKey)
 		accessKeys.GET("", accessKeyHandler.ListAccessKeyGroups)
-		accessKeys.DELETE("/keys/:keyId", handler.AuthMiddleware(roleService, "access_keys:delete_key"), accessKeyHandler.DeleteAccessKey)
-		accessKeys.DELETE("/groups/:groupId", handler.AuthMiddleware(roleService, "access_keys:delete_group"), accessKeyHandler.DeleteAccessKeyGroup)
+		accessKeys.DELETE("/keys/:keyId", handler.AuthMiddleware(tokenService, roleService, "access_keys:delete_key"), accessKeyHandler.DeleteAccessKey)
+		accessKeys.DELETE("/groups/:groupId", handler.AuthMiddleware(tokenService, roleService, "access_keys:delete_group"), accessKeyHandler.DeleteAccessKeyGroup)
 	}
 
 	// Nhóm các API quản lý Webhook
 	webhooks := rg.Group("/webhooks")
-	webhooks.Use(handler.AuthMiddleware(roleService, "webhooks:read"))
+	webhooks.Use(handler.AuthMiddleware(tokenService, roleService, "webhooks:read"))
 	{
-		webhooks.POST("", handler.AuthMiddleware(roleService, "webhooks:create"), webhookHandler.CreateWebhook)
+		webhooks.POST("", handler.AuthMiddleware(tokenService, roleService, "webhooks:create"), webhookHandler.CreateWebhook)
 		webhooks.GET("", webhookHandler.ListWebhooks)
 		webhooks.GET("/:id", webhookHandler.GetWebhook)
-		webhooks.PUT("/:id", handler.AuthMiddleware(roleService, "webhooks:update"), webhookHandler.UpdateWebhook)
-		webhooks.DELETE("/:id", handler.AuthMiddleware(roleService, "webhooks:delete"), webhookHandler.DeleteWebhook)
+		webhooks.PUT("/:id", handler.AuthMiddleware(tokenService, roleService, "webhooks:update"), webhookHandler.UpdateWebhook)
+		webhooks.DELETE("/:id", handler.AuthMiddleware(tokenService, roleService, "webhooks:delete"), webhookHandler.DeleteWebhook)
 	}
 
 	// Nhóm các API quản lý Ticket
 	tickets := rg.Group("/tickets")
-	tickets.Use(handler.AuthMiddleware(roleService, "tickets:read"))
+	tickets.Use(handler.AuthMiddleware(tokenService, roleService, "tickets:read"))
 	{
-		tickets.POST("", handler.AuthMiddleware(roleService, "tickets:create"), ticketHandler.CreateTicket)
+		tickets.POST("", handler.AuthMiddleware(tokenService, roleService, "tickets:create"), ticketHandler.CreateTicket)
 		tickets.GET("/:id", ticketHandler.GetTicket)
-		tickets.PUT("/:id/status", handler.AuthMiddleware(roleService, "tickets:update_status"), ticketHandler.UpdateTicketStatus)
-		tickets.POST("/:id/reply", handler.AuthMiddleware(roleService, "tickets:reply"), ticketHandler.ReplyToTicket)
+		tickets.PUT("/:id/status", handler.AuthMiddleware(tokenService, roleService, "tickets:update_status"), ticketHandler.UpdateTicketStatus)
+		tickets.POST("/:id/reply", handler.AuthMiddleware(tokenService, roleService, "tickets:reply"), ticketHandler.ReplyToTicket)
+	}
+
+	// Nhóm các API quản lý Audit Log
+	auditLogs := rg.Group("/audit-logs")
+	auditLogs.Use(handler.AuthMiddleware(tokenService, roleService, "audit_logs:read"))
+	{
+		auditLogs.GET("", auditLogHandler.ListAuditLogs)
+	}
+
+	// Nhóm các API quản lý MFA
+	mfa := rg.Group("/mfa")
+	{
+		mfa.POST("/enable", userHandler.EnableMFA)
+		mfa.POST("/verify", userHandler.VerifyMFA)
+		mfa.POST("/disable", userHandler.DisableMFA)
+	}
+
+	// Nhóm các API quản lý Subscription
+	subscriptions := rg.Group("/subscriptions")
+	subscriptions.Use(handler.AuthMiddleware(tokenService, roleService, "subscriptions:read"))
+	{
+		subscriptions.GET("", subscriptionHandler.GetSubscription)
 	}
 }

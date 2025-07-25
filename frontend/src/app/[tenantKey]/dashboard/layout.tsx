@@ -23,7 +23,8 @@ export default function DashboardLayout({
     // Redirect to onboarding if user is tenant admin and tenant is not onboarded
     // Assuming tenantConfig.isOnboarded is a field that comes from the backend
     // and user.role indicates if they are a tenant admin
-    if (!isTenantConfigLoading && tenantConfig && !tenantConfig.isOnboarded && user?.role === 'Tenant Admin') { // Placeholder for role check
+    const TENANT_ADMIN_ROLE_ID = 'YOUR_TENANT_ADMIN_ROLE_ID'; // TODO: Replace with the actual RoleID for 'Tenant Admin'
+    if (!isTenantConfigLoading && tenantConfig && !tenantConfig.isOnboarded && user?.RoleIDs?.includes(TENANT_ADMIN_ROLE_ID)) { // Check if user has Tenant Admin role
       router.push(`/${tenantKey}/onboarding`);
     }
   }, [user, router, tenantKey, tenantConfig, isTenantConfigLoading]);

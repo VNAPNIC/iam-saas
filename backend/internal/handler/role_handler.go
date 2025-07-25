@@ -5,7 +5,6 @@ import (
 	"iam-saas/internal/entities"
 	"iam-saas/pkg/app_error"
 	"iam-saas/pkg/i18n"
-	"iam-saas/pkg/utils"
 	"net/http"
 	"strconv"
 
@@ -13,11 +12,12 @@ import (
 )
 
 type RoleHandler struct {
-	roleService domain.RoleService
+	roleService   domain.RoleService
+	tenantService domain.TenantService
 }
 
-func NewRoleHandler(roleService domain.RoleService) *RoleHandler {
-	return &RoleHandler{roleService}
+func NewRoleHandler(roleService domain.RoleService, tenantService domain.TenantService) *RoleHandler {
+	return &RoleHandler{roleService: roleService, tenantService: tenantService}
 }
 
 // --- Request Structs ---
@@ -36,15 +36,21 @@ type updateRoleRequest struct {
 // --- Handlers ---
 
 func (h *RoleHandler) CreateRole(c *gin.Context) {
-	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
 	var req createRoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
 
 	role := &entities.Role{
-		TenantID:    &claims.TenantID,
+		TenantID:    &tenant.ID,
 		Name:        req.Name,
 		Description: req.Description,
 	}
@@ -68,8 +74,14 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 }
 
 func (h *RoleHandler) ListRoles(c *gin.Context) {
-	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
-	roles, err := h.roleService.ListRoles(c.Request.Context(), claims.TenantID)
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	roles, err := h.roleService.ListRoles(c.Request.Context(), tenant.ID)
 	if err != nil {
 		h.handleError(c, err)
 		return

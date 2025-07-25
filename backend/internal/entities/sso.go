@@ -8,7 +8,7 @@ type SsoConfig struct {
 	Provider     string    `json:"provider"`
 	MetadataURL  string    `json:"metadataUrl"`
 	ClientID     string    `json:"clientId"`
-	ClientSecret string    `json:"-"` // Never expose
+	ClientSecret string    `json:"-"`      // Never expose
 	Status       string    `json:"status"` // enabled, disabled
 	CreatedAt    time.Time `json:"createdAt"`
 	UpdatedAt    time.Time `json:"updatedAt"`

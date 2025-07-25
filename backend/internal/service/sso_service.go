@@ -11,8 +11,8 @@ import (
 )
 
 type ssoService struct {
-	db       *gorm.DB
-	ssoRepo  domain.SsoRepository
+	db      *gorm.DB
+	ssoRepo domain.SsoRepository
 }
 
 func NewSsoService(db *gorm.DB, ssoRepo domain.SsoRepository) domain.SsoService {
@@ -37,12 +37,12 @@ func (s *ssoService) UpdateSsoConfig(ctx context.Context, tenantID int64, provid
 	var ssoConfig *entities.SsoConfig
 	if existingConfig == nil {
 		ssoConfig = &entities.SsoConfig{
-			TenantID:    tenantID,
-			Provider:    provider,
-			MetadataURL: metadataURL,
-			ClientID:    clientID,
+			TenantID:     tenantID,
+			Provider:     provider,
+			MetadataURL:  metadataURL,
+			ClientID:     clientID,
 			ClientSecret: hashedClientSecret,
-			Status:      "enabled", // Default to enabled on creation
+			Status:       "enabled", // Default to enabled on creation
 		}
 		if err := s.ssoRepo.Create(ctx, nil, ssoConfig); err != nil {
 			return nil, app_error.NewInternalServerError(err)

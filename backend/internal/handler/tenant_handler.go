@@ -19,7 +19,14 @@ func NewTenantHandler(tenantService domain.TenantService) *TenantHandler {
 }
 
 func (h *TenantHandler) ListTenants(c *gin.Context) {
-	tenants, err := h.tenantService.ListTenants(c.Request.Context())
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	tenants, err := h.tenantService.ListTenants(c.Request.Context(), tenant.ID)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -58,6 +65,17 @@ func (h *TenantHandler) DeleteTenant(c *gin.Context) {
 	tenantID, err := strconv.ParseInt(c.Param("tenantId"), 10, 64)
 	if err != nil {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
+		return
+	}
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	if tenant.ID != tenantID {
+		h.handleError(c, app_error.NewUnauthorizedError(string(i18n.Unauthorized)))
 		return
 	}
 	if err := h.tenantService.DeleteTenant(c.Request.Context(), tenantID); err != nil {

@@ -8,14 +8,14 @@ import (
 )
 
 type Webhook struct {
-	ID        int64     `json:"id"`
-	TenantID  int64     `json:"tenantId"`
-	URL       string    `json:"url"`
-	Secret    string    `json:"-"` // Never expose
+	ID        int64         `json:"id"`
+	TenantID  int64         `json:"tenantId"`
+	URL       string        `json:"url"`
+	Secret    string        `json:"-"` // Never expose
 	Events    WebhookEvents `json:"events" gorm:"type:jsonb"`
-	Status    string    `json:"status"` // active, inactive
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	Status    string        `json:"status"` // active, inactive
+	CreatedAt time.Time     `json:"createdAt"`
+	UpdatedAt time.Time     `json:"updatedAt"`
 }
 
 func (w *Webhook) TableName() string {

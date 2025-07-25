@@ -46,7 +46,13 @@ func (r *roleRepository) CreateRole(ctx context.Context, tx *gorm.DB, role *enti
 	if tx != nil {
 		db = tx
 	}
-	return db.WithContext(ctx).Create(role).Error
+	query := `
+		INSERT INTO roles (tenant_id, name, description, is_default, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, NOW(), NOW())
+		RETURNING id, created_at, updated_at;
+	`
+	row := db.WithContext(ctx).Raw(query, role.TenantID, role.Name, role.Description, role.IsDefault).Row()
+	return row.Scan(&role.ID, &role.CreatedAt, &role.UpdatedAt)
 }
 
 func (r *roleRepository) GetRole(ctx context.Context, id int64) (*entities.Role, error) {
@@ -102,11 +108,13 @@ func (r *roleRepository) UpdateRole(ctx context.Context, tx *gorm.DB, role *enti
 	if tx != nil {
 		db = tx
 	}
-	return db.WithContext(ctx).Save(role).Error
+	query := `UPDATE roles SET name = ?, description = ?, is_default = ?, updated_at = NOW() WHERE id = ? AND tenant_id = ?`
+	return db.WithContext(ctx).Exec(query, role.Name, role.Description, role.IsDefault, role.ID, role.TenantID).Error
 }
 
 func (r *roleRepository) DeleteRole(ctx context.Context, id int64) error {
-	return r.db.WithContext(ctx).Delete(&entities.Role{}, id).Error
+	query := `DELETE FROM roles WHERE id = ?`
+	return r.db.WithContext(ctx).Exec(query, id).Error
 }
 
 func (r *roleRepository) ListPermissions(ctx context.Context) ([]entities.Permission, error) {

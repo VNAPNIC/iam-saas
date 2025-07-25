@@ -11,23 +11,36 @@ export const publicApiClient = axios.create({
   },
 });
 
+// Interceptor to attach tenant key to public requests if available
+publicApiClient.interceptors.request.use(
+  (config) => {
+    const { user } = useAuthStore.getState();
+    if (user && user.tenantKey) {
+      config.headers['X-Tenant-Key'] = user.tenantKey;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 const apiClient = axios.create({
+  baseURL: `${API_BASE_URL}`,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-export const setTenantKey = (tenantKey: string) => {
-  apiClient.defaults.baseURL = `${API_BASE_URL}/${tenantKey}`;
-};
-
 // Interceptor to attach token to every request
 apiClient.interceptors.request.use(
   (config) => {
-    const { accessToken } = useAuthStore.getState();
+    const { accessToken, user } = useAuthStore.getState();
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
+      if (user && user.tenantKey) {
+        config.headers['X-Tenant-Key'] = user.tenantKey;
+      }
     }
     return config;
   },
@@ -57,13 +70,11 @@ apiClient.interceptors.response.use(
         );
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data;
-        login(newAccessToken, newRefreshToken, useAuthStore.getState().user!); // Update store
+        login(newAccessToken, newRefreshToken, useAuthStore.getState().user!);
 
-        // Retry original request with new token
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // Refresh token failed, log out user
         useAuthStore.getState().logout();
         return Promise.reject(refreshError);
       }

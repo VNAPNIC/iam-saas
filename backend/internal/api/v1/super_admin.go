@@ -7,7 +7,15 @@ import (
 )
 
 // RegisterSuperAdminRoutes đăng ký các API chỉ dành cho Super Admin.
-func RegisterSuperAdminRoutes(rg *gin.RouterGroup, tenantHandler *handler.TenantHandler, planHandler *handler.PlanHandler, requestHandler *handler.RequestHandler, ticketHandler *handler.TicketHandler) {
+func RegisterSuperAdminRoutes(
+	rg *gin.RouterGroup,
+	tenantHandler *handler.TenantHandler,
+	planHandler *handler.PlanHandler,
+	requestHandler *handler.RequestHandler,
+	ticketHandler *handler.TicketHandler,
+	subscriptionHandler *handler.SubscriptionHandler,
+	alertHandler *handler.AlertHandler,
+) {
 	rg.GET("/tenants", tenantHandler.ListTenants)
 	rg.GET("/tenants/:tenantId", tenantHandler.GetTenantDetails)
 	rg.PUT("/tenants/:tenantId/suspend", tenantHandler.SuspendTenant)
@@ -28,4 +36,11 @@ func RegisterSuperAdminRoutes(rg *gin.RouterGroup, tenantHandler *handler.Tenant
 	rg.GET("/tickets/:id", ticketHandler.GetTicket)
 	rg.PUT("/tickets/:id/status", ticketHandler.UpdateTicketStatus)
 	rg.POST("/tickets/:id/reply", ticketHandler.ReplyToTicket)
+
+	rg.GET("/subscriptions", subscriptionHandler.ListSubscriptions)
+	rg.GET("/subscriptions/:id", subscriptionHandler.GetSubscription)
+	rg.PUT("/subscriptions/:id/status", subscriptionHandler.UpdateSubscriptionStatus)
+
+	rg.GET("/alerts", alertHandler.ListAlerts)
+	rg.PUT("/alerts/:id/status", alertHandler.UpdateAlertStatus)
 }

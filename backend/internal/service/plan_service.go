@@ -91,7 +91,5 @@ func (s *planService) UpdatePlan(ctx context.Context, id int64, name string, pri
 }
 
 func (s *planService) DeletePlan(ctx context.Context, id int64) error {
-	// In a real application, you would check if any tenants are using this plan
-	// before allowing deletion, or reassign them to a default plan.
 	return s.planRepo.Delete(ctx, id)
 }

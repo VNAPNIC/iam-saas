@@ -4,7 +4,6 @@ import (
 	"iam-saas/internal/domain"
 	"iam-saas/pkg/app_error"
 	"iam-saas/pkg/i18n"
-	"iam-saas/pkg/utils"
 	"net/http"
 	"strconv"
 
@@ -13,10 +12,11 @@ import (
 
 type WebhookHandler struct {
 	webhookService domain.WebhookService
+	tenantService  domain.TenantService
 }
 
-func NewWebhookHandler(webhookService domain.WebhookService) *WebhookHandler {
-	return &WebhookHandler{webhookService: webhookService}
+func NewWebhookHandler(webhookService domain.WebhookService, tenantService domain.TenantService) *WebhookHandler {
+	return &WebhookHandler{webhookService: webhookService, tenantService: tenantService}
 }
 
 // --- Request Structs ---
@@ -37,14 +37,20 @@ type updateWebhookRequest struct {
 // --- Handlers ---
 
 func (h *WebhookHandler) CreateWebhook(c *gin.Context) {
-	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
 	var req createWebhookRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
 
-	webhook, err := h.webhookService.CreateWebhook(c.Request.Context(), claims.TenantID, req.URL, req.Secret, req.Events, req.Status)
+	webhook, err := h.webhookService.CreateWebhook(c.Request.Context(), tenant.ID, req.URL, req.Secret, req.Events, req.Status)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -59,7 +65,14 @@ func (h *WebhookHandler) GetWebhook(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
-	webhook, err := h.webhookService.GetWebhook(c.Request.Context(), webhookID)
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	webhook, err := h.webhookService.GetWebhook(c.Request.Context(), tenant.ID, webhookID)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -68,8 +81,14 @@ func (h *WebhookHandler) GetWebhook(c *gin.Context) {
 }
 
 func (h *WebhookHandler) ListWebhooks(c *gin.Context) {
-	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
-	webhooks, err := h.webhookService.ListWebhooks(c.Request.Context(), claims.TenantID)
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	webhooks, err := h.webhookService.ListWebhooks(c.Request.Context(), tenant.ID)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -88,8 +107,15 @@ func (h *WebhookHandler) UpdateWebhook(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
 
-	webhook, err := h.webhookService.UpdateWebhook(c.Request.Context(), webhookID, req.URL, req.Secret, req.Events, req.Status)
+	webhook, err := h.webhookService.UpdateWebhook(c.Request.Context(), tenant.ID, webhookID, req.URL, req.Secret, req.Events, req.Status)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -104,7 +130,14 @@ func (h *WebhookHandler) DeleteWebhook(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
-	if err := h.webhookService.DeleteWebhook(c.Request.Context(), webhookID); err != nil {
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	if err := h.webhookService.DeleteWebhook(c.Request.Context(), tenant.ID, webhookID); err != nil {
 		h.handleError(c, err)
 		return
 	}

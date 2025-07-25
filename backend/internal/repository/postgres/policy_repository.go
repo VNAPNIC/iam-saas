@@ -21,7 +21,13 @@ func (r *policyRepository) Create(ctx context.Context, tx *gorm.DB, policy *enti
 	if tx != nil {
 		db = tx
 	}
-	return db.WithContext(ctx).Create(policy).Error
+	query := `
+		INSERT INTO policies (tenant_id, name, target, "condition", status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+		RETURNING id, created_at, updated_at;
+	`
+	row := db.WithContext(ctx).Raw(query, policy.TenantID, policy.Name, policy.Target, policy.Condition, policy.Status).Row()
+	return row.Scan(&policy.ID, &policy.CreatedAt, &policy.UpdatedAt)
 }
 
 func (r *policyRepository) FindByID(ctx context.Context, id int64) (*entities.Policy, error) {

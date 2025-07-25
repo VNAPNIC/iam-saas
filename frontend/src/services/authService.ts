@@ -1,4 +1,4 @@
-import apiClient, { publicApiClient, setTenantKey } from '../lib/apiClient';
+import apiClient, { publicApiClient } from '../lib/apiClient';
 
 // Định nghĩa kiểu dữ liệu cho payload đăng ký
 export interface RegisterPayload {
@@ -19,7 +19,7 @@ export interface LoginPayload {
 // (Dựa trên quy cách API đã định nghĩa)
 export interface AuthResponse {
   data: {
-    user: any; // Nên định nghĩa một User interface chi tiết hơn
+    user: any;
     accessToken: string;
     refreshToken: string;
     isOnboarded: boolean;
@@ -42,12 +42,32 @@ export interface AcceptInvitationPayload {
 }
 
 const register = async (payload: RegisterPayload): Promise<AuthResponse> => {
-  const response = await publicApiClient.post<AuthResponse>('/register', payload);
+  const { tenantKey, ...body } = payload;
+
+  const response = await publicApiClient.post<AuthResponse>(
+    '/register',
+    body,
+    {
+      headers: {
+        'X-Tenant-Key': tenantKey,
+      },
+    }
+  );
   return response.data;
 };
 
 const login = async (payload: LoginPayload): Promise<AuthResponse> => {
-  const response = await publicApiClient.post<AuthResponse>('/login', payload);
+  const { tenantKey, ...body } = payload;
+
+  const response = await publicApiClient.post<AuthResponse>(
+    '/login',
+    body,
+    {
+      headers: {
+        'X-Tenant-Key': tenantKey,
+      },
+    }
+  );
   return response.data;
 };
 

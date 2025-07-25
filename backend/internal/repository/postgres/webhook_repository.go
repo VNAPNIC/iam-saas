@@ -21,7 +21,13 @@ func (r *webhookRepository) Create(ctx context.Context, tx *gorm.DB, webhook *en
 	if tx != nil {
 		db = tx
 	}
-	return db.WithContext(ctx).Create(webhook).Error
+	query := `
+		INSERT INTO webhooks (tenant_id, url, secret, events, status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+		RETURNING id, created_at, updated_at;
+	`
+	row := db.WithContext(ctx).Raw(query, webhook.TenantID, webhook.URL, webhook.Secret, webhook.Events, webhook.Status).Row()
+	return row.Scan(&webhook.ID, &webhook.CreatedAt, &webhook.UpdatedAt)
 }
 
 func (r *webhookRepository) FindByID(ctx context.Context, id int64) (*entities.Webhook, error) {

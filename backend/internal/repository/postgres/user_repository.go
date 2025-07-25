@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"iam-saas/internal/domain"
 	"iam-saas/internal/entities"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -207,4 +209,35 @@ func (r *userRepository) GetUserRoleIDs(ctx context.Context, userID int64) ([]in
 	}
 
 	return roleIDs, nil
+}
+
+func (r *userRepository) UpdateMFASecret(ctx context.Context, userID int64, secret string) error {
+	query := `UPDATE "users" SET mfa_secret = ?, updated_at = NOW() WHERE id = ?`
+	return r.db.WithContext(ctx).Exec(query, secret, userID).Error
+}
+
+func (r *userRepository) AssignRolesToUser(ctx context.Context, tx *gorm.DB, userID int64, roleIDs []int64) error {
+	db := r.db
+	if tx != nil {
+		db = tx
+	}
+
+	// Delete existing roles for the user
+	deleteQuery := `DELETE FROM user_roles WHERE user_id = ?`
+	if err := db.WithContext(ctx).Exec(deleteQuery, userID).Error; err != nil {
+		return err
+	}
+
+	// Insert new roles
+	if len(roleIDs) > 0 {
+		valueStrings := []string{}
+		valueArgs := []interface{}{}
+		for _, roleID := range roleIDs {
+			valueStrings = append(valueStrings, "(?, ?)")
+			valueArgs = append(valueArgs, userID, roleID)
+		}
+		insertQuery := fmt.Sprintf("INSERT INTO user_roles (user_id, role_id) VALUES %s", strings.Join(valueStrings, ","))
+		return db.WithContext(ctx).Exec(insertQuery, valueArgs...).Error
+	}
+	return nil
 }

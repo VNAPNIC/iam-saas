@@ -74,7 +74,9 @@ func (s *tenantService) UpdateTenantBranding(ctx context.Context, tenantID int64
 	return tenant, nil
 }
 
-func (s *tenantService) ListTenants(ctx context.Context) ([]entities.Tenant, error) {
+func (s *tenantService) ListTenants(ctx context.Context, tenantID int64) ([]entities.Tenant, error) {
+	// In a real application, you might filter tenants by some criteria or only allow super admin to list all.
+	// For now, we just pass the tenantID to the repository if it's meant for filtering.
 	return s.tenantRepo.ListTenants(ctx)
 }
 

@@ -11,20 +11,21 @@ import (
 )
 
 type SsoHandler struct {
-	ssoService domain.SsoService
+	ssoService    domain.SsoService
+	tenantService domain.TenantService
 }
 
-func NewSsoHandler(ssoService domain.SsoService) *SsoHandler {
-	return &SsoHandler{ssoService: ssoService}
+func NewSsoHandler(ssoService domain.SsoService, tenantService domain.TenantService) *SsoHandler {
+	return &SsoHandler{ssoService: ssoService, tenantService: tenantService}
 }
 
 // --- Request Structs ---
 type updateSsoConfigRequest struct {
-	Provider    string `json:"provider" binding:"required"`
-	MetadataURL string `json:"metadataUrl" binding:"required,url"`
-	ClientID    string `json:"clientId" binding:"required"`
-	ClientSecret string `json:"clientSecret"`	// Optional, only sent on initial setup or change
-	Status      bool   `json:"status"`
+	Provider     string `json:"provider" binding:"required"`
+	MetadataURL  string `json:"metadataUrl" binding:"required,url"`
+	ClientID     string `json:"clientId" binding:"required"`
+	ClientSecret string `json:"clientSecret"` // Optional, only sent on initial setup or change
+	Status       bool   `json:"status"`
 }
 
 // --- Handlers ---
@@ -65,8 +66,14 @@ func (h *SsoHandler) DeleteSsoConfig(c *gin.Context) {
 }
 
 func (h *SsoHandler) TestSsoConnection(c *gin.Context) {
-	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
-	if err := h.ssoService.TestSsoConnection(c.Request.Context(), claims.TenantID); err != nil {
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	if err := h.ssoService.TestSsoConnection(c.Request.Context(), tenant.ID); err != nil {
 		h.handleError(c, err)
 		return
 	}

@@ -17,8 +17,8 @@ type WebhookRepository interface {
 
 type WebhookService interface {
 	CreateWebhook(ctx context.Context, tenantID int64, url, secret string, events []string, status string) (*entities.Webhook, error)
-	GetWebhook(ctx context.Context, id int64) (*entities.Webhook, error)
+	GetWebhook(ctx context.Context, tenantID int64, id int64) (*entities.Webhook, error)
 	ListWebhooks(ctx context.Context, tenantID int64) ([]entities.Webhook, error)
-	UpdateWebhook(ctx context.Context, id int64, url, secret string, events []string, status string) (*entities.Webhook, error)
-	DeleteWebhook(ctx context.Context, id int64) error
+	UpdateWebhook(ctx context.Context, tenantID int64, id int64, url, secret string, events []string, status string) (*entities.Webhook, error)
+	DeleteWebhook(ctx context.Context, tenantID int64, id int64) error
 }

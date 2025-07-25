@@ -38,13 +38,13 @@ export const TenantProvider = ({ children }: { children: ReactNode }) => {
         setTenantConfig(response.data.data);
       } catch (error) {
         console.error("Failed to fetch tenant config:", error);
-        setTenantConfig(null); // Clear config on error
+        setTenantConfig(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (!config) { // Only fetch if not already in store
+    if (!config) {
       fetchTenantConfig();
     } else {
       setIsLoading(false);

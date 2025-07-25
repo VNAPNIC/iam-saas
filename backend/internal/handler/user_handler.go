@@ -14,24 +14,26 @@ import (
 )
 
 type UserHandler struct {
-	userService domain.UserService
+	userService   domain.UserService
+	tenantService domain.TenantService
 }
 
-func NewUserHandler(userService domain.UserService) *UserHandler {
-	return &UserHandler{userService: userService}
+func NewUserHandler(userService domain.UserService, tenantService domain.TenantService) *UserHandler {
+	return &UserHandler{userService: userService, tenantService: tenantService}
 }
 
 // --- Request Structs ---
 type loginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=8"`
+	MFAOTP   string `json:"mfaOtp"`
 }
 
 type loginResponse struct {
-	AccessToken  string          `json:"accessToken"`
-	RefreshToken string          `json:"refreshToken"`
-	User         *entities.User  `json:"user"`
-	IsOnboarded  bool            `json:"isOnboarded"`
+	AccessToken  string         `json:"accessToken"`
+	RefreshToken string         `json:"refreshToken"`
+	User         *entities.User `json:"user"`
+	IsOnboarded  bool           `json:"isOnboarded"`
 }
 
 type registerRequest struct {
@@ -73,7 +75,9 @@ func (h *UserHandler) Login(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
-	user, accessToken, refreshToken, err := h.userService.Login(c.Request.Context(), req.Email, req.Password)
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	user, accessToken, refreshToken, err := h.userService.Login(c.Request.Context(), tenantKey, req.Email, req.Password, req.MFAOTP)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -92,12 +96,22 @@ func (h *UserHandler) Register(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
-	user, accessToken, refreshToken, err := h.userService.Register(c.Request.Context(), req.Name, req.Email, req.Password, req.TenantKey)
+
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	user, accessToken, refreshToken, err := h.userService.Register(c.Request.Context(), req.Name, req.Email, req.Password, tenantKey)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
-	c.JSON(http.StatusCreated, NewSuccessResponse(gin.H{"accessToken": accessToken, "refreshToken": refreshToken, "user": user}, string(i18n.RegisterSuccessful)))
+
+	tenant, err := h.userService.GetTenantConfig(c.Request.Context(), user.TenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, NewSuccessResponse(loginResponse{accessToken, refreshToken, user, tenant.IsOnboarded}, string(i18n.RegisterSuccessful)))
 }
 
 type createTenantRequest struct {
@@ -162,21 +176,28 @@ func (h *UserHandler) ResetPassword(c *gin.Context) {
 	}
 
 	// Revoke all refresh tokens for the user after password reset
-	user, err := h.userService.GetMe(c.Request.Context(), c.MustGet(AuthPayloadKey).(*utils.Claims).UserID)
-	if err == nil && user != nil {
-		if err := h.userService.RevokeRefreshTokens(c.Request.Context(), user.ID); err != nil {
-			// Log the error, but don't block the main flow
-			fmt.Printf("Error revoking refresh tokens for user %d: %v\n", user.ID, err)
-		}
-	}
+	// The user ID should be extracted from the reset token, not the auth payload
+	// For now, this part is commented out as it requires changes in the service layer
+	// user, err := h.userService.GetMe(c.Request.Context(), c.MustGet(AuthPayloadKey).(*utils.Claims).UserID)
+	// if err == nil && user != nil {
+	// 	if err := h.userService.RevokeRefreshTokens(c.Request.Context(), user.ID); err != nil {
+	// 		// Log the error, but don't block the main flow
+	// 		fmt.Printf("Error revoking refresh tokens for user %d: %v\n", user.ID, err)
+	// 	}
+	// }
 
 	c.JSON(http.StatusOK, NewSuccessResponse(nil, string(i18n.ActionSuccessful)))
 }
 
-
 func (h *UserHandler) ListUsers(c *gin.Context) {
-	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
-	users, err := h.userService.ListUsers(c.Request.Context(), claims.TenantID)
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	users, err := h.userService.ListUsers(c.Request.Context(), tenant.ID)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -191,7 +212,7 @@ func (h *UserHandler) InviteUser(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
-	user, err := h.userService.InviteUser(c.Request.Context(), claims.UserID, claims.TenantID, req.Name, req.Email)
+	user, err := h.userService.InviteUser(c.Request.Context(), claims.UserID, claims.TenantID, req.Name, req.Email, req.RoleIDs)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -234,9 +255,15 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 }
 
 func (h *UserHandler) DeleteUser(c *gin.Context) {
-	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
 	userID, _ := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err := h.userService.DeleteUser(c.Request.Context(), userID, claims.TenantID); err != nil {
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	if err := h.userService.DeleteUser(c.Request.Context(), userID, tenant.ID); err != nil {
 		h.handleError(c, err)
 		return
 	}
@@ -292,22 +319,64 @@ func (h *UserHandler) GetTenantConfig(c *gin.Context) {
 type updateTenantBrandingRequest struct {
 	LogoURL           *string `json:"logoUrl"`
 	PrimaryColor      *string `json:"primaryColor"`
-	AllowPublicSignup *bool   `json:"allowPublicSignup"`
+	AllowPublicSignup bool    `json:"allowPublicSignup"`
 }
 
 func (h *UserHandler) UpdateTenantBranding(c *gin.Context) {
-	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
 	var req updateTenantBrandingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
-	tenant, err := h.userService.UpdateTenantBranding(c.Request.Context(), claims.TenantID, req.LogoURL, req.PrimaryColor, *req.AllowPublicSignup)
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	tenant, err = h.userService.UpdateTenantBranding(c.Request.Context(), tenant.ID, req.LogoURL, req.PrimaryColor, req.AllowPublicSignup)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, NewSuccessResponse(tenant, string(i18n.ActionSuccessful)))
+}
+
+type verifyMfaRequest struct {
+	OTP string `json:"otp" binding:"required"`
+}
+
+func (h *UserHandler) EnableMFA(c *gin.Context) {
+	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
+	qrCodeURL, err := h.userService.EnableMFA(c.Request.Context(), claims.UserID)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, NewSuccessResponse(gin.H{"qrCodeURL": qrCodeURL}, string(i18n.ActionSuccessful)))
+}
+
+func (h *UserHandler) VerifyMFA(c *gin.Context) {
+	claims := c.MustGet(AuthPayloadKey).(*utils.Claims)
+	var req verifyMfaRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
+		return
+	}
+	if err := h.userService.VerifyMFA(c.Request.Context(), claims.UserID, req.OTP); err != nil {
+		h.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, NewSuccessResponse(nil, string(i18n.ActionSuccessful)))
+}
+
+func (h *UserHandler) DisableMFA(c *gin.Context) {
+	if err := h.userService.DisableMFA(c.Request.Context(), c.MustGet(AuthPayloadKey).(*utils.Claims).UserID); err != nil {
+		h.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, NewSuccessResponse(nil, string(i18n.ActionSuccessful)))
 }
 
 func (h *UserHandler) handleError(c *gin.Context, err error) {

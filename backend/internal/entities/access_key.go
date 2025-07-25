@@ -22,7 +22,7 @@ type AccessKey struct {
 	ID          int64     `json:"id"`
 	GroupID     int64     `json:"groupId"`
 	AccessKeyID string    `json:"accessKeyId"`
-	SecretKey   string    `json:"-"` // Never expose
+	SecretAccessKeyHash   string    `json:"-"`      // Never expose
 	Status      string    `json:"status"` // active, inactive
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`

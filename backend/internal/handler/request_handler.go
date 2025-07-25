@@ -12,14 +12,22 @@ import (
 
 type RequestHandler struct {
 	requestService domain.RequestService
+	tenantService  domain.TenantService
 }
 
-func NewRequestHandler(requestService domain.RequestService) *RequestHandler {
-	return &RequestHandler{requestService: requestService}
+func NewRequestHandler(requestService domain.RequestService, tenantService domain.TenantService) *RequestHandler {
+	return &RequestHandler{requestService: requestService, tenantService: tenantService}
 }
 
 func (h *RequestHandler) ListTenantRequests(c *gin.Context) {
-	requests, err := h.requestService.ListTenantRequests(c.Request.Context())
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	requests, err := h.requestService.ListTenantRequests(c.Request.Context(), tenant.ID)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -28,7 +36,14 @@ func (h *RequestHandler) ListTenantRequests(c *gin.Context) {
 }
 
 func (h *RequestHandler) ListQuotaRequests(c *gin.Context) {
-	requests, err := h.requestService.ListQuotaRequests(c.Request.Context())
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	requests, err := h.requestService.ListQuotaRequests(c.Request.Context(), tenant.ID)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -42,7 +57,14 @@ func (h *RequestHandler) ApproveRequest(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
-	if err := h.requestService.ApproveRequest(c.Request.Context(), requestID); err != nil {
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	if err := h.requestService.ApproveRequest(c.Request.Context(), tenant.ID, requestID); err != nil {
 		h.handleError(c, err)
 		return
 	}
@@ -62,7 +84,14 @@ func (h *RequestHandler) DenyRequest(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
-	if err := h.requestService.DenyRequest(c.Request.Context(), requestID, req.Reason); err != nil {
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	if err := h.requestService.DenyRequest(c.Request.Context(), tenant.ID, requestID, req.Reason); err != nil {
 		h.handleError(c, err)
 		return
 	}

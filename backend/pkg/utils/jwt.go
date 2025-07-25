@@ -27,6 +27,7 @@ type Claims struct {
 	TenantKey string  `json:"tenant_key"`
 	UserEmail string  `json:"user_email"`
 	RoleIDs   []int64 `json:"role_ids"`
+	TokenType string  `json:"token_type"`
 	jwt.RegisteredClaims
 }
 
@@ -93,4 +94,12 @@ func GenerateRandomString(n int) (string, error) {
 		return "", err
 	}
 	return base64.URLEncoding.EncodeToString(b), nil
+}
+
+func GetAccessTokenExpiry() time.Duration {
+	return accessTokenExpiry
+}
+
+func GetRefreshTokenExpiry() time.Duration {
+	return refreshTokenExpiry
 }

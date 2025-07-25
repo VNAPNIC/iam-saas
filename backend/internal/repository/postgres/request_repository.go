@@ -21,7 +21,13 @@ func (r *requestRepository) Create(ctx context.Context, tx *gorm.DB, request *en
 	if tx != nil {
 		db = tx
 	}
-	return db.WithContext(ctx).Create(request).Error
+	query := `
+		INSERT INTO requests (tenant_id, request_type, status, requested_by_user_id, requested_by_email, details, denial_reason, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+		RETURNING id, created_at, updated_at;
+	`
+	row := db.WithContext(ctx).Raw(query, request.TenantID, request.RequestType, request.Status, request.RequestedByUserID, request.RequestedByEmail, request.Details, request.DenialReason).Row()
+	return row.Scan(&request.ID, &request.CreatedAt, &request.UpdatedAt)
 }
 
 func (r *requestRepository) FindByID(ctx context.Context, id int64) (*entities.Request, error) {
@@ -47,15 +53,15 @@ func (r *requestRepository) FindByID(ctx context.Context, id int64) (*entities.R
 	return nil, nil
 }
 
-func (r *requestRepository) ListTenantRequests(ctx context.Context) ([]entities.Request, error) {
+func (r *requestRepository) ListTenantRequests(ctx context.Context, tenantID int64) ([]entities.Request, error) {
 	var requests []entities.Request
 	query := `
 		SELECT id, tenant_id, request_type, status, requested_by_user_id, requested_by_email, details, denial_reason, created_at, updated_at
 		FROM requests
-		WHERE request_type = 'tenant_approval' AND status = 'pending'
+		WHERE request_type = 'tenant_approval' AND status = 'pending' AND tenant_id = $1
 		ORDER BY created_at ASC;
 	`
-	rows, err := r.db.WithContext(ctx).Raw(query).Rows()
+	rows, err := r.db.WithContext(ctx).Raw(query, tenantID).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -72,15 +78,15 @@ func (r *requestRepository) ListTenantRequests(ctx context.Context) ([]entities.
 	return requests, nil
 }
 
-func (r *requestRepository) ListQuotaRequests(ctx context.Context) ([]entities.Request, error) {
+func (r *requestRepository) ListQuotaRequests(ctx context.Context, tenantID int64) ([]entities.Request, error) {
 	var requests []entities.Request
 	query := `
 		SELECT id, tenant_id, request_type, status, requested_by_user_id, requested_by_email, details, denial_reason, created_at, updated_at
 		FROM requests
-		WHERE request_type = 'quota_increase' AND status = 'pending'
+		WHERE request_type = 'quota_increase' AND status = 'pending' AND tenant_id = $1
 		ORDER BY created_at ASC;
 	`
-	rows, err := r.db.WithContext(ctx).Raw(query).Rows()
+	rows, err := r.db.WithContext(ctx).Raw(query, tenantID).Rows()
 	if err != nil {
 		return nil, err
 	}

@@ -13,10 +13,11 @@ import (
 
 type TicketHandler struct {
 	ticketService domain.TicketService
+	tenantService domain.TenantService
 }
 
-func NewTicketHandler(ticketService domain.TicketService) *TicketHandler {
-	return &TicketHandler{ticketService: ticketService}
+func NewTicketHandler(ticketService domain.TicketService, tenantService domain.TenantService) *TicketHandler {
+	return &TicketHandler{ticketService: ticketService, tenantService: tenantService}
 }
 
 // --- Request Structs ---
@@ -42,8 +43,15 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
 
-	ticket, err := h.ticketService.CreateTicket(c.Request.Context(), req.Subject, req.Description, claims.UserEmail) // Assuming UserEmail is in claims
+	ticket, err := h.ticketService.CreateTicket(c.Request.Context(), tenant.ID, req.Subject, req.Description, claims.UserEmail) // Assuming UserEmail is in claims
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -58,7 +66,14 @@ func (h *TicketHandler) GetTicket(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
-	ticket, err := h.ticketService.GetTicket(c.Request.Context(), ticketID)
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	ticket, err := h.ticketService.GetTicket(c.Request.Context(), tenant.ID, ticketID)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -68,7 +83,14 @@ func (h *TicketHandler) GetTicket(c *gin.Context) {
 
 func (h *TicketHandler) ListTickets(c *gin.Context) {
 	status := c.Query("status")
-	tickets, err := h.ticketService.ListTickets(c.Request.Context(), status)
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	tickets, err := h.ticketService.ListTickets(c.Request.Context(), tenant.ID, status)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -88,8 +110,15 @@ func (h *TicketHandler) ReplyToTicket(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
 
-	reply, err := h.ticketService.ReplyToTicket(c.Request.Context(), ticketID, req.Content, claims.UserEmail) // Assuming UserEmail is in claims
+	reply, err := h.ticketService.ReplyToTicket(c.Request.Context(), tenant.ID, ticketID, req.Content, claims.UserEmail) // Assuming UserEmail is in claims
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -108,8 +137,15 @@ func (h *TicketHandler) UpdateTicketStatus(c *gin.Context) {
 		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
 		return
 	}
+	tenantKeyVal, _ := c.Get(TenantContextKey)
+	tenantKey := tenantKeyVal.(string)
+	tenant, err := h.tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
 
-	ticket, err := h.ticketService.UpdateTicketStatus(c.Request.Context(), ticketID, req.Status)
+	ticket, err := h.ticketService.UpdateTicketStatus(c.Request.Context(), tenant.ID, ticketID, req.Status)
 	if err != nil {
 		h.handleError(c, err)
 		return

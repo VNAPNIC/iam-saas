@@ -5,6 +5,9 @@ import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { authService } from '@/services/authService';
 
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -49,32 +52,34 @@ function VerifyEmailContent() {
 
   return (
     <div className="w-full max-w-md p-4">
-      <div className="card bg-white rounded-lg shadow-lg p-6 border border-gray-200 text-center">
-        <div id="status-icon" className="mb-4">
-          {status === 'verifying' && <i className="fas fa-spinner fa-spin fa-3x text-blue-500"></i>}
-          {status === 'success' && <i className="fas fa-check-circle fa-3x text-green-500"></i>}
-          {status === 'failed' && <i className="fas fa-times-circle fa-3x text-red-500"></i>}
-        </div>
+      <Card className="text-center">
+        <CardContent className="p-6">
+          <div id="status-icon" className="mb-4">
+            {status === 'verifying' && <i className="fas fa-spinner fa-spin fa-3x text-blue-500"></i>}
+            {status === 'success' && <i className="fas fa-check-circle fa-3x text-green-500"></i>}
+            {status === 'failed' && <i className="fas fa-times-circle fa-3x text-red-500"></i>}
+          </div>
 
-        <h1 id="status-title" className="text-xl font-semibold text-gray-900 mb-2">
-          {status === 'verifying' && t('verifyEmail.verifying')}
-          {status === 'success' && t('verifyEmail.successTitle')}
-          {status === 'failed' && t('verifyEmail.failedTitle')}
-        </h1>
+          <h1 id="status-title" className="text-xl font-semibold text-gray-900 mb-2">
+            {status === 'verifying' && t('verifyEmail.verifying')}
+            {status === 'success' && t('verifyEmail.successTitle')}
+            {status === 'failed' && t('verifyEmail.failedTitle')}
+          </h1>
 
-        <p id="status-message" className="text-sm text-gray-600">{message}</p>
+          <p id="status-message" className="text-sm text-gray-600">{message}</p>
 
-        <div className="mt-6">
-          <button
-            id="action-button"
-            onClick={handleActionButtonClick}
-            className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            {status === 'success' && t('verifyEmail.goToLogin')}
-            {status === 'failed' && t('verifyEmail.resendLink')}
-          </button>
-        </div>
-      </div>
+          <div className="mt-6">
+            <Button
+              id="action-button"
+              onClick={handleActionButtonClick}
+              className="w-full"
+            >
+              {status === 'success' && t('verifyEmail.goToLogin')}
+              {status === 'failed' && t('verifyEmail.resendLink')}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -21,7 +21,13 @@ func (r *planRepository) Create(ctx context.Context, tx *gorm.DB, plan *entities
 	if tx != nil {
 		db = tx
 	}
-	return db.WithContext(ctx).Create(plan).Error
+	query := `
+		INSERT INTO plans (name, price, user_quota, api_quota, status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+		RETURNING id, created_at, updated_at;
+	`
+	row := db.WithContext(ctx).Raw(query, plan.Name, plan.Price, plan.UserQuota, plan.APIQuota, plan.Status).Row()
+	return row.Scan(&plan.ID, &plan.CreatedAt, &plan.UpdatedAt)
 }
 
 func (r *planRepository) FindByID(ctx context.Context, id int64) (*entities.Plan, error) {

@@ -21,3 +21,6 @@ migrateup:
 migratedown:
 	@echo "Running migrations down..."
 	migrate -path ./migrations -database "${DB_URL}" -verbose down
+
+generate_key:
+	node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"

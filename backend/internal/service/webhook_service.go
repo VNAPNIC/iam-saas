@@ -48,13 +48,13 @@ func (s *webhookService) CreateWebhook(ctx context.Context, tenantID int64, url,
 	return newWebhook, nil
 }
 
-func (s *webhookService) GetWebhook(ctx context.Context, id int64) (*entities.Webhook, error) {
+func (s *webhookService) GetWebhook(ctx context.Context, tenantID int64, id int64) (*entities.Webhook, error) {
 	webhook, err := s.webhookRepo.FindByID(ctx, id)
 	if err != nil {
 		return nil, app_error.NewInternalServerError(err)
 	}
-	if webhook == nil {
-		return nil, app_error.NewNotFoundError("Webhook not found")
+	if webhook == nil || webhook.TenantID != tenantID {
+		return nil, app_error.NewNotFoundError("Webhook not found or not in tenant")
 	}
 	return webhook, nil
 }
@@ -63,13 +63,13 @@ func (s *webhookService) ListWebhooks(ctx context.Context, tenantID int64) ([]en
 	return s.webhookRepo.ListWebhooks(ctx, tenantID)
 }
 
-func (s *webhookService) UpdateWebhook(ctx context.Context, id int64, url, secret string, events []string, status string) (*entities.Webhook, error) {
+func (s *webhookService) UpdateWebhook(ctx context.Context, tenantID int64, id int64, url, secret string, events []string, status string) (*entities.Webhook, error) {
 	webhook, err := s.webhookRepo.FindByID(ctx, id)
 	if err != nil {
 		return nil, app_error.NewInternalServerError(err)
 	}
-	if webhook == nil {
-		return nil, app_error.NewNotFoundError("Webhook not found")
+	if webhook == nil || webhook.TenantID != tenantID {
+		return nil, app_error.NewNotFoundError("Webhook not found or not in tenant")
 	}
 
 	hashedSecret := webhook.Secret
@@ -92,6 +92,13 @@ func (s *webhookService) UpdateWebhook(ctx context.Context, id int64, url, secre
 	return webhook, nil
 }
 
-func (s *webhookService) DeleteWebhook(ctx context.Context, id int64) error {
+func (s *webhookService) DeleteWebhook(ctx context.Context, tenantID int64, id int64) error {
+	webhook, err := s.webhookRepo.FindByID(ctx, id)
+	if err != nil {
+		return app_error.NewInternalServerError(err)
+	}
+	if webhook == nil || webhook.TenantID != tenantID {
+		return app_error.NewNotFoundError("Webhook not found or not in tenant")
+	}
 	return s.webhookRepo.Delete(ctx, id)
 }

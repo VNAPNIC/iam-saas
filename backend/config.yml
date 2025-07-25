@@ -6,11 +6,13 @@ database:
   host: "localhost"
   port: "5432"
   user: "postgres"
-  password: "postgres"
+  password: "postgres" # dummy for dev
   dbname: "iam_saas"
   sslmode: "disable"
 
 jwt:
-  secret_key: "your_super_secret_key_that_is_long_and_secure"
-  access_token_expiry: 15
-  refresh_token_expiry: 10080
+  # The secret key MUST be set via the JWT_SECRET_KEY environment variable.
+  # Use a long, randomly generated string for production.
+  secret_key: "752e69e32f8a389bcfa2b2898fece380eee58fd2d22e0337381580d789a4faef" # dummy for dev
+  access_token_expiry: 15 # in minutes
+  refresh_token_expiry: 10080 # in minutes (7 days)

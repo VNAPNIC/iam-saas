@@ -9,6 +9,7 @@ type User struct {
 	Name                        string     `json:"name"`
 	Email                       string     `json:"email"`
 	PasswordHash                string     `json:"-"` // Không bao giờ trả về password hash
+	MFASecret                   *string    `json:"-"`
 	VerificationToken           *string    `json:"-"`
 	Status                      string     `json:"status"`
 	AvatarURL                   *string    `json:"avatarUrl"`
@@ -21,4 +22,5 @@ type User struct {
 	PasswordResetToken          *string    `json:"-"`
 	PasswordResetTokenExpiresAt *time.Time `json:"-"`
 	InvitationToken             *string    `json:"-"`
+	RoleIDs                     []int64    `gorm:"-"`
 }

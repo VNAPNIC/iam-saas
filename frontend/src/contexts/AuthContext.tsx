@@ -2,15 +2,23 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import apiClient, { setTenantKey } from '@/lib/apiClient';
+import apiClient from '@/lib/apiClient';
 import { useAuthStore } from '@/stores/authStore';
 import { User } from '@/types/user';
+
+
+interface LoginResponseData {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+  isOnboarded: boolean;
+}
 
 interface AuthContextType {
   user: User | null;
   accessToken: string | null;
   refreshToken: string | null;
-  login: (accessToken: string, refreshToken: string, user: User, isOnboarded: boolean) => Promise<void>;
+  login: (loginData: LoginResponseData) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -26,10 +34,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       if (accessToken && user?.tenantKey) {
-        setTenantKey(user.tenantKey);
         try {
-          const { data } = await apiClient.get('/protected/me'); 
-          authStoreLogin(accessToken, refreshToken || '', data.data); // Pass refreshToken as well
+          const { data } = await apiClient.get('/protected/me');
+          authStoreLogin(accessToken, refreshToken || '', data.data);
         } catch (error) {
           console.error("Invalid token, logging out.");
           authStoreLogout();
@@ -38,27 +45,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
     };
     initializeAuth();
-  }, [accessToken, refreshToken, authStoreLogin, authStoreLogout, user]);
+  }, [accessToken, refreshToken, authStoreLogin, authStoreLogout]);
 
-  const login = async (newAccessToken: string, newRefreshToken: string, newUser: User, isOnboarded: boolean) => {
+  const login = async (loginData: LoginResponseData) => {
     setIsLoading(true);
-    authStoreLogin(newAccessToken, newRefreshToken, newUser);
-    if (newUser.tenantKey) {
-        setTenantKey(newUser.tenantKey);
+
+    const { user, accessToken, refreshToken, isOnboarded } = loginData;
+    const keyForRedirect = user.tenantKey;
+
+    if (!keyForRedirect) {
+      console.error("Login Error: `tenantKey` is missing from server response.");
+      authStoreLogout();
+      setIsLoading(false);
+      return;
     }
-    try {
-        const { data } = await apiClient.get('/protected/me');
-        authStoreLogin(newAccessToken, newRefreshToken, data.data);
-        if (!isOnboarded) {
-            router.push(`/${newUser.tenantKey}/onboarding`);
-        } else {
-            router.push(`/${newUser.tenantKey}/dashboard`);
-        }
-    } catch (error) {
-        console.error("Failed to fetch user profile after login.", error);
-    } finally {
-        setIsLoading(false);
+
+    authStoreLogin(accessToken, refreshToken, user);
+
+    if (!isOnboarded) {
+      router.push(`/${keyForRedirect}/onboarding`);
+    } else {
+      router.push(`/${keyForRedirect}/dashboard`);
     }
+
+    setIsLoading(false);
   };
 
   const logout = () => {
@@ -83,7 +93,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Tạo custom hook để sử dụng context dễ dàng hơn
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

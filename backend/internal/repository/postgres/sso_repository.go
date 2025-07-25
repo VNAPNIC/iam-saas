@@ -21,7 +21,13 @@ func (r *ssoRepository) Create(ctx context.Context, tx *gorm.DB, ssoConfig *enti
 	if tx != nil {
 		db = tx
 	}
-	return db.WithContext(ctx).Create(ssoConfig).Error
+	query := `
+		INSERT INTO sso_configs (tenant_id, provider, metadata_url, client_id, client_secret, status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+		RETURNING id, created_at, updated_at;
+	`
+	row := db.WithContext(ctx).Raw(query, ssoConfig.TenantID, ssoConfig.Provider, ssoConfig.MetadataURL, ssoConfig.ClientID, ssoConfig.ClientSecret, ssoConfig.Status).Row()
+	return row.Scan(&ssoConfig.ID, &ssoConfig.CreatedAt, &ssoConfig.UpdatedAt)
 }
 
 func (r *ssoRepository) FindByTenantID(ctx context.Context, tenantID int64) (*entities.SsoConfig, error) {

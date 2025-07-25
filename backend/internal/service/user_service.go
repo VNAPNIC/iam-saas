@@ -7,28 +7,29 @@ import (
 	"iam-saas/pkg/app_error"
 	"iam-saas/pkg/i18n"
 	"iam-saas/pkg/utils"
+	"log"
 	"time"
 
 	"gorm.io/gorm"
 )
 
 type userService struct {
-	db               *gorm.DB
-	userRepo         domain.UserRepository
-	tenantRepo       domain.TenantRepository
-	refreshTokenRepo domain.RefreshTokenRepository
+	db           *gorm.DB
+	userRepo     domain.UserRepository
+	tenantRepo   domain.TenantRepository
+	tokenService domain.TokenService
 }
 
-func NewUserService(db *gorm.DB, userRepo domain.UserRepository, tenantRepo domain.TenantRepository, refreshTokenRepo domain.RefreshTokenRepository) domain.UserService {
+func NewUserService(db *gorm.DB, userRepo domain.UserRepository, tenantRepo domain.TenantRepository, tokenService domain.TokenService) domain.UserService {
 	return &userService{
-		db:               db,
-		userRepo:         userRepo,
-		tenantRepo:       tenantRepo,
-		refreshTokenRepo: refreshTokenRepo,
+		db:           db,
+		userRepo:     userRepo,
+		tenantRepo:   tenantRepo,
+		tokenService: tokenService,
 	}
 }
 
-func (s *userService) Login(ctx context.Context, email, password string) (*entities.User, string, string, error) {
+func (s *userService) Login(ctx context.Context, tenantKey, email, password, mfaOtp string) (*entities.User, string, string, error) {
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
 		return nil, "", "", app_error.NewInternalServerError(err)
@@ -39,38 +40,47 @@ func (s *userService) Login(ctx context.Context, email, password string) (*entit
 	if user.Status != "active" {
 		return nil, "", "", app_error.NewUnauthorizedError(string(i18n.Unauthorized))
 	}
-	tenant, err := s.tenantRepo.FindByID(ctx, user.TenantID)
-	if err != nil {
-		return nil, "", "", app_error.NewInternalServerError(err)
-	}
-	if tenant == nil || tenant.Status != "active" {
-		return nil, "", "", app_error.NewUnauthorizedError(string(i18n.Unauthorized))
+
+	var tenant *entities.Tenant
+	if tenantKey != "" {
+		var err error
+		tenant, err = s.tenantRepo.FindByID(ctx, user.TenantID)
+		if err != nil {
+			return nil, "", "", app_error.NewInternalServerError(err)
+		}
+		if tenant == nil || tenant.Status != "active" || tenant.Key != tenantKey {
+			return nil, "", "", app_error.NewUnauthorizedError(string(i18n.Unauthorized))
+		}
+	} else {
+		var err error
+		tenant, err = s.tenantRepo.FindByID(ctx, user.TenantID)
+		if err != nil {
+			return nil, "", "", app_error.NewInternalServerError(err)
+		}
+		if tenant != nil && tenant.Key == "system" {
+			return nil, "", "", app_error.NewUnauthorizedError(string(i18n.Unauthorized))
+		}
 	}
 
-	user.TenantKey = tenant.Key // Add tenant key to user object
+	if user.MFASecret != nil && *user.MFASecret != "" {
+		if mfaOtp == "" {
+			return nil, "", "", app_error.NewUnauthorizedError(string(i18n.MFARequired))
+		}
+		if !utils.ValidateMFA(mfaOtp, *user.MFASecret) {
+			return nil, "", "", app_error.NewUnauthorizedError(string(i18n.InvalidMFAOTP))
+		}
+	}
+
+	user.TenantKey = tenant.Key
 
 	roleIDs, err := s.userRepo.GetUserRoleIDs(ctx, user.ID)
 	if err != nil {
 		return nil, "", "", app_error.NewInternalServerError(err)
 	}
+	user.RoleIDs = roleIDs
 
-	accessToken, err := utils.GenerateAccessToken(user.ID, user.TenantID, tenant.Key, user.Email, roleIDs)
+	accessToken, refreshToken, err := s.tokenService.GenerateNewTokens(ctx, user)
 	if err != nil {
-		return nil, "", "", app_error.NewInternalServerError(err)
-	}
-
-	refreshToken, err := utils.GenerateRefreshToken(user.ID, user.TenantID, tenant.Key, user.Email, roleIDs)
-	if err != nil {
-		return nil, "", "", app_error.NewInternalServerError(err)
-	}
-
-	// Save refresh token to database
-	refreshTokenEntity := &entities.RefreshToken{
-		Token:     refreshToken,
-		UserID:    user.ID,
-		ExpiresAt: time.Now().Add(7 * 24 * time.Hour), // 7 days expiration for refresh token
-	}
-	if err := s.refreshTokenRepo.Create(ctx, s.db, refreshTokenEntity); err != nil {
 		return nil, "", "", app_error.NewInternalServerError(err)
 	}
 
@@ -113,24 +123,11 @@ func (s *userService) Register(ctx context.Context, name, email, password, tenan
 	if err != nil {
 		return nil, "", "", app_error.NewInternalServerError(err)
 	}
+	newUser.RoleIDs = roleIDs
+	newUser.TenantKey = tenant.Key
 
-	accessToken, err := utils.GenerateAccessToken(newUser.ID, tenant.ID, tenant.Key, newUser.Email, roleIDs)
+	accessToken, refreshToken, err := s.tokenService.GenerateNewTokens(ctx, newUser)
 	if err != nil {
-		return nil, "", "", app_error.NewInternalServerError(err)
-	}
-
-	refreshToken, err := utils.GenerateRefreshToken(newUser.ID, tenant.ID, tenant.Key, newUser.Email, roleIDs)
-	if err != nil {
-		return nil, "", "", app_error.NewInternalServerError(err)
-	}
-
-	// Save refresh token to database
-	refreshTokenEntity := &entities.RefreshToken{
-		Token:     refreshToken,
-		UserID:    newUser.ID,
-		ExpiresAt: time.Now().Add(7 * 24 * time.Hour), // 7 days expiration for refresh token
-	}
-	if err := s.refreshTokenRepo.Create(ctx, s.db, refreshTokenEntity); err != nil {
 		return nil, "", "", app_error.NewInternalServerError(err)
 	}
 
@@ -138,52 +135,16 @@ func (s *userService) Register(ctx context.Context, name, email, password, tenan
 }
 
 func (s *userService) RefreshToken(ctx context.Context, refreshToken string) (string, string, error) {
-	claims, err := utils.ParseToken(refreshToken)
+	newAccessToken, newRefreshToken, err := s.tokenService.RefreshToken(ctx, refreshToken)
 	if err != nil {
-		return "", "", app_error.NewUnauthorizedError("Invalid refresh token")
-	}
-
-	// Check if refresh token exists in DB and is not expired
-	storedRefreshToken, err := s.refreshTokenRepo.FindByToken(ctx, refreshToken)
-	if err != nil || storedRefreshToken == nil || storedRefreshToken.ExpiresAt.Before(time.Now()) {
-		return "", "", app_error.NewUnauthorizedError("Invalid or expired refresh token")
-	}
-
-	// Revoke the old refresh token
-	if err := s.refreshTokenRepo.Delete(ctx, refreshToken); err != nil {
-		return "", "", app_error.NewInternalServerError(err)
-	}
-
-	roleIDs, err := s.userRepo.GetUserRoleIDs(ctx, claims.UserID)
-	if err != nil {
-		return "", "", app_error.NewInternalServerError(err)
-	}
-
-	// Generate new access and refresh tokens
-	newAccessToken, err := utils.GenerateAccessToken(claims.UserID, claims.TenantID, claims.TenantKey, claims.UserEmail, roleIDs)
-	if err != nil {
-		return "", "", app_error.NewInternalServerError(err)
-	}
-	newRefreshToken, err := utils.GenerateRefreshToken(claims.UserID, claims.TenantID, claims.TenantKey, claims.UserEmail, roleIDs)
-	if err != nil {
-		return "", "", app_error.NewInternalServerError(err)
-	}
-
-	// Save the new refresh token to database
-	newRefreshTokenEntity := &entities.RefreshToken{
-		Token:     newRefreshToken,
-		UserID:    claims.UserID,
-		ExpiresAt: time.Now().Add(7 * 24 * time.Hour), // 7 days expiration for refresh token
-	}
-	if err := s.refreshTokenRepo.Create(ctx, s.db, newRefreshTokenEntity); err != nil {
-		return "", "", app_error.NewInternalServerError(err)
+		return "", "", app_error.NewUnauthorizedError(err.Error())
 	}
 
 	return newAccessToken, newRefreshToken, nil
 }
 
 func (s *userService) RevokeRefreshTokens(ctx context.Context, userID int64) error {
-	return s.refreshTokenRepo.DeleteByUserID(ctx, userID)
+	return s.tokenService.RevokeAllUserTokens(ctx, userID)
 }
 
 func (s *userService) GetMe(ctx context.Context, userID int64) (*entities.User, error) {
@@ -226,6 +187,10 @@ func (s *userService) ResetPassword(ctx context.Context, token, newPassword stri
 	if err := s.userRepo.UpdatePassword(ctx, user.ID, hashedPassword); err != nil {
 		return app_error.NewInternalServerError(err)
 	}
+
+	if err := s.tokenService.RevokeAllUserTokens(ctx, user.ID); err != nil {
+		log.Printf("Failed to revoke tokens for user %d after password reset: %v", user.ID, err)
+	}
 	return nil
 }
 
@@ -258,6 +223,10 @@ func (s *userService) DeleteUser(ctx context.Context, userID int64, tenantID int
 		return app_error.NewNotFoundError("user not found or not in tenant")
 	}
 
+	if err := s.tokenService.RevokeAllUserTokens(ctx, userID); err != nil {
+		log.Printf("Failed to revoke tokens for user %d during deletion: %v", userID, err)
+	}
+
 	return s.userRepo.Delete(ctx, userID, tenantID)
 }
 
@@ -272,9 +241,7 @@ func (s *userService) VerifyEmail(ctx context.Context, token string) error {
 	return s.userRepo.ActivateUser(ctx, user.ID)
 }
 
-
-
-func (s *userService) InviteUser(ctx context.Context, inviterID, tenantID int64, name, email string) (*entities.User, error) {
+func (s *userService) InviteUser(ctx context.Context, inviterID, tenantID int64, name, email string, roleIDs []int64) (*entities.User, error) {
 	tenant, err := s.tenantRepo.FindByID(ctx, tenantID)
 	if err != nil {
 		return nil, app_error.NewInternalServerError(err)
@@ -316,7 +283,12 @@ func (s *userService) InviteUser(ctx context.Context, inviterID, tenantID int64,
 		return nil, app_error.NewInternalServerError(err)
 	}
 
-	// In a real application, you would associate the user with the given roles
+	// Assign roles to the new user
+	if len(roleIDs) > 0 {
+		if err := s.userRepo.AssignRolesToUser(ctx, nil, newUser.ID, roleIDs); err != nil {
+			return nil, app_error.NewInternalServerError(err)
+		}
+	}
 
 	// Log the invitation link to the console instead of sending an email
 	// log.Printf("Invitation link for %s: http://localhost:3000/accept-invitation?token=%s", email, invitationToken)
@@ -385,4 +357,61 @@ func (s *userService) UpdateTenantBranding(ctx context.Context, tenantID int64, 
 	}
 
 	return tenant, nil
+}
+
+func (s *userService) EnableMFA(ctx context.Context, userID int64) (string, error) {
+	user, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return "", app_error.NewInternalServerError(err)
+	}
+	if user == nil {
+		return "", app_error.NewNotFoundError("user not found")
+	}
+
+	// Generate a new MFA secret
+	mfaSecret, qrCodeURL, err := utils.GenerateMFASecret(user.Email)
+	if err != nil {
+		return "", app_error.NewInternalServerError(err)
+	}
+
+	// Save the MFA secret to the user record
+	if err := s.userRepo.UpdateMFASecret(ctx, userID, mfaSecret); err != nil {
+		return "", app_error.NewInternalServerError(err)
+	}
+
+	return qrCodeURL, nil
+}
+
+func (s *userService) VerifyMFA(ctx context.Context, userID int64, otp string) error {
+	user, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return app_error.NewInternalServerError(err)
+	}
+	if user == nil || user.MFASecret == nil {
+		return app_error.NewInvalidInputError("MFA not enabled for this user")
+	}
+
+	if !utils.ValidateMFA(otp, *user.MFASecret) {
+		return app_error.NewUnauthorizedError("Invalid OTP")
+	}
+
+	// Mark MFA as verified/enabled in user record if needed
+	return nil
+}
+
+func (s *userService) DisableMFA(ctx context.Context, userID int64) error {
+	user, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return app_error.NewInternalServerError(err)
+	}
+	if user == nil {
+		return app_error.NewNotFoundError("user not found")
+	}
+
+	// Clear the MFA secret from the user record
+	if err := s.userRepo.UpdateMFASecret(ctx, userID, ""); err != nil {
+		return app_error.NewInternalServerError(err)
+	}
+
+	return nil
 }

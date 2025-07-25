@@ -4,6 +4,7 @@ import "time"
 
 type Ticket struct {
 	ID          int64     `json:"id"`
+	TenantID    int64     `json:"tenantId"`
 	Subject     string    `json:"subject"`
 	Description string    `json:"description"`
 	SenderEmail string    `json:"senderEmail"`
@@ -19,11 +20,11 @@ func (t *Ticket) TableName() string {
 }
 
 type TicketReply struct {
-	ID         int64     `json:"id"`
-	TicketID   int64     `json:"ticketId"`
-	Content    string    `json:"content"`
+	ID           int64     `json:"id"`
+	TicketID     int64     `json:"ticketId"`
+	Content      string    `json:"content"`
 	ReplierEmail string    `json:"replierEmail"`
-	CreatedAt  time.Time `json:"createdAt"`
+	CreatedAt    time.Time `json:"createdAt"`
 }
 
 func (tr *TicketReply) TableName() string {

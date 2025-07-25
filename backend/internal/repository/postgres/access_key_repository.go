@@ -21,7 +21,13 @@ func (r *accessKeyRepository) CreateGroup(ctx context.Context, tx *gorm.DB, grou
 	if tx != nil {
 		db = tx
 	}
-	return db.WithContext(ctx).Create(group).Error
+	query := `
+		INSERT INTO access_key_groups (tenant_id, name, service_role, key_type, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, NOW(), NOW())
+		RETURNING id, created_at, updated_at;
+	`
+	row := db.WithContext(ctx).Raw(query, group.TenantID, group.Name, group.ServiceRole, group.KeyType).Row()
+	return row.Scan(&group.ID, &group.CreatedAt, &group.UpdatedAt)
 }
 
 func (r *accessKeyRepository) CreateKey(ctx context.Context, tx *gorm.DB, key *entities.AccessKey) error {
@@ -29,7 +35,13 @@ func (r *accessKeyRepository) CreateKey(ctx context.Context, tx *gorm.DB, key *e
 	if tx != nil {
 		db = tx
 	}
-	return db.WithContext(ctx).Create(key).Error
+	query := `
+		INSERT INTO access_keys (group_id, access_key_id, secret_access_key_hash, status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, NOW(), NOW())
+		RETURNING id, created_at, updated_at;
+	`
+	row := db.WithContext(ctx).Raw(query, key.GroupID, key.AccessKeyID, key.SecretAccessKeyHash, key.Status).Row()
+	return row.Scan(&key.ID, &key.CreatedAt, &key.UpdatedAt)
 }
 
 func (r *accessKeyRepository) ListAccessKeyGroups(ctx context.Context, tenantID int64) ([]entities.AccessKeyGroup, error) {
