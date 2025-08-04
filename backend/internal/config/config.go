@@ -10,6 +10,7 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	JWT      JWTConfig
+	Email    EmailConfig
 }
 
 type ServerConfig struct {
@@ -27,42 +28,62 @@ type DatabaseConfig struct {
 }
 
 type JWTConfig struct {
-	SecretKey          string `mapstructure:"secret_key"`
-	AccessTokenExpiry  int    `mapstructure:"access_token_expiry"`
-	RefreshTokenExpiry int    `mapstructure:"refresh_token_expiry"`
+	SecretKey            string
+	AccessTokenExpiry   int
+	RefreshTokenExpiry  int
 }
 
+type EmailConfig struct {
+	Provider   string // "ses" or "console"
+	SESSender  string
+	SESRegion  string
+	SESEndpoint string
+	Disabled   bool
+}
+
+// LoadConfig loads configuration from environment variables and config files
 func LoadConfig() (*Config, error) {
 	viper.SetConfigName("config")
-	viper.SetConfigType("yml")
-	viper.AddConfigPath("./backend")
+	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
+	viper.AddConfigPath("./config")
+	viper.AddConfigPath("../config")
+	viper.AddConfigPath("../../config")
 	viper.AutomaticEnv()
 
-	// Bind environment variables
-	// Viper will give precedence to environment variables over config file values
-	if err := viper.BindEnv("database.password", "DATABASE_PASSWORD"); err != nil {
-		return nil, fmt.Errorf("failed to bind env var database.password: %w", err)
-	}
-	if err := viper.BindEnv("jwt.secret_key", "JWT_SECRET_KEY"); err != nil {
-		return nil, fmt.Errorf("failed to bind env var jwt.secret_key: %w", err)
-	}
+	// Server configuration
+	viper.SetDefault("SERVER_PORT", "8080")
+	viper.SetDefault("SERVER_MODE", "development")
+
+	// Database configuration
+	viper.SetDefault("DB_HOST", "localhost")
+	viper.SetDefault("DB_PORT", "5432")
+	viper.SetDefault("DB_USER", "postgres")
+	viper.SetDefault("DB_PASSWORD", "postgres")
+	viper.SetDefault("DB_NAME", "iam_saas")
+	viper.SetDefault("DB_SSLMODE", "disable")
+
+	// JWT configuration
+	viper.SetDefault("JWT_SECRET_KEY", "your-super-secret-jwt-key-change-in-production")
+	viper.SetDefault("JWT_ACCESS_TOKEN_EXPIRY", 15)    // 15 minutes
+	viper.SetDefault("JWT_REFRESH_TOKEN_EXPIRY", 1440) // 24 hours
+
+	// Email configuration
+	viper.SetDefault("EMAIL_PROVIDER", "console") // Default to console for local development
+	viper.SetDefault("EMAIL_SES_SENDER", "noreply@example.com")
+	viper.SetDefault("EMAIL_SES_REGION", "us-east-1")
+	viper.SetDefault("EMAIL_SES_ENDPOINT", "")
+	viper.SetDefault("EMAIL_DISABLED", false)
 
 	if err := viper.ReadInConfig(); err != nil {
-		// If the config file is not found, it's okay if all required values are set by env vars
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return nil, err
+			return nil, fmt.Errorf("error reading config file: %w", err)
 		}
 	}
 
 	var cfg Config
 	if err := viper.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("unable to decode into struct, %v", err)
-	}
-
-	// Validate essential config
-	if cfg.JWT.SecretKey == "" {
-		return nil, fmt.Errorf("JWT_SECRET_KEY is not set")
+		return nil, fmt.Errorf("unable to decode into struct: %w", err)
 	}
 
 	return &cfg, nil

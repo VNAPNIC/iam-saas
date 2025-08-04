@@ -9,6 +9,7 @@ import (
 
 type RoleRepository interface {
 	GetRolePermissions(ctx context.Context, roleIDs []int64) ([]string, error)
+	GetUserRoles(ctx context.Context, userID int64) ([]int64, error)
 	CreateRole(ctx context.Context, tx *gorm.DB, role *entities.Role) error
 	GetRole(ctx context.Context, id int64) (*entities.Role, error)
 	ListRoles(ctx context.Context, tenantID int64) ([]entities.Role, error)
@@ -21,6 +22,8 @@ type RoleRepository interface {
 
 type RoleService interface {
 	GetRolePermissions(ctx context.Context, roleIDs []int64) ([]string, error)
+	CheckPermission(ctx context.Context, userID int64, permission string) (bool, error)
+	CheckUserPermissions(ctx context.Context, userID int64, permissions []string) (map[string]bool, error)
 	CreateRole(ctx context.Context, role *entities.Role, permissionIDs []int64) error
 	GetRole(ctx context.Context, id int64) (*entities.Role, error)
 	ListRoles(ctx context.Context, tenantID int64) ([]entities.Role, error)

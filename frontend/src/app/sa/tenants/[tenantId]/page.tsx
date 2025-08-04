@@ -72,7 +72,7 @@ const TenantDetailsPage = () => {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">{tenant.name}</h1>
-                        <p className="text-sm text-gray-500">Service Plan: <span className="font-semibold text-blue-600">{tenant.plan}</span></p>
+                        <p className="text-sm text-gray-500">Service Plan: <span className="font-semibold text-blue-600">{(tenant as any).planName || 'Basic'}</span></p>
                     </div>
                     <div>
                         <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${tenant.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
@@ -85,7 +85,7 @@ const TenantDetailsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="card bg-white rounded-lg shadow p-4 border">
                     <p className="text-sm font-medium text-gray-500">User Count</p>
-                    <p className="text-2xl font-semibold">{tenant.users.length}</p>
+                    <p className="text-2xl font-semibold">{(tenant as any).users?.length || 0}</p>
                 </div>
                 <div className="card bg-white rounded-lg shadow p-4 border">
                     <p className="text-sm font-medium text-gray-500">Invoices This Month</p>
@@ -100,15 +100,15 @@ const TenantDetailsPage = () => {
             <div className="card bg-white rounded-lg shadow p-6 border border-gray-200">
                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Link href={`/${tenant.key}/dashboard/users`} className="block p-4 bg-gray-50 hover:bg-gray-100 rounded-lg text-center">
+                    <Link href={`/${(tenant as any).key || 'tenant'}/dashboard/users`} className="block p-4 bg-gray-50 hover:bg-gray-100 rounded-lg text-center">
                         <FaUsers className="text-2xl text-blue-500 mb-2" />
                         <p className="font-medium">View Users</p>
                     </Link>
-                    <Link href={`/${tenant.key}/dashboard/billing`} className="block p-4 bg-gray-50 hover:bg-gray-100 rounded-lg text-center">
+                    <Link href={`/${(tenant as any).key || 'tenant'}/dashboard/billing`} className="block p-4 bg-gray-50 hover:bg-gray-100 rounded-lg text-center">
                         <FaFileInvoiceDollar className="text-2xl text-green-500 mb-2" />
                         <p className="font-medium">View Billing</p>
                     </Link>
-                    <Link href={`/${tenant.key}/dashboard/audit-logs`} className="block p-4 bg-gray-50 hover:bg-gray-100 rounded-lg text-center">
+                    <Link href={`/${(tenant as any).key || 'tenant'}/dashboard/audit-logs`} className="block p-4 bg-gray-50 hover:bg-gray-100 rounded-lg text-center">
                         <FaClipboardList className="text-2xl text-yellow-500 mb-2" />
                         <p className="font-medium">View Audit Logs</p>
                     </Link>

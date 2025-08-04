@@ -22,9 +22,11 @@ const (
 	TenantNameIsRequired        Key = "tenant_name_is_required"
 	UserQuotaExceeded           Key = "user_quota_exceeded"
 	TenantNotFound              Key = "tenant_not_found"
+	TenantDomainAlreadyExists   Key = "tenant_domain_already_exists"
 	TenantKeyAlreadyExists      Key = "tenant_key_already_exists"
 	TenantIsSuspended           Key = "tenant_is_suspended"
 	TenantPendingVerification   Key = "tenant_pending_verification"
+	TenantDomainNotVerified     Key = "tenant_domain_not_verified" // Add this key
 	UserNotFound                Key = "user_not_found"
 	EmailVerificationSuccessful Key = "email_verification_successful"
 	EmailVerificationFailed     Key = "email_verification_failed"

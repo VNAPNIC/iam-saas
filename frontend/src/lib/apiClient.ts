@@ -3,27 +3,38 @@ import { useAuthStore } from '@/stores/authStore';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api/v1';
 
-// Public client for routes that don't require tenant key
+// Helper function to extract tenant domain from current URL
+const getTenantDomain = (): string | null => {
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    const parts = hostname.split('.');
+    
+    // For localhost development
+    if (hostname === 'localhost' || hostname.includes('localhost:')) {
+      // You can return a test domain for development
+      return 'test-tenant';
+    }
+    
+    // Skip www, app, and main domain
+    const subdomain = parts[0];
+    if (subdomain === 'www' || subdomain === 'app' || parts.length < 3) {
+      return null;
+    }
+    
+    return subdomain;
+  }
+  return null;
+};
+
+// Public client cho các route không yêu cầu authentication
 export const publicApiClient = axios.create({
-  baseURL: `${API_BASE_URL}/public`,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Interceptor to attach tenant key to public requests if available
-publicApiClient.interceptors.request.use(
-  (config) => {
-    const { user } = useAuthStore.getState();
-    if (user && user.tenantKey) {
-      config.headers['X-Tenant-Key'] = user.tenantKey;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+// Không cần interceptor cho publicApiClient vì tenant path đã có trong URL
 
 const apiClient = axios.create({
   baseURL: `${API_BASE_URL}`,
@@ -32,15 +43,17 @@ const apiClient = axios.create({
   },
 });
 
-// Interceptor to attach token to every request
+// Interceptor để đính kèm token và tenant domain vào mọi yêu cầu
 apiClient.interceptors.request.use(
   (config) => {
-    const { accessToken, user } = useAuthStore.getState();
+    const { accessToken } = useAuthStore.getState();
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
-      if (user && user.tenantKey) {
-        config.headers['X-Tenant-Key'] = user.tenantKey;
-      }
+    }
+    
+    const tenantDomain = getTenantDomain();
+    if (tenantDomain) {
+      config.headers['X-Tenant-Domain'] = tenantDomain;
     }
     return config;
   },
@@ -54,7 +67,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    // Nếu lỗi là 401 và không phải là request refresh token
+    // Nếu lỗi là 401 và không phải là yêu cầu refresh token
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
@@ -64,13 +77,18 @@ apiClient.interceptors.response.use(
           return Promise.reject(error);
         }
 
+        const tenantDomain = getTenantDomain();
         const response = await axios.post(
           `${API_BASE_URL}/public/refresh-token`,
-          { refreshToken }
+          { refreshToken },
+          {
+            headers: tenantDomain ? { 'X-Tenant-Domain': tenantDomain } : {},
+            params: tenantDomain ? { tenantDomain } : {}
+          }
         );
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data;
-        login(newAccessToken, newRefreshToken, useAuthStore.getState().user!);
+        login(newAccessToken, newRefreshToken, useAuthStore.getState().user!, useAuthStore.getState().user!.permissions);
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return apiClient(originalRequest);
@@ -83,4 +101,5 @@ apiClient.interceptors.response.use(
   }
 );
 
+export { apiClient };
 export default apiClient;

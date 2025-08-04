@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 const SupportTicketsPage = () => {
+    const canUpdate = useHasPermission(['tickets:update', 'super:admin']);
+    const canReply = useHasPermission(['tickets:reply', 'super:admin']);
     // Mock data for now
     const tickets = [
         {
@@ -108,15 +111,21 @@ const SupportTicketsPage = () => {
                         </div>
                         <div className="flex justify-between items-center mt-4">
                             <div>
-                                <label className="text-sm font-medium">Update Status:</label>
-                                <select className="text-sm border-gray-300 rounded-md p-1 bg-white">
-                                    <option>Pending</option>
-                                    <option>Closed</option>
-                                </select>
+                                {canUpdate && (
+                                    <>
+                                        <label className="text-sm font-medium">Update Status:</label>
+                                        <select className="text-sm border-gray-300 rounded-md p-1 bg-white">
+                                            <option>Pending</option>
+                                            <option>Closed</option>
+                                        </select>
+                                    </>
+                                )}
                             </div>
                             <div className="space-x-2">
                                 <button onClick={closeModal} className="text-sm bg-gray-300 px-4 py-2 rounded-md">Close</button>
-                                <button type="submit" onClick={handleReplySubmit} className="text-sm bg-blue-600 text-white px-4 py-2 rounded-md">Send Reply</button>
+                                {canReply && (
+                                    <button type="submit" onClick={handleReplySubmit} className="text-sm bg-blue-600 text-white px-4 py-2 rounded-md">Send Reply</button>
+                                )}
                             </div>
                         </div>
                     </div>

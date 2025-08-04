@@ -1,46 +1,35 @@
 package v1
 
 import (
+	"iam-saas/internal/domain"
 	"iam-saas/internal/handler"
 
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterSuperAdminRoutes đăng ký các API chỉ dành cho Super Admin.
 func RegisterSuperAdminRoutes(
-	rg *gin.RouterGroup,
+	router *gin.RouterGroup,
 	tenantHandler *handler.TenantHandler,
 	planHandler *handler.PlanHandler,
-	requestHandler *handler.RequestHandler,
-	ticketHandler *handler.TicketHandler,
-	subscriptionHandler *handler.SubscriptionHandler,
-	alertHandler *handler.AlertHandler,
+	tokenService domain.TokenService,
+	roleService domain.RoleService,
 ) {
-	rg.GET("/tenants", tenantHandler.ListTenants)
-	rg.GET("/tenants/:tenantId", tenantHandler.GetTenantDetails)
-	rg.PUT("/tenants/:tenantId/suspend", tenantHandler.SuspendTenant)
-	rg.DELETE("/tenants/:tenantId", tenantHandler.DeleteTenant)
+	superAdmin := router.Group("/sa")
+	superAdmin.Use(handler.AuthMiddleware(tokenService, roleService))
+	superAdmin.Use(handler.SuperAdminMiddleware(roleService))
+	{
+		// Tenant management
+		superAdmin.GET("/tenants", tenantHandler.ListTenants)
+		superAdmin.POST("/tenants", tenantHandler.CreateTenant)
+		superAdmin.GET("/tenants/:id", tenantHandler.GetTenantDetails)
+		superAdmin.PUT("/tenants/:id", tenantHandler.UpdateTenant)
+		superAdmin.DELETE("/tenants/:id", tenantHandler.DeleteTenant)
 
-	rg.POST("/plans", planHandler.CreatePlan)
-	rg.GET("/plans", planHandler.ListPlans)
-	rg.GET("/plans/:id", planHandler.GetPlan)
-	rg.PUT("/plans/:id", planHandler.UpdatePlan)
-	rg.DELETE("/plans/:id", planHandler.DeletePlan)
+		// Plan management
+		superAdmin.POST("/plans", planHandler.CreatePlan)
+		superAdmin.PUT("/plans/:id", planHandler.UpdatePlan)
+		superAdmin.DELETE("/plans/:id", planHandler.DeletePlan)
 
-	rg.GET("/requests/tenant", requestHandler.ListTenantRequests)
-	rg.GET("/requests/quota", requestHandler.ListQuotaRequests)
-	rg.POST("/requests/:id/approve", requestHandler.ApproveRequest)
-	rg.POST("/requests/:id/deny", requestHandler.DenyRequest)
-
-	rg.GET("/tickets", ticketHandler.ListTickets)
-	rg.GET("/tickets/:id", ticketHandler.GetTicket)
-	rg.PUT("/tickets/:id/status", ticketHandler.UpdateTicketStatus)
-	rg.POST("/tickets/:id/reply", ticketHandler.ReplyToTicket)
-
-	rg.GET("/subscriptions", subscriptionHandler.ListSubscriptions)
-	rg.GET("/subscriptions/:id", subscriptionHandler.GetSubscription)
-	rg.PUT("/subscriptions/:id/status", subscriptionHandler.UpdateSubscriptionStatus)
-
-	rg.GET("/alerts", alertHandler.ListAlerts)
-	rg.PUT("/alerts/:id/status", alertHandler.UpdateAlertStatus)
+		// Other super admin routes...
+	}
 }

@@ -12,6 +12,7 @@ type AlertRepository interface {
 	FindByID(ctx context.Context, id int64) (*entities.Alert, error)
 	ListAlerts(ctx context.Context, tenantID *int64, userID *int64, severity, status string) ([]entities.Alert, error)
 	Update(ctx context.Context, alert *entities.Alert) error
+	Delete(ctx context.Context, id int64) error
 }
 
 type AlertService interface {
@@ -19,4 +20,5 @@ type AlertService interface {
 	GetAlertByID(ctx context.Context, id int64) (*entities.Alert, error)
 	ListAlerts(ctx context.Context, tenantID *int64, userID *int64, severity, status string) ([]entities.Alert, error)
 	UpdateAlertStatus(ctx context.Context, id int64, status string) (*entities.Alert, error)
+	DeleteAlert(ctx context.Context, id int64) error
 }

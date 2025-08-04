@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/stores/authStore';
 import { userService } from '@/services/userService';
 import { useParams } from 'next/navigation';
 
@@ -17,7 +17,7 @@ export default function InviteUserModal({ isOpen, onClose, onUserInvited }: Invi
     const [role, setRole] = useState('Editor'); // Mặc định là Editor
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
-    const { user } = useAuth();
+    const { user } = useAuthStore();
     const params = useParams();
     const tenantKey = params.tenantKey as string;
 

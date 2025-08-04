@@ -12,6 +12,13 @@ export interface InviteUserPayload {
     role: string;
 }
 
+export interface UpdateTenantBrandingPayload {
+    name?: string;
+    logoUrl?: string;
+    primaryColor?: string;
+    allowPublicSignup?: boolean;
+}
+
 const listUsers = async (): Promise<ListUsersResponse> => {
     const response = await apiClient.get<ListUsersResponse>('/protected/users');
     return response.data;
@@ -25,7 +32,7 @@ const changePassword = async (tenantKey: string, passwordData: any): Promise<voi
     await apiClient.put(`/protected/me/password`, passwordData);
 };
 
-const updateTenantBranding = async (tenantKey: string, brandingData: any): Promise<void> => {
+const updateTenantBranding = async (tenantKey: string, brandingData: UpdateTenantBrandingPayload): Promise<void> => {
     await apiClient.put(`/protected/tenant/branding`, brandingData);
 };
 

@@ -4,8 +4,12 @@ import { useState, useEffect } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { planService } from '@/services/planService';
 import { Plan } from '@/types/plan';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 const PlanManagementPage = () => {
+    const canCreate = useHasPermission(['plans:create', 'super:admin']);
+    const canUpdate = useHasPermission(['plans:update', 'super:admin']);
+    const canDelete = useHasPermission(['plans:delete', 'super:admin']);
     const [plans, setPlans] = useState<Plan[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -48,9 +52,11 @@ const PlanManagementPage = () => {
         <>
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold text-gray-900">Plan Management</h1>
-                <button onClick={openModal} className="text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">
-                    <FaPlus className="mr-2" /> Add Plan
-                </button>
+                {canCreate && (
+                    <button onClick={openModal} className="text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">
+                        <FaPlus className="mr-2" /> Add Plan
+                    </button>
+                )}
             </div>
 
             <div className="card bg-white rounded-lg shadow border border-gray-200">
@@ -75,8 +81,8 @@ const PlanManagementPage = () => {
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{plan.apiCallLimit}</td>
                                     <td className="px-4 py-3 whitespace-nowrap"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${plan.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{plan.status}</span></td>
                                     <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                        <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
-                                        <button className="text-red-600 hover:text-red-900">Delete</button>
+                                        {canUpdate && <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>}
+                                        {canDelete && <button className="text-red-600 hover:text-red-900">Delete</button>}
                                     </td>
                                 </tr>
                             ))}

@@ -1,7 +1,27 @@
 "use client"
 
 import * as React from "react"
-import * as SwitchPrimitive from "@radix-ui/react-switch"
+// import * as SwitchPrimitive from "@radix-ui/react-switch"
+
+// Simple switch replacement to avoid createContext issues
+const SwitchPrimitive = {
+  Root: React.forwardRef<HTMLInputElement, any>(({ className, checked, onCheckedChange, ...props }, ref) => (
+    <input
+      ref={ref}
+      type="checkbox"
+      checked={checked}
+      onChange={(e) => onCheckedChange?.(e.target.checked)}
+      className={className}
+      {...props}
+    />
+  )),
+  Thumb: React.forwardRef<HTMLSpanElement, any>(({ className, ...props }, ref) => (
+    <span ref={ref} className={className} {...props} />
+  ))
+};
+
+SwitchPrimitive.Root.displayName = "Switch";
+SwitchPrimitive.Thumb.displayName = "SwitchThumb";
 
 import { cn } from "@/lib/utils"
 

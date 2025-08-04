@@ -64,3 +64,10 @@ func (s *alertService) UpdateAlertStatus(ctx context.Context, id int64, status s
 	}
 	return alert, nil
 }
+
+func (s *alertService) DeleteAlert(ctx context.Context, id int64) error {
+	if err := s.alertRepo.Delete(ctx, id); err != nil {
+		return app_error.NewInternalServerError(err)
+	}
+	return nil
+}

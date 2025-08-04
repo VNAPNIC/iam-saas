@@ -241,3 +241,15 @@ func (r *userRepository) AssignRolesToUser(ctx context.Context, tx *gorm.DB, use
 	}
 	return nil
 }
+
+func (r *userRepository) SetVerificationToken(ctx context.Context, userID int64, token string) error {
+	sql := "UPDATE users SET verification_token = ? WHERE id = ?"
+	return r.db.WithContext(ctx).Exec(sql, token, userID).Error
+}
+
+func (r *userRepository) CountUsersInTenant(ctx context.Context, tenantID int64) (int64, error) {
+	var count int64
+	query := `SELECT COUNT(*) FROM "users" WHERE tenant_id = $1`
+	err := r.db.WithContext(ctx).Raw(query, tenantID).Scan(&count).Error
+	return count, err
+}

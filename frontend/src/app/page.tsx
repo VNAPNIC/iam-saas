@@ -1,413 +1,209 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useTheme } from 'next-themes';
+import { useUIStore } from '@/stores/uiStore';
 
-const LandingPage = () => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+export default function LandingPage() {
+  const { theme, setTheme } = useTheme();
+  const { language, setLanguage } = useUIStore();
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+  return (
+    <div className="bg-white dark:bg-gray-900">
+      {/* Header */}
+      <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center">
+            <i className="fas fa-lock text-blue-500 text-2xl"></i>
+            <h1 className="text-xl font-bold ml-2 text-gray-900 dark:text-white">IAM SaaS</h1>
+          </div>
+          <nav className="hidden md:flex items-center space-x-6">
+            <a href="#features" className="text-gray-600 dark:text-gray-300 hover:text-blue-500">Tính năng</a>
+            <a href="#pricing" className="text-gray-600 dark:text-gray-300 hover:text-blue-500">Bảng giá</a>
+            <a href="#testimonials" className="text-gray-600 dark:text-gray-300 hover:text-blue-500">Đánh giá</a>
+            <Link href="/login" className="text-gray-600 dark:text-gray-300 hover:text-blue-500">Đăng nhập</Link>
+          </nav>
+          <div className="flex items-center space-x-4">
+            <Link href="/signup" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+              Bắt đầu miễn phí
+            </Link>
+            <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-gray-500 dark:text-gray-400 hover:text-blue-500">
+              <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
+            </button>
+             <select 
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as 'en' | 'vi')}
+                className="text-sm border border-gray-300 rounded-md px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600"
+              >
+                <option value="en">English</option>
+                <option value="vi">Tiếng Việt</option>
+            </select>
+          </div>
+        </div>
+      </header>
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+      {/* Hero Section */}
+      <main>
+        <section className="bg-blue-50 dark:bg-gray-800 py-20">
+          <div className="container mx-auto px-6 text-center">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Giải pháp Quản lý Định danh và Truy cập Toàn diện</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-8">Bảo mật, đơn giản hóa và tự động hóa việc quản lý truy cập cho doanh nghiệp của bạn.</p>
+            <Link href="/signup" className="bg-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-700 text-lg">
+              Dùng thử miễn phí 14 ngày
+            </Link>
+          </div>
+        </section>
 
-        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        const fontSize = 16;
-        const columns = canvas.width / fontSize;
-        const drops = Array(Math.floor(columns)).fill(1);
+        {/* Features Section */}
+        <section id="features" className="py-20">
+          <div className="container mx-auto px-6">
+            <h3 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">Tại sao chọn IAM SaaS?</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="card bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md border dark:border-gray-700">
+                <div className="text-blue-500 mb-4"><i className="fas fa-shield-alt fa-3x"></i></div>
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Bảo mật Đa lớp</h4>
+                <p className="text-gray-600 dark:text-gray-400">Tích hợp xác thực đa yếu tố (MFA), Single Sign-On (SSO), và các chính sách truy cập linh hoạt.</p>
+              </div>
+              <div className="card bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md border dark:border-gray-700">
+                <div className="text-blue-500 mb-4"><i className="fas fa-cogs fa-3x"></i></div>
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Tự động hóa Luồng làm việc</h4>
+                <p className="text-gray-600 dark:text-gray-400">Tự động cấp và thu hồi quyền truy cập, giảm thiểu công việc thủ công và sai sót.</p>
+              </div>
+              <div className="card bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md border dark:border-gray-700">
+                <div className="text-blue-500 mb-4"><i className="fas fa-chart-line fa-3x"></i></div>
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Giám sát và Báo cáo</h4>
+                <p className="text-gray-600 dark:text-gray-400">Theo dõi mọi hoạt động truy cập với audit log chi tiết và dashboard trực quan.</p>
+              </div>
+            </div>
+          </div>
+        </section>
 
-        function drawMatrix() {
-            const currentCanvas = canvasRef.current;
-            if (!currentCanvas) return;
-            const currentCtx = currentCanvas.getContext('2d');
-            if (!currentCtx) return;
+        {/* Pricing Section */}
+        <section id="pricing" className="bg-gray-50 dark:bg-gray-800 py-20">
+          <div className="container mx-auto px-6">
+            <h3 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">Bảng giá linh hoạt</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Free Plan */}
+              <div className="card bg-white dark:bg-gray-700 p-8 rounded-lg shadow-md border dark:border-gray-600 text-center">
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white">Miễn phí</h4>
+                <p className="text-4xl font-bold text-gray-900 dark:text-white my-4">$0<span className="text-lg text-gray-500 dark:text-gray-400">/tháng</span></p>
+                <ul className="text-gray-600 dark:text-gray-300 space-y-2">
+                  <li>10 người dùng</li>
+                  <li>Xác thực cơ bản</li>
+                  <li>Hỗ trợ cộng đồng</li>
+                </ul>
+                <button className="mt-8 border border-blue-500 text-blue-500 px-6 py-2 rounded-md w-full hover:bg-blue-500 hover:text-white">Bắt đầu</button>
+              </div>
+              {/* Pro Plan */}
+              <div className="card bg-white dark:bg-gray-700 p-8 rounded-lg shadow-lg border-2 border-blue-500 text-center">
+                <p className="bg-blue-500 text-white text-sm font-bold py-1 px-4 rounded-full inline-block mb-4">Phổ biến</p>
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white">Chuyên nghiệp</h4>
+                <p className="text-4xl font-bold text-gray-900 dark:text-white my-4">$49<span className="text-lg text-gray-500 dark:text-gray-400">/tháng</span></p>
+                <ul className="text-gray-600 dark:text-gray-300 space-y-2">
+                  <li>100 người dùng</li>
+                  <li>Tích hợp SSO & MFA</li>
+                  <li>Hỗ trợ qua email</li>
+                </ul>
+                <button className="mt-8 bg-blue-600 text-white px-6 py-2 rounded-md w-full hover:bg-blue-700">Chọn gói Pro</button>
+              </div>
+              {/* Enterprise Plan */}
+              <div className="card bg-white dark:bg-gray-700 p-8 rounded-lg shadow-md border dark:border-gray-600 text-center">
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white">Doanh nghiệp</h4>
+                <p className="text-4xl font-bold text-gray-900 dark:text-white my-4">Liên hệ</p>
+                <ul className="text-gray-600 dark:text-gray-300 space-y-2">
+                  <li>Không giới hạn người dùng</li>
+                  <li>Hỗ trợ chuyên biệt</li>
+                  <li>SLA & Tùy chỉnh</li>
+                </ul>
+                <button className="mt-8 border border-blue-500 text-blue-500 px-6 py-2 rounded-md w-full hover:bg-blue-500 hover:text-white">Liên hệ</button>
+              </div>
+            </div>
+          </div>
+        </section>
 
-            currentCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            currentCtx.fillRect(0, 0, currentCanvas.width, currentCanvas.height);
-            currentCtx.fillStyle = '#f86823';
-            currentCtx.font = `${fontSize}px monospace`;
-            drops.forEach((y, i) => {
-                const text = letters[Math.floor(Math.random() * letters.length)];
-                currentCtx.fillText(text, i * fontSize, y * fontSize);
-                if (y * fontSize > currentCanvas.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            });
-        }
-
-        const interval = setInterval(drawMatrix, 50);
-        return () => clearInterval(interval);
-    }, []);
-
-    return (
-        <>
-            <Head>
-                <title>IAM SaaS - Secure Identity and Access Management</title>
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-            </Head>
-            <body className="font-sans bg-gray-50 text-[#656565]">
-                <header className="bg-[#333338] text-white sticky top-0 z-50 shadow-lg">
-                    <div className="container mx-auto px-6 py-4">
-                        <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                                <div className="mr-4">
-                                    {/* <Image src="/logo.png" alt="IAM SaaS Logo" width={40} height={40} /> */}
-                                </div>
-                                <h1 className="text-2xl font-bold">IAM<span className="text-[#f86823]">SaaS</span></h1>
-                            </div>
-                            <nav className="hidden md:flex space-x-8">
-                                <Link href="#features" className="hover:text-[#f86823] transition">Features</Link>
-                                <Link href="#solutions" className="hover:text-[#f86823] transition">Solutions</Link>
-                                <Link href="#pricing" className="hover:text-[#f86823] transition">Pricing</Link>
-                                <Link href="#demo" className="hover:text-[#f86823] transition">Demo</Link>
-                            </nav>
-                            <div className="flex items-center space-x-4">
-                                <Link href="/default/login" className="px-4 py-2 rounded-md hover:text-[#f86823] transition">Login</Link>
-                                <Link href="/default/signup" className="btn-gradient text-white px-6 py-2 rounded-md">Get Started</Link>
+        {/* Testimonials Section */}
+        <section id="testimonials" className="py-20">
+            <div className="container mx-auto px-6">
+                <h3 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">Khách hàng nói gì về chúng tôi</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="card bg-gray-50 dark:bg-gray-800 p-8 rounded-lg">
+                        <p className="text-gray-600 dark:text-gray-300 mb-4">&ldquo;IAM SaaS đã thay đổi hoàn toàn cách chúng tôi quản lý truy cập. Nhanh chóng, an toàn và cực kỳ dễ sử dụng.&rdquo;</p>
+                        <div className="flex items-center">
+                            <Image className="w-12 h-12 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User testimonial" width={48} height={48}/>
+                            <div className="ml-4">
+                                <p className="font-semibold text-gray-900 dark:text-white">John Doe</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">CTO, Acme Inc.</p>
                             </div>
                         </div>
                     </div>
-                </header>
-
-                <section className="bg-[#333338] text-white py-20 relative overflow-hidden">
-                    <canvas ref={canvasRef} id="matrix-canvas" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, opacity: 0.1 }}></canvas>
-                    <div className="container mx-auto px-6 relative z-10">
-                        <div className="flex flex-col md:flex-row items-center">
-                            <div className="md:w-1/2 mb-10 md:mb-0">
-                                <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6">Empower Your Business with Advanced Identity Management</h1>
-                                <p className="text-xl text-[#d6d8e2] mb-8">Secure, scalable IAM with SSO, MFA, and granular access controls.</p>
-                                <div className="flex flex-col sm:flex-row gap-4">
-                                    <Link href="/default/signup" className="btn-gradient text-white px-8 py-4 rounded-md text-center font-semibold text-lg">Start Free Trial</Link>
-                                    <Link href="#demo" className="border border-white text-white px-8 py-4 rounded-md text-center font-medium hover:bg-white hover:text-[#333338] transition duration-300">Request Demo</Link>
-                                </div>
-                            </div>
-                            <div className="md:w-1/2">
-                                <div className="bg-white rounded-xl shadow-2xl overflow-hidden transform hover:scale-105 transition duration-300">
-                                    {/* <Image src="/images/hero-dashboard.png" alt="IAM Dashboard" width={800} height={600} className="w-full" /> */}
-                                </div>
+                    <div className="card bg-gray-50 dark:bg-gray-800 p-8 rounded-lg">
+                        <p className="text-gray-600 dark:text-gray-300 mb-4">&ldquo;Một giải pháp mạnh mẽ với mức giá không thể tin được. Đội ngũ hỗ trợ cũng rất tuyệt vời.&rdquo;</p>
+                        <div className="flex items-center">
+                            <Image className="w-12 h-12 rounded-full" src="https://randomuser.me/api/portraits/women/44.jpg" alt="User testimonial" width={48} height={48}/>
+                            <div className="ml-4">
+                                <p className="font-semibold text-gray-900 dark:text-white">Jane Smith</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Head of IT, Beta Corp.</p>
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
+            </div>
+        </section>
 
-                <section id="features" className="py-20 bg-[#fff7f4]">
-                    <div className="container mx-auto px-6">
-                        <div className="text-center mb-16">
-                            <span className="text-[#f86823] font-bold uppercase tracking-wider">Features</span>
-                            <h2 className="text-3xl md:text-4xl font-bold text-[#333338] mt-2 mb-4">Powerful Tools for Identity Management</h2>
-                            <p className="max-w-2xl mx-auto text-lg text-[#656565]">Everything you need to secure and manage access across your organization.</p>
-                        </div>
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            <div className="feature-card bg-white rounded-xl p-8 shadow-md transition duration-300">
-                                <div className="text-[#f86823] mb-4"><i className="fas fa-user-shield text-4xl"></i></div>
-                                <h3 className="text-xl font-bold text-[#333338] mb-3">Multi-Tenant Isolation</h3>
-                                <p className="text-[#656565]">Securely isolate tenant data with dedicated instances and RBAC.</p>
-                            </div>
-                            <div className="feature-card bg-white rounded-xl p-8 shadow-md transition duration-300">
-                                <div className="text-[#f86823] mb-4"><i className="fas fa-fingerprint text-4xl"></i></div>
-                                <h3 className="text-xl font-bold text-[#333338] mb-3">SSO & MFA</h3>
-                                <p className="text-[#656565]">Enable single sign-on and multi-factor authentication with ease.</p>
-                            </div>
-                            <div className="feature-card bg-white rounded-xl p-8 shadow-md transition duration-300">
-                                <div className="text-[#f86823] mb-4"><i className="fas fa-users-cog text-4xl"></i></div>
-                                <h3 className="text-xl font-bold text-[#333338] mb-3">Granular Access Control</h3>
-                                <p className="text-[#656565]">Fine-tune permissions with RBAC and ABAC policies.</p>
-                            </div>
-                            <div className="feature-card bg-white rounded-xl p-8 shadow-md transition duration-300">
-                                <div className="text-[#f86823] mb-4"><i className="fas fa-bell text-4xl"></i></div>
-                                <h3 className="text-xl font-bold text-[#333338] mb-3">Real-Time Audit Logs</h3>
-                                <p className="text-[#656565]">Track every action with detailed logs and SIEM integration.</p>
-                            </div>
-                            <div className="feature-card bg-white rounded-xl p-8 shadow-md transition duration-300">
-                                <div className="text-[#f86823] mb-4"><i className="fas fa-random text-4xl"></i></div>
-                                <h3 className="text-xl font-bold text-[#333338] mb-3">Seamless Integrations</h3>
-                                <p className="text-[#656565]">Connect with HRIS, ERP, and CRM via SCIM or webhooks.</p>
-                            </div>
-                            <div className="feature-card bg-white rounded-xl p-8 shadow-md transition duration-300">
-                                <div className="text-[#f86823] mb-4"><i className="fas fa-chart-line text-4xl"></i></div>
-                                <h3 className="text-xl font-bold text-[#333338] mb-3">Usage Analytics</h3>
-                                <p className="text-[#656565]">Gain insights with customizable dashboards and reports.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+        {/* Call to Action Section */}
+        <section className="bg-blue-600 text-white py-20">
+            <div className="container mx-auto px-6 text-center">
+                <h3 className="text-3xl font-bold mb-4">Sẵn sàng để Tăng cường Bảo mật?</h3>
+                <p className="mb-8">Tham gia cùng hàng ngàn doanh nghiệp đang tin tưởng IAM SaaS.</p>
+                <Link href="/signup" className="bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-200 text-lg">
+                    Bắt đầu ngay
+                </Link>
+            </div>
+        </section>
+      </main>
 
-                <section id="solutions" className="py-20 bg-white">
-                    <div className="container mx-auto px-6">
-                        <div className="text-center mb-16">
-                            <span className="text-[#f86823] font-bold uppercase tracking-wider">Solutions</span>
-                            <h2 className="text-3xl md:text-4xl font-bold text-[#333338] mt-2 mb-4">Tailored IAM for Every Industry</h2>
-                            <p className="max-w-2xl mx-auto text-lg text-[#656565]">Solutions designed to meet your specific compliance and workflow needs.</p>
-                        </div>
-                        <div className="mb-12">
-                            <div className="flex flex-wrap justify-center border-b border-gray-200">
-                                <button className="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-[#f86823] transition active:border-[#f86823]" data-tab="tab1">Healthcare</button>
-                                <button className="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-[#f86823] transition" data-tab="tab2">Finance</button>
-                                <button className="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-[#f86823] transition" data-tab="tab3">Enterprise</button>
-                                <button className="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-[#f86823] transition" data-tab="tab4">Government</button>
-                                <button className="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-[#f86823] transition" data-tab="tab5">Startups</button>
-                            </div>
-                        </div>
-                        <div className="tab-content-container">
-                            <div className="tab-content active fade-in" id="tab1">
-                                <div className="flex flex-col md:flex-row items-center gap-12">
-                                    <div className="md:w-1/2">
-                                        <h3 className="text-2xl font-bold text-[#333338] mb-4">HIPAA-Compliant IAM for Healthcare</h3>
-                                        <p className="text-[#656565] mb-6">Secure patient data with compliance-ready IAM tools.</p>
-                                        <ul className="space-y-3 mb-8">
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Break-glass emergency access</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Automatic session timeouts</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>EHR integrations (Epic, Cerner)</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>PHI access audit trails</li>
-                                        </ul>
-                                        <a href="#" className="btn-gradient text-white px-6 py-3 rounded-md inline-block">Learn More</a>
-                                    </div>
-                                    <div className="md:w-1/2">
-                                        {/* <Image src="https://example.com/healthcare-iam.jpg" alt="Healthcare IAM" width={600} height={400} className="rounded-lg shadow-md" /> */}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="tab-content fade-in" id="tab2">
-                                <div className="flex flex-col md:flex-row items-center gap-12">
-                                    <div className="md:w-1/2">
-                                        <h3 className="text-2xl font-bold text-[#333338] mb-4">Financial Services Compliance</h3>
-                                        <p className="text-[#656565] mb-6">Meet PCI DSS, SOX, and GLBA with robust IAM.</p>
-                                        <ul className="space-y-3 mb-8">
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Privileged access management</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Multi-level approvals</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Banking platform integration</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Automated provisioning</li>
-                                        </ul>
-                                        <a href="#" className="btn-gradient text-white px-6 py-3 rounded-md inline-block">Learn More</a>
-                                    </div>
-                                    <div className="md:w-1/2">
-                                        {/* <Image src="https://example.com/finance-iam.jpg" alt="Finance IAM" width={600} height={400} className="rounded-lg shadow-md" /> */}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="tab-content fade-in" id="tab3">
-                                <div className="flex flex-col md:flex-row items-center gap-12">
-                                    <div className="md:w-1/2">
-                                        <h3 className="text-2xl font-bold text-[#333338] mb-4">Enterprise-Grade IAM</h3>
-                                        <p className="text-[#656565] mb-6">Scale securely with enterprise-ready features.</p>
-                                        <ul className="space-y-3 mb-8">
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Unlimited user support</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Multi-region deployment</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Custom integrations</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>24/7 support</li>
-                                        </ul>
-                                        <a href="#" className="btn-gradient text-white px-6 py-3 rounded-md inline-block">Learn More</a>
-                                    </div>
-                                    <div className="md:w-1/2">
-                                        {/* <Image src="https://example.com/enterprise-iam.jpg" alt="Enterprise IAM" width={600} height={400} className="rounded-lg shadow-md" /> */}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="tab-content fade-in" id="tab4">
-                                <div className="flex flex-col md:flex-row items-center gap-12">
-                                    <div className="md:w-1/2">
-                                        <h3 className="text-2xl font-bold text-[#333338] mb-4">Government Security Standards</h3>
-                                        <p className="text-[#656565] mb-6">Comply with FedRAMP, FISMA, and more.</p>
-                                        <ul className="space-y-3 mb-8">
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>High-impact security controls</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Data residency options</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Secure audit logging</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Dedicated compliance support</li>
-                                        </ul>
-                                        <a href="#" className="btn-gradient text-white px-6 py-3 rounded-md inline-block">Learn More</a>
-                                    </div>
-                                    <div className="md:w-1/2">
-                                        {/* <Image src="https://example.com/government-iam.jpg" alt="Government IAM" width={600} height={400} className="rounded-lg shadow-md" /> */}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="tab-content fade-in" id="tab5">
-                                <div className="flex flex-col md:flex-row items-center gap-12">
-                                    <div className="md:w-1/2">
-                                        <h3 className="text-2xl font-bold text-[#333338] mb-4">IAM for Startups</h3>
-                                        <p className="text-[#656565] mb-6">Affordable security for fast-growing teams.</p>
-                                        <ul className="space-y-3 mb-8">
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Scalable user management</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>SSO for key tools</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Easy onboarding</li>
-                                            <li className="flex items-start"><i className="fas fa-check text-[#f86823] mt-1 mr-2"></i>Priority support</li>
-                                        </ul>
-                                        <a href="#" className="btn-gradient text-white px-6 py-3 rounded-md inline-block">Learn More</a>
-                                    </div>
-                                    <div className="md:w-1/2">
-                                        {/* <Image src="https://example.com/startups-iam.jpg" alt="Startups IAM" width={600} height={400} className="rounded-lg shadow-md" /> */}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="py-16 bg-gradient-orange text-white">
-                    <div className="container mx-auto px-6">
-                        <div className="grid md:grid-cols-4 gap-8 text-center">
-                            <div className="p-6">
-                                <div className="stats-number text-4xl font-bold mb-2" data-target="99.9">0</div>
-                                <div className="text-xl">Uptime SLA (%)</div>
-                            </div>
-                            <div className="p-6">
-                                <div className="stats-number text-4xl font-bold mb-2" data-target="10000">0</div>
-                                <div className="text-xl">Requests/Sec</div>
-                            </div>
-                            <div className="p-6">
-                                <div className="stats-number text-4xl font-bold mb-2" data-target="1000000">0</div>
-                                <div className="text-xl">Concurrent Users</div>
-                            </div>
-                            <div className="p-6">
-                                <div className="stats-number text-4xl font-bold mb-2" data-target="14">0</div>
-                                <div className="text-xl">Global Regions</div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="pricing" className="py-20 bg-[#f9f9f9]">
-                    <div className="container mx-auto px-6">
-                        <div className="text-center mb-16">
-                            <span className="text-[#f86823] font-bold uppercase tracking-wider">Pricing</span>
-                            <h2 className="text-3xl md:text-4xl font-bold text-[#333338] mt-2 mb-4">Simple, Flexible Plans</h2>
-                            <p className="max-w-2xl mx-auto text-lg text-[#656565]">Pick a plan that scales with your business, all with top-tier security.</p>
-                        </div>
-                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                                <div className="p-8">
-                                    <div className="text-[#f86823] font-bold mb-1">Trial</div>
-                                    <div className="text-4xl font-bold text-[#333338] mb-4">$0<span className="text-xl text-[#656565]">/mo</span></div>
-                                    <p className="text-[#656565] mb-6">Test the platform risk-free.</p>
-                                    <ul className="space-y-3 mb-8">
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>14-day free trial</li>
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>100 users</li>
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>50 invoices</li>
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>1,000 API calls</li>
-                                    </ul>
-                                    <a href="#" className="block w-full bg-gray-200 text-[#333338] text-center py-3 rounded-md hover:bg-gray-300 transition">Start Free Trial</a>
-                                </div>
-                            </div>
-                            <div className="bg-white rounded-xl shadow-xl overflow-hidden relative transform scale-105">
-                                <div className="absolute top-0 right-0 bg-[#f86823] text-white px-4 py-1 text-xs font-bold rounded-bl-lg">POPULAR</div>
-                                <div className="p-8">
-                                    <div className="text-[#f86823] font-bold mb-1">Basic</div>
-                                    <div className="text-4xl font-bold text-[#333338] mb-4">$50<span className="text-xl text-[#656565]">/mo</span></div>
-                                    <p className="text-[#656565] mb-6">Ideal for small businesses.</p>
-                                    <ul className="space-y-3 mb-8">
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>1,000 users</li>
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>500 invoices</li>
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>10,000 API calls</li>
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>Single sign-on (SSO)</li>
-                                    </ul>
-                                    <a href="#" className="btn-gradient block w-full text-white text-center py-3 rounded-md">Get Started</a>
-                                </div>
-                            </div>
-                            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                                <div className="p-8">
-                                    <div className="text-[#f86823] font-bold mb-1">Pro</div>
-                                    <div className="text-4xl font-bold text-[#333338] mb-4">$200<span className="text-xl text-[#656565]">/mo</span></div>
-                                    <p className="text-[#656565] mb-6">For growing teams.</p>
-                                    <ul className="space-y-3 mb-8">
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>10,000 users</li>
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>5,000 invoices</li>
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>100,000 API calls</li>
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>Advanced SSO</li>
-                                    </ul>
-                                    <a href="#" className="btn-gradient block w-full text-white text-center py-3 rounded-md">Get Started</a>
-                                </div>
-                            </div>
-                            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                                <div className="p-8">
-                                    <div className="text-[#f86823] font-bold mb-1">Enterprise</div>
-                                    <div className="text-4xl font-bold text-[#333338] mb-4">Custom</div>
-                                    <p className="text-[#656565] mb-6">For large-scale needs.</p>
-                                    <ul className="space-y-3 mb-8">
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>Unlimited users</li>
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>Unlimited invoices</li>
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>Custom API limits</li>
-                                        <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i>Multi-region support</li>
-                                    </ul>
-                                    <a href="#" className="block w-full border border-[#f86823] text-[#f86823] text-center py-3 rounded-md hover:bg-[#f86823] hover:text-white transition">Contact Sales</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="mt-12 text-center">
-                            <p className="text-[#656565]">All plans include multi-tenant support, GDPR/HIPAA compliance, and enterprise-grade security features.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="demo" className="py-20 bg-[#333338] text-white">
-                    <div className="container mx-auto px-6">
-                        <div className="flex flex-col md:flex-row items-center gap-12">
-                            <div className="md:w-1/2">
-                                <span className="text-[#f86823] font-bold uppercase tracking-wider">Demo</span>
-                                <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-6">See IAM SaaS in Action</h2>
-                                <p className="text-xl text-[#d6d8e2] mb-8">Explore how our platform secures your business with a live demo or personalized walkthrough.</p>
-                                <div className="flex flex-col sm:flex-row gap-4">
-                                    <a href="#" className="btn-gradient text-white px-8 py-4 rounded-md text-center font-semibold">Watch Video</a>
-                                    <a href="#" className="border border-white text-white px-8 py-4 rounded-md text-center font-medium hover:bg-white hover:text-[#333338] transition duration-300">Request a Demo</a>
-                                </div>
-                            </div>
-                            <div className="md:w-1/2">
-                                <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
-                                    {/* <Image src="https://example.com/demo-video.jpg" alt="Demo Video Thumbnail" width={800} height={600} className="w-full" /> */}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Add other sections here */}
-
-            <footer className="bg-[#333338] text-white py-10">
-                    <div className="container mx-auto px-6">
-                        <div className="grid md:grid-cols-4 gap-8">
-                            <div>
-                                <h3 className="text-lg font-bold mb-4">IAM SaaS</h3>
-                                <p className="text-[#d6d8e2]">Secure identity and access management for your business.</p>
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-bold mb-4">Product</h3>
-                                <ul className="space-y-2">
-                                    <li><Link href="#features" className="hover:text-[#f86823] transition">Features</Link></li>
-                                    <li><Link href="#solutions" className="hover:text-[#f86823] transition">Solutions</Link></li>
-                                    <li><Link href="#pricing" className="hover:text-[#f86823] transition">Pricing</Link></li>
-                                    <li><Link href="#demo" className="hover:text-[#f86823] transition">Demo</Link></li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-bold mb-4">Support</h3>
-                                <ul className="space-y-2">
-                                    <li><Link href="#" className="hover:text-[#f86823] transition">Help Center</Link></li>
-                                    <li><Link href="#" className="hover:text-[#f86823] transition">Contact Us</Link></li>
-                                    <li><Link href="#" className="hover:text-[#f86823] transition">Documentation</Link></li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-bold mb-4">Connect</h3>
-                                <div className="flex space-x-4">
-                                    <Link href="#" className="hover:text-[#f86823] transition"><i className="fab fa-twitter text-xl"></i></Link>
-                                    <Link href="#" className="hover:text-[#f86823] transition"><i className="fab fa-linkedin text-xl"></i></Link>
-                                    <Link href="#" className="hover:text-[#f86823] transition"><i className="fab fa-github text-xl"></i></Link>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="mt-8 text-center text-[#d6d8e2]">
-                            <p>© 2025 IAM SaaS. All rights reserved.</p>
-                        </div>
-                    </div>
-                </footer>
-
-            </body>
-        </>
-    );
-};
-
-export default LandingPage;
+      {/* Footer */}
+      <footer className="bg-gray-800 dark:bg-black text-white py-8">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+              <h5 className="font-bold mb-4">Sản phẩm</h5>
+              <ul>
+                <li><a href="#" className="hover:underline">Tính năng</a></li>
+                <li><a href="#" className="hover:underline">Bảng giá</a></li>
+                <li><a href="#" className="hover:underline">Bảo mật</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="font-bold mb-4">Công ty</h5>
+              <ul>
+                <li><a href="#" className="hover:underline">Về chúng tôi</a></li>
+                <li><a href="#" className="hover:underline">Liên hệ</a></li>
+                <li><a href="#" className="hover:underline">Sự nghiệp</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="font-bold mb-4">Tài nguyên</h5>
+              <ul>
+                <li><a href="#" className="hover:underline">Tài liệu</a></li>
+                <li><a href="#" className="hover:underline">API Reference</a></li>
+                <li><a href="#" className="hover:underline">Blog</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="font-bold mb-4">Pháp lý</h5>
+              <ul>
+                <li><a href="#" className="hover:underline">Điều khoản</a></li>
+                <li><a href="#" className="hover:underline">Chính sách</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t border-gray-700 text-center text-sm">
+            <p>&copy; 2024 IAM SaaS. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

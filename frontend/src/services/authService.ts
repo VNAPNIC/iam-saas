@@ -1,101 +1,165 @@
-import apiClient, { publicApiClient } from '../lib/apiClient';
+import apiClient, { publicApiClient } from '@/lib/apiClient';
+import { User } from '@/types/user';
 
-// Định nghĩa kiểu dữ liệu cho payload đăng ký
-export interface RegisterPayload {
-  name: string;
-  email: string;
-  password: string;
-  tenantKey: string;
+export interface LoginRequest {
+    domain: string;
+    email: string;
+    password: string;
+    mfaOtp?: string;
 }
 
-// Định nghĩa kiểu dữ liệu cho payload đăng nhập
-export interface LoginPayload {
-  email: string;
-  password: string;
-  tenantKey: string;
+export interface LoginResponse {
+    data: {
+        accessToken: string;
+        refreshToken: string;
+        user: User;
+        isOnboarded: boolean;
+        permissions: string[];
+    };
 }
 
-// Định nghĩa kiểu dữ liệu cho response từ API
-// (Dựa trên quy cách API đã định nghĩa)
-export interface AuthResponse {
-  data: {
-    user: any;
-    accessToken: string;
+export interface RegisterRequest {
+    name: string;
+    email: string;
+    password: string;
+    domain: string;
+}
+
+export interface RegisterResponse {
+    data: {
+        user: User;
+    };
+    message: string;
+}
+
+export interface ForgotPasswordRequest {
+    email: string;
+}
+
+export interface ResetPasswordRequest {
+    token: string;
+    newPassword: string;
+}
+
+export interface VerifyEmailRequest {
+    token: string;
+}
+
+export interface AcceptInvitationRequest {
+    token: string;
+    password: string;
+}
+
+export interface RefreshTokenRequest {
     refreshToken: string;
-    isOnboarded: boolean;
-  };
-  message: string;
 }
 
-export interface ForgotPasswordPayload {
-  email: string;
+export interface RefreshTokenResponse {
+    data: {
+        accessToken: string;
+        refreshToken: string;
+    };
 }
 
-export interface ResetPasswordPayload {
-  token: string;
-  newPassword: string;
-}
+const login = async (email: string, password: string, mfaOtp?: string): Promise<LoginResponse> => {
+    const request = {
+        email,
+        password,
+        mfaOtp
+    };
 
-export interface AcceptInvitationPayload {
-  token: string;
-  password: string;
-}
+    const response = await publicApiClient.post<LoginResponse>('/login', request);
+    return response.data;
+};
 
-const register = async (payload: RegisterPayload): Promise<AuthResponse> => {
-  const { tenantKey, ...body } = payload;
+const register = async (name: string, email: string, password: string): Promise<RegisterResponse> => {
+    const request = {
+        name,
+        email,
+        password
+    };
 
-  const response = await publicApiClient.post<AuthResponse>(
-    '/register',
-    body,
-    {
-      headers: {
-        'X-Tenant-Key': tenantKey,
-      },
+    const response = await publicApiClient.post<RegisterResponse>('/register', request);
+    return response.data;
+};
+
+const forgotPassword = async (email: string): Promise<void> => {
+    const request: ForgotPasswordRequest = {
+        email
+    };
+
+    await publicApiClient.post('/forgot-password', request);
+};
+
+const resetPassword = async (token: string, newPassword: string): Promise<void> => {
+    const request: ResetPasswordRequest = {
+        token,
+        newPassword
+    };
+
+    await publicApiClient.post('/reset-password', request);
+};
+
+const verifyEmail = async (token: string): Promise<void> => {
+    const request: VerifyEmailRequest = {
+        token
+    };
+
+    await publicApiClient.post('/verify-email', request);
+};
+
+const acceptInvitation = async (token: string, password: string): Promise<void> => {
+    const request: AcceptInvitationRequest = {
+        token,
+        password
+    };
+
+    await publicApiClient.post('/accept-invitation', request);
+};
+
+const refreshToken = async (refreshToken: string): Promise<RefreshTokenResponse> => {
+    const request: RefreshTokenRequest = {
+        refreshToken
+    };
+
+    const response = await apiClient.post<RefreshTokenResponse>('/public/refresh-token', request);
+    return response.data;
+};
+
+export const getCurrentUser = async () => {
+    const response = await apiClient.get('/protected/users/me');
+    return response.data.data;
+};
+
+const logout = async () => {
+    try {
+        await apiClient.post('/public/logout');
+    } catch (error) {
+        // Ignore logout errors
     }
-  );
-  return response.data;
 };
 
-const login = async (payload: LoginPayload): Promise<AuthResponse> => {
-  const { tenantKey, ...body } = payload;
+// Simplified methods - domain is now handled by apiClient interceptor
+const forgotPasswordByDomain = async (email: string): Promise<void> => {
+    const request = {
+        email
+    };
 
-  const response = await publicApiClient.post<AuthResponse>(
-    '/login',
-    body,
-    {
-      headers: {
-        'X-Tenant-Key': tenantKey,
-      },
-    }
-  );
-  return response.data;
+    await publicApiClient.post('/forgot-password', request);
 };
 
-const forgotPassword = async (payload: ForgotPasswordPayload): Promise<void> => {
-  const response = await publicApiClient.post('/forgot-password', payload);
-  return response.data;
+const authService = {
+    login,
+    register,
+    forgotPassword,
+    resetPassword,
+    verifyEmail,
+    acceptInvitation,
+    refreshToken,
+    getCurrentUser,
+    logout,
+    forgotPasswordByDomain,
 };
 
-const resetPassword = async (payload: ResetPasswordPayload): Promise<void> => {
-  const response = await publicApiClient.post('/reset-password', payload);
-  return response.data;
-};
-
-const acceptInvitation = async (payload: AcceptInvitationPayload): Promise<void> => {
-  const response = await publicApiClient.post('/accept-invitation', payload);
-  return response.data;
-};
-
-const verifyEmail = async (payload: { token: string }): Promise<void> => {
-  const response = await publicApiClient.post('/verify-email', payload);
-  return response.data;
-};
-
-export const authService = {
-  register,
-  login,
-  forgotPassword,
-  resetPassword,
-  acceptInvitation,
-  verifyEmail,
-};
+export const userService = authService;
+export { authService };

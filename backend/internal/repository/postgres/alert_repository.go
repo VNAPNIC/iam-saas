@@ -22,17 +22,17 @@ func (r *alertRepository) Create(ctx context.Context, tx *gorm.DB, alert *entiti
 		db = tx
 	}
 	query := `
-		INSERT INTO alerts (tenant_id, user_id, type, severity, status, description, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+		INSERT INTO alerts (tenant_id, user_id, type, event, message, description, severity, status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
 		RETURNING id, created_at, updated_at;
 	`
-	row := db.WithContext(ctx).Raw(query, alert.TenantID, alert.UserID, alert.Type, alert.Severity, alert.Status, alert.Description).Row()
+	row := db.WithContext(ctx).Raw(query, alert.TenantID, alert.UserID, alert.Type, alert.Event, alert.Message, alert.Description, alert.Severity, alert.Status).Row()
 	return row.Scan(&alert.ID, &alert.CreatedAt, &alert.UpdatedAt)
 }
 
 func (r *alertRepository) FindByID(ctx context.Context, id int64) (*entities.Alert, error) {
 	var alert entities.Alert
-	query := `SELECT id, tenant_id, user_id, type, severity, status, description, created_at, updated_at FROM alerts WHERE id = $1`
+	query := `SELECT id, tenant_id, user_id, type, event, message, description, severity, status, created_at, updated_at FROM alerts WHERE id = $1`
 	rows, err := r.db.WithContext(ctx).Raw(query, id).Rows()
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (r *alertRepository) FindByID(ctx context.Context, id int64) (*entities.Ale
 	defer rows.Close()
 
 	if rows.Next() {
-		err := rows.Scan(&alert.ID, &alert.TenantID, &alert.UserID, &alert.Type, &alert.Severity, &alert.Status, &alert.Description, &alert.CreatedAt, &alert.UpdatedAt)
+		err := rows.Scan(&alert.ID, &alert.TenantID, &alert.UserID, &alert.Type, &alert.Event, &alert.Message, &alert.Description, &alert.Severity, &alert.Status, &alert.CreatedAt, &alert.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -54,7 +54,7 @@ func (r *alertRepository) ListAlerts(ctx context.Context, tenantID *int64, userI
 	var alerts []entities.Alert
 	var args []interface{}
 
-	query := `SELECT id, tenant_id, user_id, type, severity, status, description, created_at, updated_at FROM alerts WHERE 1=1`
+	query := `SELECT id, tenant_id, user_id, type, event, message, description, severity, status, created_at, updated_at FROM alerts WHERE 1=1`
 
 	if tenantID != nil {
 		query += " AND tenant_id = ?"
@@ -83,7 +83,7 @@ func (r *alertRepository) ListAlerts(ctx context.Context, tenantID *int64, userI
 
 	for rows.Next() {
 		var alert entities.Alert
-		err := rows.Scan(&alert.ID, &alert.TenantID, &alert.UserID, &alert.Type, &alert.Severity, &alert.Status, &alert.Description, &alert.CreatedAt, &alert.UpdatedAt)
+		err := rows.Scan(&alert.ID, &alert.TenantID, &alert.UserID, &alert.Type, &alert.Event, &alert.Message, &alert.Description, &alert.Severity, &alert.Status, &alert.CreatedAt, &alert.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -96,4 +96,9 @@ func (r *alertRepository) ListAlerts(ctx context.Context, tenantID *int64, userI
 func (r *alertRepository) Update(ctx context.Context, alert *entities.Alert) error {
 	query := `UPDATE alerts SET status = ?, updated_at = NOW() WHERE id = ?`
 	return r.db.WithContext(ctx).Exec(query, alert.Status, alert.ID).Error
+}
+
+func (r *alertRepository) Delete(ctx context.Context, id int64) error {
+	query := `DELETE FROM alerts WHERE id = ?`
+	return r.db.WithContext(ctx).Exec(query, id).Error
 }

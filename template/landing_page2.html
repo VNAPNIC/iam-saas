@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMEW - Giải pháp Quản lý Danh tính và Truy cập Hiện đại</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-bg {
+            background-image: radial-gradient(circle at top right, rgba(79, 70, 229, 0.1), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.1), transparent 50%);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-lg fixed top-0 left-0 right-0 z-50 border-b border-gray-200">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-gray-900">
+                <a href="#">SMEW</a>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#features" class="text-gray-600 hover:text-indigo-600 transition-colors">Tính năng</a>
+                <a href="#security" class="text-gray-600 hover:text-indigo-600 transition-colors">Bảo mật</a>
+                <a href="#developers" class="text-gray-600 hover:text-indigo-600 transition-colors">Nhà phát triển</a>
+                <a href="#deployment" class="text-gray-600 hover:text-indigo-600 transition-colors">Triển khai</a>
+            </nav>
+            <a href="#" class="hidden md:inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-transform transform hover:scale-105">Bắt đầu miễn phí</a>
+            <button class="md:hidden text-gray-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="pt-32 pb-20 md:pt-40 md:pb-28 hero-bg">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-4">
+                    Xác thực Hiện đại cho <span class="gradient-text">Ứng dụng SaaS</span> của bạn
+                </h1>
+                <p class="max-w-3xl mx-auto text-lg md:text-xl text-gray-600 mb-8">
+                    SMEW là nền tảng quản lý danh tính và truy cập (IAM) mạnh mẽ, linh hoạt và dễ dàng tích hợp, được xây dựng cho các sản phẩm SaaS và ứng dụng hiện đại.
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <a href="#" class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-indigo-700 transition-transform transform hover:scale-105 shadow-lg">Bắt đầu miễn phí</a>
+                    <a href="#" class="bg-white text-gray-800 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-transform transform hover:scale-105 border border-gray-300 shadow-lg">Liên hệ Sales</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Nền tảng Toàn diện cho Mọi Nhu cầu</h2>
+                    <p class="max-w-2xl mx-auto text-lg text-gray-600 mt-4">Từ đăng nhập xã hội đến SSO doanh nghiệp, SMEW cung cấp mọi thứ bạn cần để xây dựng luồng xác thực an toàn và liền mạch.</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Feature 1: SSO Doanh nghiệp -->
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                        <div class="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">SSO Doanh nghiệp</h3>
+                        <p class="text-gray-600">Tích hợp dễ dàng với các nhà cung cấp danh tính (IdP) như Microsoft Entra ID, Okta, Google Workspace qua SAML & OIDC.</p>
+                    </div>
+                    <!-- Feature 2: Multi-factor Authentication -->
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                        <div class="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center mb-4">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Xác thực Đa yếu tố (MFA)</h3>
+                        <p class="text-gray-600">Tăng cường bảo mật với nhiều lớp xác thực, bao gồm OTP, Passkeys (WebAuthn), và mã dự phòng.</p>
+                    </div>
+                    <!-- Feature 3: Passwordless -->
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                        <div class="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Đăng nhập Không mật khẩu</h3>
+                        <p class="text-gray-600">Cung cấp trải nghiệm đăng nhập mượt mà và an toàn với Liên kết thần kỳ (Magic Links) qua email.</p>
+                    </div>
+                    <!-- Feature 4: Customization -->
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                        <div class="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Tùy chỉnh Trải nghiệm</h3>
+                        <p class="text-gray-600">Toàn quyền kiểm soát giao diện đăng nhập với Custom CSS, tùy chỉnh thương hiệu, và tính năng "Bring Your UI".</p>
+                    </div>
+                    <!-- Feature 5: Organization Management -->
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                        <div class="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Quản lý Tổ chức (B2B)</h3>
+                        <p class="text-gray-600">Xây dựng ứng dụng SaaS đa-tenant mạnh mẽ với các luồng tạo, mời và quản lý thành viên trong tổ chức.</p>
+                    </div>
+                    <!-- Feature 6: Developer Friendly -->
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
+                        <div class="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H5v-2H3v-2H1v-4a1 1 0 011-1h4a1 1 0 011 1v4h2v-2h2v-2l2.257-2.257A6 6 0 0115 7z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">API & SDK Toàn diện</h3>
+                        <p class="text-gray-600">Tích hợp nhanh chóng với Management API, Experience API, và bộ SDK cho các framework phổ biến.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Section -->
+        <section id="security" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col md:flex-row items-center gap-12">
+                    <div class="md:w-1/2">
+                        <span class="text-indigo-600 font-semibold">BẢO MẬT LÀ NỀN TẢNG</span>
+                        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">Bảo vệ Chủ động, An tâm Phát triển</h2>
+                        <p class="text-lg text-gray-600 mb-6">SMEW được thiết kế với kiến trúc bảo mật đa lớp để chống lại các mối đe dọa hiện đại, từ tấn công brute-force, lừa đảo đến các cuộc tấn công dựa trên AI.</p>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <svg class="h-6 w-6 text-green-500 mr-3 flex-shrink-0 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span><strong class="text-gray-800">Chính sách mật khẩu mạnh mẽ:</strong> Thực thi các yêu cầu phức tạp và kiểm tra mật khẩu đã bị lộ.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-6 w-6 text-green-500 mr-3 flex-shrink-0 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span><strong class="text-gray-800">Chống tấn công Bot:</strong> Tích hợp CAPTCHA (reCAPTCHA, Turnstile) để ngăn chặn các truy cập tự động.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="h-6 w-6 text-green-500 mr-3 flex-shrink-0 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span><strong class="text-gray-800">Kiểm soát truy cập chi tiết:</strong> Hệ thống RBAC linh hoạt, đăng xuất kênh sau (Back-channel logout), và xác thực tăng cường (Step-up).</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="md:w-1/2">
+                        <div class="bg-white p-6 rounded-2xl shadow-2xl transform rotate-3">
+                            <img src="https://placehold.co/600x400/e0e7ff/4f46e5?text=Bảo+mật+tuyệt+đối" alt="Hình ảnh minh họa bảo mật" class="rounded-lg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deployment Models Section -->
+        <section id="deployment" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Triển khai Linh hoạt theo Cách của bạn</h2>
+                    <p class="max-w-2xl mx-auto text-lg text-gray-600 mt-4">Dù bạn muốn một giải pháp được quản lý hoàn toàn hay toàn quyền kiểm soát hạ tầng, SMEW đều đáp ứng.</p>
+                </div>
+                <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+                    <div class="border border-gray-200 rounded-xl p-8 text-center hover:border-indigo-500 hover:shadow-xl transition-all">
+                        <h3 class="text-2xl font-bold mb-4">SMEW Cloud</h3>
+                        <p class="text-gray-600 mb-6">Giải pháp được quản lý hoàn toàn, không cần lo lắng về hạ tầng. Bắt đầu nhanh chóng với các gói Free, Pro, và Enterprise.</p>
+                        <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800">Tìm hiểu thêm &rarr;</a>
+                    </div>
+                    <div class="border border-gray-200 rounded-xl p-8 text-center hover:border-indigo-500 hover:shadow-xl transition-all">
+                        <h3 class="text-2xl font-bold mb-4">SMEW OSS</h3>
+                        <p class="text-gray-600 mb-6">Phiên bản mã nguồn mở cho phép bạn tự lưu trữ trên hạ tầng của riêng mình, mang lại sự kiểm soát và tùy chỉnh tối đa.</p>
+                        <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800">Xem trên GitHub &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Developers Section -->
+        <section id="developers" class="py-20">
+            <div class="container mx-auto px-6 text-center">
+                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Xây dựng cho Nhà phát triển</h2>
+                 <p class="max-w-2xl mx-auto text-lg text-gray-600 mt-4 mb-12">Tài liệu chi tiết, API mạnh mẽ, và các công cụ trực quan giúp bạn tích hợp nhanh chóng và hiệu quả.</p>
+                 <div class="bg-gray-800 rounded-xl p-8 text-left shadow-2xl max-w-4xl mx-auto">
+                    <div class="flex items-center mb-4">
+                        <span class="h-3.5 w-3.5 bg-red-500 rounded-full mr-2"></span>
+                        <span class="h-3.5 w-3.5 bg-yellow-500 rounded-full mr-2"></span>
+                        <span class="h-3.5 w-3.5 bg-green-500 rounded-full"></span>
+                    </div>
+<pre><code class="language-javascript text-sm text-white">
+<span class="text-gray-400">// Bắt đầu với SMEW SDK chỉ trong vài phút</span>
+
+<span class="text-pink-400">import</span> { SMEWClient } <span class="text-pink-400">from</span> <span class="text-green-300">'@smew/sdk'</span>;
+
+<span class="text-pink-400">const</span> smewClient = <span class="text-blue-400">new</span> <span class="text-yellow-300">SMEWClient</span>({
+  endpoint: <span class="text-green-300">'https://{your-tenant-id}.app.smew.io'</span>,
+  appId: <span class="text-green-300">'YOUR_APP_ID'</span>,
+});
+
+<span class="text-gray-400">// Kích hoạt luồng đăng nhập</span>
+<span class="text-pink-400">await</span> smewClient.<span class="text-yellow-300">signIn</span>({
+  redirectUri: <span class="text-green-300">'http://localhost:3000/callback'</span>,
+});
+</code></pre>
+                 </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="bg-indigo-700 rounded-2xl p-12 text-center text-white relative overflow-hidden">
+                     <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-600 rounded-full opacity-50"></div>
+                     <div class="absolute -bottom-16 -left-5 w-56 h-56 border-4 border-indigo-500 rounded-full opacity-50"></div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4 z-10 relative">Sẵn sàng Xây dựng Trải nghiệm Xác thực Tốt nhất?</h2>
+                    <p class="max-w-2xl mx-auto text-lg text-indigo-200 mb-8 z-10 relative">Tham gia cùng hàng ngàn nhà phát triển và doanh nghiệp tin dùng SMEW để bảo vệ ứng dụng của họ.</p>
+                    <a href="#" class="bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-transform transform hover:scale-105 shadow-lg z-10 relative">Bắt đầu Miễn phí Ngay</a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="text-lg font-bold mb-4">SMEW</h4>
+                    <p class="text-gray-600">Giải pháp IAM hiện đại cho SaaS và các ứng dụng của tương lai.</p>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-gray-800 mb-4">Sản phẩm</h5>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Tính năng</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Bảo mật</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Bảng giá</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Triển khai</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-gray-800 mb-4">Nhà phát triển</h5>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Tài liệu</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Tham khảo API</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">SDKs</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Trạng thái</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-gray-800 mb-4">Công ty</h5>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Về chúng tôi</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Liên hệ</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Điều khoản</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-indigo-600">Riêng tư</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-12 border-t border-gray-200 pt-8 text-center text-gray-500">
+                <p>&copy; 2024 SMEW Inc. Mọi quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

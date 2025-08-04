@@ -1,18 +1,22 @@
 {
   "login": {
     "title": "IAM SaaS",
-    "welcome": "Chào mừng trở lại!",
-    "emailLabel": "Email",
-    "emailPlaceholder": "nhap@email.com",
-    "passwordLabel": "Mật khẩu",
+    "welcomeBack": "Chào mừng trở lại!",
+    "email": "Email",
+    "emailPlaceholder": "admin@congty.com",
+    "password": "Mật khẩu",
     "passwordPlaceholder": "Nhập mật khẩu",
     "forgotPassword": "Quên mật khẩu?",
-    "signInButton": "Đăng nhập",
-    "signingInButton": "Đang đăng nhập...",
+    "signIn": "Đăng nhập",
+    "signingIn": "Đang đăng nhập...",
     "orSeparator": "hoặc",
-    "ssoButton": "Đăng nhập với SSO",
+    "signInWithSSO": "Đăng nhập với SSO",
     "noAccount": "Chưa có tài khoản?",
-    "signUpLink": "Đăng ký ngay"
+    "signUp": "Đăng ký",
+    "emailVerificationRequired": "Yêu cầu xác thực email. Vui lòng kiểm tra email của bạn.",
+    "tenantOnboardingRequired": "Yêu cầu thiết lập tenant. Vui lòng hoàn tất quy trình thiết lập.",
+    "invalidCredentials": "Email hoặc mật khẩu không đúng.",
+    "genericError": "Đăng nhập thất bại. Vui lòng thử lại."
   },
   "signup": {
     "title": "Tạo tài khoản",
@@ -35,6 +39,7 @@
     "signInLink": "Đăng nhập",
     "passwordMismatch": "Mật khẩu không khớp.",
     "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự.",
+    "passwordRequirements": "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ cái viết thường và một số.",
     "successMessage": "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.",
     "genericError": "Đăng ký thất bại. Vui lòng thử lại."
   },
@@ -124,6 +129,7 @@
     "companyLogo": "Logo Công ty",
     "primaryColor": "Màu chính",
     "allowPublicSignup": "Cho phép người dùng tự đăng ký",
+    "allowPublicSignupDesc": "Cho phép người dùng đăng ký tenant của bạn công khai",
     "saving": "Đang lưu...",
     "continue": "Tiếp tục",
     "inviteTitle": "Mời thành viên đầu tiên",
@@ -136,7 +142,10 @@
     "inviteAndContinue": "Mời & Tiếp tục",
     "setupCompleteTitle": "Thiết lập Hoàn tất!",
     "setupCompleteSubtitle": "Bạn đã sẵn sàng để khám phá hệ thống IAM SaaS.",
-    "goToDashboard": "Đi đến Dashboard"
+    "goToDashboard": "Đi đến Dashboard",
+    "tenantSettingsUpdated": "Cài đặt tenant đã được cập nhật!",
+    "invitationSent": "Đã gửi lời mời đến {{email}}",
+    "errorOccurred": "Đã xảy ra lỗi."
   },
   "verifyEmail": {
     "verifying": "Đang xác thực...",
@@ -147,5 +156,15 @@
     "failedMessage": "Liên kết xác thực không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.",
     "goToLogin": "Đi đến trang Đăng nhập",
     "resendLink": "Gửi lại liên kết"
+  },
+  "common": {
+    "action_successful": "Thao tác hoàn tất thành công.",
+    "internal_server_error": "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau.",
+    "login_failed": "Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập của bạn.",
+    "register_successful": "Đăng ký thành công! Vui lòng xác minh email của bạn.",
+    "invalid_input": "Dữ liệu đầu vào không hợp lệ. Vui lòng kiểm tra lại.",
+    "unauthorized": "Bạn không có quyền thực hiện hành động này.",
+    "email_already_exists": "Email này đã được đăng ký.",
+    "tenant_name_is_required": "Tên tenant là bắt buộc."
   }
 }

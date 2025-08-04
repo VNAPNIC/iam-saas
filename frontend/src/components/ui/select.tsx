@@ -1,7 +1,48 @@
 "use client"
 
 import * as React from "react"
-import * as SelectPrimitive from "@radix-ui/react-select"
+// import * as SelectPrimitive from "@radix-ui/react-select"
+
+// Simple select replacements to avoid createContext issues
+const SelectPrimitive = {
+  Root: ({ children, value, onValueChange }: any) => children,
+  Group: ({ children }: any) => children,
+  Value: ({ placeholder }: any) => null,
+  Trigger: React.forwardRef<HTMLSelectElement, any>(({ className, children, ...props }, ref) => (
+    <select ref={ref} className={className} {...props}>
+      {children}
+    </select>
+  )),
+  Content: ({ children }: any) => children,
+  Label: ({ children, className, ...props }: any) => (
+    <label className={className} {...props}>{children}</label>
+  ),
+  Item: React.forwardRef<HTMLOptionElement, any>(({ className, children, value, ...props }, ref) => (
+    <option ref={ref} value={value} className={className} {...props}>
+      {children}
+    </option>
+  )),
+  ItemText: ({ children }: any) => children,
+  ItemIndicator: ({ children }: any) => children,
+  ScrollUpButton: ({ children }: any) => children,
+  ScrollDownButton: ({ children }: any) => children,
+  Separator: ({ className, ...props }: any) => (
+    <div className={className} {...props} />
+  ),
+  Icon: ({ children, className, ...props }: any) => (
+    <span className={className} {...props}>{children}</span>
+  ),
+  Portal: ({ children }: any) => children,
+  Viewport: ({ children, className, ...props }: any) => (
+    <div className={className} {...props}>{children}</div>
+  )
+};
+
+SelectPrimitive.Trigger.displayName = "SelectTrigger";
+(SelectPrimitive.Content as any).displayName = "SelectContent";
+(SelectPrimitive.Label as any).displayName = "SelectLabel";
+SelectPrimitive.Item.displayName = "SelectItem";
+(SelectPrimitive.Separator as any).displayName = "SelectSeparator";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"

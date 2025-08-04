@@ -22,40 +22,22 @@ func RegisterRoutes(
 	auditLogHandler *handler.AuditLogHandler,
 	subscriptionHandler *handler.SubscriptionHandler,
 	alertHandler *handler.AlertHandler,
+	integrationHandler *handler.IntegrationHandler,
+	serviceRoleHandler *handler.ServiceRoleHandler,
+	sessionHandler *handler.SessionHandler,
 	tokenService domain.TokenService,
 	tenantService domain.TenantService,
 	roleService domain.RoleService,
 ) {
 	v1 := api.Group("/v1")
-	{
-		// Public routes
-		public := v1.Group("/public")
 
-		RegisterPublicRoutes(public, userHandler, tenantService)
+	// HỆ THỐNG 1: Nền tảng SaaS Lõi
+	// Routes cho Tenant Admin và Super Admin
+	RegisterPublicRoutes(v1, userHandler, tenantHandler)
+	RegisterProtectedRoutes(v1, userHandler, roleHandler, tenantHandler, planHandler, requestHandler, policyHandler, ssoHandler, accessKeyHandler, webhookHandler, ticketHandler, auditLogHandler, subscriptionHandler, alertHandler, integrationHandler, serviceRoleHandler, sessionHandler, tokenService, tenantService, roleService)
+	RegisterSuperAdminRoutes(v1, tenantHandler, planHandler, tokenService, roleService)
 
-		// Protected routes
-		protected := v1.Group("/protected")
-		protected.Use(handler.TenantValidationMiddleware(tenantService))
-		protected.Use(handler.AuthMiddleware(tokenService, roleService))
-		RegisterProtectedRoutes(
-			protected,
-			userHandler,
-			roleHandler,
-			policyHandler,
-			ssoHandler,
-			accessKeyHandler,
-			webhookHandler,
-			ticketHandler,
-			auditLogHandler,
-			subscriptionHandler,
-			tokenService,
-			roleService,
-		)
-
-		// Super Admin routes
-		superAdmin := v1.Group("/sa")
-		superAdmin.Use(handler.TenantValidationMiddleware(tenantService))
-		superAdmin.Use(handler.AuthMiddleware(tokenService, roleService, "super_admin"))
-		RegisterSuperAdminRoutes(superAdmin, tenantHandler, planHandler, requestHandler, ticketHandler, subscriptionHandler, alertHandler)
-	}
+	// HỆ THỐNG 2: Dịch vụ IAM của Tenant
+	// Routes cho End-User và Client Application
+	RegisterTenantIAMRoutes(v1, userHandler, tenantHandler, tokenService, tenantService)
 }

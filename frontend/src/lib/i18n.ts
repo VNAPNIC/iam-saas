@@ -1,8 +1,9 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import en from '../../public/locales/en.json';
-import vi from '../../public/locales/vi.json';
+
+import enTranslation from '../../public/locales/en.json';
+import viTranslation from '../../public/locales/vi.json';
 
 i18n
   .use(LanguageDetector)
@@ -10,15 +11,21 @@ i18n
   .init({
     resources: {
       en: {
-        translation: en,
+        translation: enTranslation,
       },
       vi: {
-        translation: vi,
+        translation: viTranslation,
       },
     },
+    supportedLngs: ['en', 'vi'],
     fallbackLng: 'en',
+    debug: false,
     interpolation: {
-      escapeValue: false, // not needed for react as it escapes by default
+      escapeValue: false, // react already escapes by default
+    },
+    detection: {
+      order: ['querystring', 'cookie', 'localStorage', 'navigator'],
+      caches: ['cookie', 'localStorage'],
     },
   });
 

@@ -16,3 +16,13 @@ jwt:
   secret_key: "752e69e32f8a389bcfa2b2898fece380eee58fd2d22e0337381580d789a4faef" # dummy for dev
   access_token_expiry: 15 # in minutes
   refresh_token_expiry: 10080 # in minutes (7 days)
+
+email:
+  # Email provider: "console", "ses"
+  provider: "console"
+  # AWS SES configuration
+  ses_sender: "noreply@example.com"
+  ses_region: "us-east-1"
+  ses_endpoint: ""
+  # Set to true to disable email sending entirely (for testing)
+  disabled: false

@@ -165,3 +165,28 @@ func (r *roleRepository) RemoveAllPermissionsFromRole(ctx context.Context, tx *g
 	query := `DELETE FROM role_permissions WHERE role_id = ?`
 	return db.WithContext(ctx).Exec(query, roleID).Error
 }
+
+func (r *roleRepository) GetUserRoles(ctx context.Context, userID int64) ([]int64, error) {
+	query := `
+		SELECT role_id
+		FROM user_roles
+		WHERE user_id = $1
+	`
+
+	rows, err := r.db.WithContext(ctx).Raw(query, userID).Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var roleIDs []int64
+	for rows.Next() {
+		var roleID int64
+		if err := rows.Scan(&roleID); err != nil {
+			return nil, err
+		}
+		roleIDs = append(roleIDs, roleID)
+	}
+
+	return roleIDs, nil
+}

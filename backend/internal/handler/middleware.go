@@ -5,6 +5,7 @@ import (
 	"iam-saas/internal/domain"
 	"iam-saas/pkg/app_error"
 	"iam-saas/pkg/i18n"
+	"iam-saas/pkg/utils"
 	"net/http"
 	"strings"
 
@@ -22,16 +23,46 @@ const (
 	TenantContextKey = "tenant_key"
 )
 
+// GetAuthPayload lấy thông tin xác thực từ context
+func GetAuthPayload(c *gin.Context) (*utils.Claims, error) {
+	payloadVal, exists := c.Get(AuthPayloadKey)
+	if !exists {
+		return nil, errors.New("authentication payload not found in context")
+	}
+
+	payload, ok := payloadVal.(*utils.Claims)
+	if !ok {
+		return nil, errors.New("invalid authentication payload type in context")
+	}
+
+	return payload, nil
+}
+
+// GetTenantKey lấy tenant key từ context
+func GetTenantKey(c *gin.Context) (string, error) {
+	tenantKeyVal, exists := c.Get(TenantContextKey)
+	if !exists {
+		return "", errors.New("tenant key not found in context")
+	}
+
+	tenantKey, ok := tenantKeyVal.(string)
+	if !ok {
+		return "", errors.New("invalid tenant key type in context")
+	}
+
+	return tenantKey, nil
+}
+
 func TenantValidationMiddleware(tenantService domain.TenantService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tenantKey := c.GetHeader("X-Tenant-Key")
-		if tenantKey == "" {
+		tenantDomain := c.GetHeader("X-Tenant-Domain")
+		if tenantDomain == "" {
 			err := app_error.NewInvalidInputError(string(i18n.InvalidInput))
-			c.AbortWithStatusJSON(http.StatusBadRequest, NewErrorResponse(err.Message, string(err.Code), "Tenant key is missing from X-Tenant-Key header"))
+			c.AbortWithStatusJSON(http.StatusBadRequest, NewErrorResponse(err.Message, string(err.Code), "Tenant domain is missing from X-Tenant-Domain header"))
 			return
 		}
 
-		tenant, err := tenantService.GetTenantConfig(c.Request.Context(), tenantKey)
+		tenant, err := tenantService.GetTenantConfig(c.Request.Context(), tenantDomain)
 		if err != nil {
 			appErr, ok := err.(*app_error.AppError)
 			if ok {
@@ -43,7 +74,7 @@ func TenantValidationMiddleware(tenantService domain.TenantService) gin.HandlerF
 		}
 
 		if tenant == nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, NewErrorResponse(string(i18n.Unauthorized), string(app_error.CodeUnauthorized), "Invalid tenant key"))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, NewErrorResponse(string(i18n.Unauthorized), string(app_error.CodeUnauthorized), "Invalid tenant domain"))
 			return
 		}
 
@@ -57,7 +88,12 @@ func TenantValidationMiddleware(tenantService domain.TenantService) gin.HandlerF
 			return
 		}
 
-		c.Set(TenantContextKey, tenant.Key)
+		if !tenant.DomainVerified {
+			c.AbortWithStatusJSON(http.StatusForbidden, NewErrorResponse(string(i18n.TenantDomainNotVerified), string(app_error.CodeForbidden), "Tenant domain is not verified"))
+			return
+		}
+
+		c.Set(TenantContextKey, tenant.Domain)
 		c.Next()
 	}
 }
@@ -108,9 +144,17 @@ func AuthMiddleware(tokenService domain.TokenService, roleService domain.RoleSer
 			return
 		}
 
+		// Kiểm tra kỹ hơn về tenant key trong token
 		if payload.TenantKey != tenantKey {
 			err := app_error.NewForbiddenError(string(i18n.CodeForbidden))
 			c.AbortWithStatusJSON(http.StatusForbidden, NewErrorResponse(err.Message, string(err.Code), "You do not have permission to access this tenant's resources"))
+			return
+		}
+
+		// Kiểm tra role IDs không rỗng
+		if len(payload.RoleIDs) == 0 {
+			err := app_error.NewForbiddenError(string(i18n.CodeForbidden))
+			c.AbortWithStatusJSON(http.StatusForbidden, NewErrorResponse(err.Message, string(err.Code), "User has no assigned roles"))
 			return
 		}
 

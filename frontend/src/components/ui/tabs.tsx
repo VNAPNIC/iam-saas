@@ -1,7 +1,28 @@
 "use client"
 
 import * as React from "react"
-import * as TabsPrimitive from "@radix-ui/react-tabs"
+// import * as TabsPrimitive from "@radix-ui/react-tabs"
+
+// Simple tabs replacement to avoid createContext issues
+const TabsPrimitive = {
+  Root: React.forwardRef<HTMLDivElement, any>(({ className, ...props }, ref) => (
+    <div ref={ref} className={className} {...props} />
+  )),
+  List: React.forwardRef<HTMLDivElement, any>(({ className, ...props }, ref) => (
+    <div ref={ref} className={className} {...props} />
+  )),
+  Trigger: React.forwardRef<HTMLButtonElement, any>(({ className, ...props }, ref) => (
+    <button ref={ref} className={className} {...props} />
+  )),
+  Content: React.forwardRef<HTMLDivElement, any>(({ className, ...props }, ref) => (
+    <div ref={ref} className={className} {...props} />
+  ))
+};
+
+TabsPrimitive.Root.displayName = "Tabs";
+TabsPrimitive.List.displayName = "TabsList";
+TabsPrimitive.Trigger.displayName = "TabsTrigger";
+TabsPrimitive.Content.displayName = "TabsContent";
 
 import { cn } from "@/lib/utils"
 

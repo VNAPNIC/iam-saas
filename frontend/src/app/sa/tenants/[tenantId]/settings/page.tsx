@@ -8,14 +8,66 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DesktopIcon, LaptopIcon, MobileIcon } from "@radix-ui/react-icons";
+import { tenantService } from '@/services/tenantService';
 
-const TenantSettingsPage = ({ params }: { params: { tenantId: string } }) => {
-    const [tenantName, setTenantName] = useState('IAM SaaS');
+const TenantSettingsPage = ({ params }: { params: Promise<{ tenantId: string }> }) => {
+    const [tenantId, setTenantId] = useState<string>('');
+    const [tenantDomain, setTenantDomain] = useState('');
     const [primaryColor, setPrimaryColor] = useState('#4338ca');
     const [allowPublicSignup, setAllowPublicSignup] = useState(true);
     const [previewDevice, setPreviewDevice] = useState('desktop');
     const [loginLogo, setLoginLogo] = useState<string | null>(null);
     const [signupLogo, setSignupLogo] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Extract tenantId from params
+    useEffect(() => {
+        params.then(({ tenantId: id }) => {
+            setTenantId(id);
+        });
+    }, [params]);
+
+    // Load current tenant settings
+    useEffect(() => {
+        if (!tenantId) return;
+        const loadTenantSettings = async () => {
+            try {
+                const response = await tenantService.getTenantDetails(tenantId);
+                setTenantDomain(response.data.domain || '');
+                setPrimaryColor(response.data.primaryColor || '#4338ca');
+                setAllowPublicSignup(response.data.allowPublicSignup || false);
+            } catch (error) {
+                console.error('Failed to load tenant details', error);
+            }
+        };
+
+        loadTenantSettings();
+    }, [tenantId]);
+
+    const handleSaveSettings = async () => {
+        setIsLoading(true);
+        try {
+            // Save branding settings
+            await tenantService.updateTenantBranding(tenantId, {
+                primaryColor,
+                allowPublicSignup,
+                logoURL: loginLogo
+            });
+            // await tenantService.updateTenantBranding(params.tenantId, {
+            //     logoUrl: loginLogo,
+            //     primaryColor,
+            //     allowPublicSignup
+            // });
+            
+            // Show success message
+            alert('Settings saved successfully!');
+        } catch (error) {
+            console.error('Failed to save settings', error);
+            alert('Failed to save settings');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'login' | 'signup') => {
         const file = e.target.files?.[0];
@@ -62,7 +114,7 @@ const TenantSettingsPage = ({ params }: { params: { tenantId: string } }) => {
                     <div class="logo-container">
                         <div class="logo">${logoHtml}</div>
                         <div style="margin-left: 1rem;">
-                            <h1>${tenantName}</h1>
+                            <h1>${tenantDomain}</h1>
                             <p>${type === 'login' ? 'Welcome back!' : 'Create your account'}</p>
                         </div>
                     </div>
@@ -92,15 +144,16 @@ const TenantSettingsPage = ({ params }: { params: { tenantId: string } }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full p-4">
             <Card className="overflow-y-auto">
                 <CardHeader>
-                    <CardTitle>Tenant Settings for ID: {params.tenantId}</CardTitle>
+                    <CardTitle>Tenant Settings for Domain: {tenantDomain}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-8">
                     <div>
                         <h3 className="text-lg font-medium">General</h3>
                         <div className="space-y-4 mt-4">
                             <div>
-                                <Label htmlFor="tenant-name-input">Tenant Name</Label>
-                                <Input id="tenant-name-input" value={tenantName} onChange={(e) => setTenantName(e.target.value)} />
+                                <Label htmlFor="tenant-domain-input">Tenant Domain</Label>
+                                <Input id="tenant-domain-input" value={tenantDomain} onChange={(e) => setTenantDomain(e.target.value)} disabled />
+                                <p className="text-sm text-gray-500 mt-1">Domain cannot be changed after creation</p>
                             </div>
                         </div>
                     </div>
@@ -129,7 +182,9 @@ const TenantSettingsPage = ({ params }: { params: { tenantId: string } }) => {
                         </div>
                     </div>
                     <div className="flex justify-end">
-                        <Button>Save All Settings</Button>
+                        <Button onClick={handleSaveSettings} disabled={isLoading}>
+                            {isLoading ? "Saving..." : "Save All Settings"}
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
@@ -156,7 +211,7 @@ const TenantSettingsPage = ({ params }: { params: { tenantId: string } }) => {
                                 srcDoc={getIframeContent('login')}
                                 className="w-full h-full border-0 transition-all"
                                 style={getPreviewSize()}
-                                title="Signup Preview"
+                                title="Login Preview"
                             />
                         </div>
                     </TabsContent>

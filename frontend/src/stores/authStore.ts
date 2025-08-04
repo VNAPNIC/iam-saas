@@ -7,7 +7,8 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
-  login: (accessToken: string, refreshToken: string, user: User) => void;
+  permissions: string[];
+  login: (accessToken: string, refreshToken: string, user: User, permissions: string[]) => void;
   logout: () => void;
 }
 
@@ -18,8 +19,9 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
-      login: (accessToken, refreshToken, user) => set({ user, accessToken, refreshToken, isAuthenticated: true }),
-      logout: () => set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false })
+      permissions: [],
+      login: (accessToken, refreshToken, user, permissions) => set({ user, accessToken, refreshToken, isAuthenticated: true, permissions }),
+      logout: () => set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false, permissions: [] })
     }),
     { name: 'auth-storage' }
   )

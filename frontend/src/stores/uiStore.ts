@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-export type Language = 'en' | 'vn';
+export type Language = 'en' | 'vi';
 export type Theme = 'light' | 'dark';
 
 type UIState = {
@@ -16,7 +16,7 @@ export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
       theme: 'light',
-      language: 'vn',
+      language: 'vi',
       toggleTheme: () =>
         set((state) => ({
           theme: state.theme === 'light' ? 'dark' : 'light',

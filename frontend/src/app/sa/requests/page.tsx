@@ -3,8 +3,11 @@
 import { useState, useEffect } from 'react';
 import { requestService } from '@/services/requestService';
 import { TenantRequest, QuotaRequest } from '@/types/request';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 const RequestManagementPage = () => {
+    const canApprove = useHasPermission(['requests:approve', 'super:admin']);
+    const canReject = useHasPermission(['requests:reject', 'super:admin']);
     const [tenantRequests, setTenantRequests] = useState<TenantRequest[]>([]);
     const [quotaRequests, setQuotaRequests] = useState<QuotaRequest[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -79,8 +82,12 @@ const RequestManagementPage = () => {
                                         <td className="px-4 py-3">{request.adminEmail}</td>
                                         <td className="px-4 py-3">{request.requestDate}</td>
                                         <td className="px-4 py-3 text-right space-x-2">
-                                            <button className="text-sm bg-green-500 text-white px-3 py-1 rounded-md">Approve</button>
-                                            <button className="text-sm bg-red-500 text-white px-3 py-1 rounded-md">Deny</button>
+                                            {canApprove && (
+                                                <button className="text-sm bg-green-500 text-white px-3 py-1 rounded-md">Approve</button>
+                                            )}
+                                            {canReject && (
+                                                <button className="text-sm bg-red-500 text-white px-3 py-1 rounded-md">Deny</button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
@@ -111,8 +118,12 @@ const RequestManagementPage = () => {
                                         <td className="px-4 py-3 font-semibold">{request.requestedAmount}</td>
                                         <td className="px-4 py-3">{request.reason}</td>
                                         <td className="px-4 py-3 text-right space-x-2">
-                                            <button className="text-sm bg-green-500 text-white px-3 py-1 rounded-md">Approve</button>
-                                            <button className="text-sm bg-red-500 text-white px-3 py-1 rounded-md">Deny</button>
+                                            {canApprove && (
+                                                <button className="text-sm bg-green-500 text-white px-3 py-1 rounded-md">Approve</button>
+                                            )}
+                                            {canReject && (
+                                                <button className="text-sm bg-red-500 text-white px-3 py-1 rounded-md">Deny</button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

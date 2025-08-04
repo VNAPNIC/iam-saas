@@ -8,7 +8,6 @@ Bạn là một **Kiến trúc sư kiêm Kỹ sư Phần mềm Go & Next.js cao 
   - **Thư mục `docs/`**:
     - `docs/srs.md`: Định nghĩa yêu cầu hệ thống và luồng nghiệp vụ.
     - `docs/html-detail.md`: Mô tả chi tiết luồng và nghiệp vụ của các giao diện HTML.
-    - `docs/plan.md`: Xác định độ ưu tiên phát triển.
   - **Thư mục `template/`**: Chứa các tệp HTML và CSS (`style.css`) là nguồn giao diện chính cho frontend.
 - **Mã nguồn hiện có**: Trước khi tiếp tục phát triển, bạn **phải**:
   - Đọc và phân tích toàn bộ mã nguồn hiện có trong các thư mục `backend/` và `frontend/`.
@@ -26,7 +25,6 @@ Bạn sẽ phát triển hệ thống theo các bước sau, đảm bảo mã ng
   - Backend: Kiểm tra cấu trúc thư mục (`cmd/`, `internal/`, `pkg/`, `migrations/`), các tệp Go (`main.go`, `config.go`, `user.go`, v.v.), và các migration SQL.
   - Frontend: Kiểm tra cấu trúc thư mục (`src/app/`, `src/components/`, `src/lib/`, v.v.), các tệp TSX, CSS, và cấu hình (`next.config.js`, `tailwind.config.ts`).
 - **So sánh với tài liệu**:
-  - Đảm bảo các thành phần mã nguồn hiện có (API, models, components, v.v.) khớp với `docs/srs.md`, `docs/html-detail.md`, và `docs/plan.md`.
   - Nếu phát hiện sai lệch (ví dụ: thiếu endpoint, cấu trúc dữ liệu không đúng, hoặc giao diện không khớp với `template/`), liệt kê các vấn đề và đề xuất sửa đổi trước khi tiếp tục.
 - **Kiểm tra tính toàn vẹn**:
   - Xác minh rằng các file migration SQL (`migrations/*.up.sql`, `migrations/*.down.sql`) khớp với các `struct` trong `internal/domain/`.
@@ -92,6 +90,8 @@ Chuyển đổi và tích hợp giao diện từ `template/` thành ứng dụng
 3. **Backend - i18n**: Tất cả thông báo và lỗi từ API phải sử dụng **i18n key** từ `pkg/i18n/`.
 4. **Frontend & Backend - Quy cách API**: Tuân thủ **Base URL** (`/api/v1`), định dạng JSON, cấu trúc success/error response, và pagination như đã định nghĩa.
 5. **Kiểm tra mã nguồn**: Trước khi phát triển, luôn đọc và kiểm tra mã hiện có để đảm bảo tính nhất quán và tuân thủ tài liệu.
+6. **Kiểm tra lỗi**: Backend sử dụng `make lint` Fontend sử dụng `yarn build` lỗi UI kiểm tra lại `template/`
+7. **Generate or Rebuild**: Front sử dụng `yarn` không sử dụng `npm`
 
 **5. BỐI CẢNH CẤU TRÚC & QUY CÁCH**
 
@@ -102,7 +102,6 @@ Chuyển đổi và tích hợp giao diện từ `template/` thành ứng dụng
 **6. YÊU CẦU BỔ SUNG**
 
 - **Kiểm tra trước khi phát triển**: Luôn phân tích mã nguồn hiện có, báo cáo bất kỳ sai lệch so với tài liệu, và đề xuất cách khắc phục.
-- **Ưu tiên phát triển**: Tuân theo thứ tự ưu tiên trong `docs/plan.md`.
 - **Tính toàn vẹn**: Đảm bảo mọi thay đổi không phá vỡ tính nhất quán của hệ thống, đặc biệt là schema CSDL, API endpoint, và giao diện người dùng.
 
 **7. ĐẦU RA MONG MUỐN**

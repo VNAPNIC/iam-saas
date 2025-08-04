@@ -1,18 +1,22 @@
 {
   "login": {
     "title": "IAM SaaS",
-    "welcome": "Welcome back!",
-    "emailLabel": "Email",
-    "emailPlaceholder": "name@company.com",
-    "passwordLabel": "Password",
-    "passwordPlaceholder": "Enter your password",
+    "welcomeBack": "Welcome back!",
+    "email": "Email",
+    "emailPlaceholder": "admin@company.com",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
     "forgotPassword": "Forgot password?",
-    "signInButton": "Sign In",
-    "signingInButton": "Signing In...",
+    "signIn": "Sign In",
+    "signingIn": "Signing in...",
     "orSeparator": "or",
-    "ssoButton": "Sign In with SSO",
+    "signInWithSSO": "Sign in with SSO",
     "noAccount": "Don't have an account?",
-    "signUpLink": "Sign up now"
+    "signUp": "Sign up",
+    "emailVerificationRequired": "Email verification is required. Please check your email.",
+    "tenantOnboardingRequired": "Tenant onboarding is required. Please complete the setup process.",
+    "invalidCredentials": "Invalid email or password.",
+    "genericError": "Login failed. Please try again."
   },
   "signup": {
     "title": "Create Account",
@@ -35,6 +39,7 @@
     "signInLink": "Sign In",
     "passwordMismatch": "Passwords do not match.",
     "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordRequirements": "Password must contain at least one uppercase letter, one lowercase letter, and one number.",
     "successMessage": "Registration successful! Please check your email for verification.",
     "genericError": "Registration failed. Please try again."
   },
@@ -124,6 +129,7 @@
     "companyLogo": "Company Logo",
     "primaryColor": "Primary Color",
     "allowPublicSignup": "Allow Public Signup",
+    "allowPublicSignupDesc": "Allow users to sign up for your tenant publicly",
     "saving": "Saving...",
     "continue": "Continue",
     "inviteTitle": "Invite Your First Members",
@@ -136,7 +142,10 @@
     "inviteAndContinue": "Invite & Continue",
     "setupCompleteTitle": "Setup Complete!",
     "setupCompleteSubtitle": "You're all set to explore the IAM SaaS system.",
-    "goToDashboard": "Go to Dashboard"
+    "goToDashboard": "Go to Dashboard",
+    "tenantSettingsUpdated": "Tenant settings updated!",
+    "invitationSent": "Invitation sent to {{email}}",
+    "errorOccurred": "An error occurred."
   },
   "verifyEmail": {
     "verifying": "Verifying...",
@@ -147,5 +156,15 @@
     "failedMessage": "The verification link is invalid or has expired. Please try again.",
     "goToLogin": "Go to Login Page",
     "resendLink": "Resend Link"
+  },
+  "common": {
+    "action_successful": "Action completed successfully.",
+    "internal_server_error": "An unexpected error occurred. Please try again later.",
+    "login_failed": "Login failed. Please check your credentials.",
+    "register_successful": "Registration successful! Please verify your email.",
+    "invalid_input": "Invalid input provided. Please check your data.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "email_already_exists": "This email is already registered.",
+    "tenant_name_is_required": "Tenant name is required."
   }
 }

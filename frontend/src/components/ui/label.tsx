@@ -1,7 +1,17 @@
 "use client"
 
 import * as React from "react"
-import * as LabelPrimitive from "@radix-ui/react-label"
+// import * as LabelPrimitive from "@radix-ui/react-label"
+
+// Simple label replacement to avoid createContext issues
+const LabelPrimitive = {
+  Root: React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
+    ({ className, ...props }, ref) => (
+      <label ref={ref} className={className} {...props} />
+    )
+  )
+};
+LabelPrimitive.Root.displayName = "Label";
 
 import { cn } from "@/lib/utils"
 

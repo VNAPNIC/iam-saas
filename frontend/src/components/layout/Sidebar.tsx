@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
@@ -8,8 +10,15 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { sidebarMenu } from './sidebarMenu'; // Import the menu structure
 import { FaLock, FaChevronLeft, FaUserShield } from 'react-icons/fa'; // Import specific icons
+import { useHasPermission } from '@/hooks/useHasPermission'; // Import the new hook
+import { cn } from '@/lib/utils'; // Import cn for conditional classNames
 
-export default function Sidebar() {
+
+interface SidebarProps {
+  tenantKey: string;
+}
+
+export function Sidebar({ tenantKey }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -19,7 +28,7 @@ export default function Sidebar() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
   const params = useParams();
-  const tenantKey = params.tenantKey as string;
+  // const tenantKey = params.tenantKey as string; // Already passed as prop
 
   const handleLogout = () => {
     logout();
@@ -35,6 +44,8 @@ export default function Sidebar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [userMenuRef]);
+
+  const hasPermission = useHasPermission([]); // Initialize the hook
 
   return (
     <div id="sidebar" className={`sidebar bg-white w-64 h-full flex flex-col border-r border-gray-200 shadow-sm ${isCollapsed ? 'collapsed' : ''}`}>
@@ -66,15 +77,20 @@ export default function Sidebar() {
               {t(section.titleKey)}
             </div>
             {section.items.map((item, itemIndex) => {
+              // Conditionally render based on permissions
+              if (item.permissions && !hasPermission) {
+                return null; // Don't render if user doesn't have required permissions
+              }
               const Icon = item.icon;
               const isActive = pathname === `/${tenantKey}${item.href}`;
               return (
                 <Link
                   key={itemIndex}
                   href={`/${tenantKey}${item.href}`}
-                  className={`nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+                  className={cn(
+                    "nav-item flex items-center px-2 py-2 text-sm font-medium rounded-md",
                     isActive ? 'text-blue-700 bg-blue-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
+                  )}
                   data-page={item.dataPage}
                 >
                   <Icon className="w-5 text-center" />
@@ -87,7 +103,9 @@ export default function Sidebar() {
       </nav>
       <div className="p-4 border-t border-gray-200">
         <Link href={`/${tenantKey}/dashboard/profile`} className="flex items-center" data-page="profile">
-          <img className="w-8 h-8 rounded-full"
+          <Image className="rounded-full"
+            width={32}
+            height={32}
             src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
             alt="Super Admin profile"/>
           <div className="ml-3 sidebar-text">

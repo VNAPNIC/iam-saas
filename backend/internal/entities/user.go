@@ -17,6 +17,7 @@ type User struct {
 	EmailVerifiedAt             *time.Time `json:"emailVerifiedAt,omitempty"`
 	PhoneVerifiedAt             *time.Time `json:"phoneVerifiedAt,omitempty"`
 	LastLoginAt                 *time.Time `json:"lastLoginAt,omitempty"`
+	Department                  string     `json:"department"`
 	CreatedAt                   time.Time  `json:"createdAt"`
 	UpdatedAt                   time.Time  `json:"updatedAt"`
 	PasswordResetToken          *string    `json:"-"`

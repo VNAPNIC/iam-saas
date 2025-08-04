@@ -1,7 +1,29 @@
 "use client"
 
 import * as React from "react"
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+// import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+
+// Simple checkbox replacement to avoid createContext issues
+const CheckboxPrimitive = {
+  Root: React.forwardRef<HTMLInputElement, any>(({ className, checked, onCheckedChange, ...props }, ref) => (
+    <input
+      ref={ref}
+      type="checkbox"
+      checked={checked}
+      onChange={(e) => onCheckedChange?.(e.target.checked)}
+      className={className}
+      {...props}
+    />
+  )),
+  Indicator: ({ children, className, ...props }: any) => (
+    <div className={className} {...props}>
+      {children}
+    </div>
+  )
+};
+
+CheckboxPrimitive.Root.displayName = "Checkbox";
+(CheckboxPrimitive.Indicator as any).displayName = "CheckboxIndicator";
 import { CheckIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"

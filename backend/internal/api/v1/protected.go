@@ -7,11 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterProtectedRoutes đăng ký tất cả các API yêu cầu xác thực.
 func RegisterProtectedRoutes(
-	rg *gin.RouterGroup,
+	router *gin.RouterGroup,
 	userHandler *handler.UserHandler,
 	roleHandler *handler.RoleHandler,
+	tenantHandler *handler.TenantHandler,
+	planHandler *handler.PlanHandler,
+	requestHandler *handler.RequestHandler,
 	policyHandler *handler.PolicyHandler,
 	ssoHandler *handler.SsoHandler,
 	accessKeyHandler *handler.AccessKeyHandler,
@@ -19,110 +21,107 @@ func RegisterProtectedRoutes(
 	ticketHandler *handler.TicketHandler,
 	auditLogHandler *handler.AuditLogHandler,
 	subscriptionHandler *handler.SubscriptionHandler,
+	alertHandler *handler.AlertHandler,
+	integrationHandler *handler.IntegrationHandler,
+	serviceRoleHandler *handler.ServiceRoleHandler,
+	sessionHandler *handler.SessionHandler,
 	tokenService domain.TokenService,
+	tenantService domain.TenantService,
 	roleService domain.RoleService,
 ) {
-	// Endpoint để lấy thông tin user hiện tại
-	rg.GET("/me", userHandler.GetMe)
-	rg.PUT("/tenant/branding", userHandler.UpdateTenantBranding)
-
-	// Nhóm các API quản lý người dùng
-	users := rg.Group("/users")
-	users.Use(handler.AuthMiddleware(tokenService, roleService, "users:read"))
+	protected := router.Group("/protected")
+	protected.Use(handler.AuthMiddleware(tokenService, roleService))
+	protected.Use(handler.TenantValidationMiddleware(tenantService))
 	{
-		users.GET("", userHandler.ListUsers)
-		users.POST("/invite", handler.AuthMiddleware(tokenService, roleService, "users:create"), userHandler.InviteUser)
-		users.PUT("/:id", handler.AuthMiddleware(tokenService, roleService, "users:update"), userHandler.UpdateUser)
-		users.DELETE("/:id", handler.AuthMiddleware(tokenService, roleService, "users:delete"), userHandler.DeleteUser)
-	}
+		// User routes
+		protected.GET("/users/me", userHandler.GetMe)
+		
+		protected.POST("/users/invite", userHandler.InviteUser)
+		protected.GET("/users", userHandler.ListUsers)
+		protected.GET("/users/:id", userHandler.GetUser)
+		protected.PUT("/users/me", userHandler.UpdateMe)
+		protected.DELETE("/users/:id", userHandler.DeleteUser)
 
-	// Nhóm các API quản lý vai trò
-	roles := rg.Group("/roles")
-	roles.Use(handler.AuthMiddleware(tokenService, roleService, "roles:read"))
-	{
-		roles.POST("", handler.AuthMiddleware(tokenService, roleService, "roles:create"), roleHandler.CreateRole)
-		roles.GET("", roleHandler.ListRoles)
-		roles.GET("/:id", roleHandler.GetRole)
-		roles.PUT("/:id", handler.AuthMiddleware(tokenService, roleService, "roles:update"), roleHandler.UpdateRole)
-		roles.DELETE("/:id", handler.AuthMiddleware(tokenService, roleService, "roles:delete"), roleHandler.DeleteRole)
-	}
+		// Role routes
+		protected.GET("/roles", roleHandler.ListRoles)
+		protected.POST("/roles", roleHandler.CreateRole)
+		protected.GET("/roles/:id", roleHandler.GetRole)
+		protected.PUT("/roles/:id", roleHandler.UpdateRole)
+		protected.DELETE("/roles/:id", roleHandler.DeleteRole)
 
-	// API để lấy danh sách tất cả các quyền
-	rg.GET("/permissions", handler.AuthMiddleware(tokenService, roleService, "roles:read"), roleHandler.ListPermissions)
+		// Tenant routes
+		protected.GET("/tenants/current", tenantHandler.GetCurrentTenant)
+		protected.PUT("/tenants/current", tenantHandler.UpdateCurrentTenant)
+		
+		// HỆ THỐNG 1: Onboarding routes
+		protected.GET("/tenant/onboarding-status", tenantHandler.GetOnboardingStatus)
+		protected.PUT("/tenant/branding", tenantHandler.UpdateTenantBrandingOnboarding)
+		protected.PUT("/tenant/settings", tenantHandler.UpdateTenantSettings)
+		protected.POST("/tenant/complete-onboarding", tenantHandler.CompleteOnboarding)
 
-	// Nhóm các API quản lý chính sách
-	policies := rg.Group("/policies")
-	policies.Use(handler.AuthMiddleware(tokenService, roleService, "policies:read"))
-	{
-		policies.POST("", handler.AuthMiddleware(tokenService, roleService, "policies:create"), policyHandler.CreatePolicy)
-		policies.GET("", policyHandler.ListPolicies)
-		policies.GET("/:id", policyHandler.GetPolicy)
-		policies.PUT("/:id", handler.AuthMiddleware(tokenService, roleService, "policies:update"), policyHandler.UpdatePolicy)
-		policies.DELETE("/:id", handler.AuthMiddleware(tokenService, roleService, "policies:delete"), policyHandler.DeletePolicy)
-		policies.POST("/simulate", handler.AuthMiddleware(tokenService, roleService, "policies:simulate"), policyHandler.SimulatePolicy)
-	}
+		// Plan routes
+		protected.GET("/plans", planHandler.ListPlans)
 
-	// Nhóm các API quản lý SSO
-	sso := rg.Group("/sso-settings")
-	sso.Use(handler.AuthMiddleware(tokenService, roleService, "sso:read"))
-	{
-		sso.GET("", ssoHandler.GetSsoConfig)
-		sso.PUT("", handler.AuthMiddleware(tokenService, roleService, "sso:update"), ssoHandler.UpdateSsoConfig)
-		sso.DELETE("", handler.AuthMiddleware(tokenService, roleService, "sso:delete"), ssoHandler.DeleteSsoConfig)
-		sso.POST("/test", handler.AuthMiddleware(tokenService, roleService, "sso:test"), ssoHandler.TestSsoConnection)
-	}
+		// Request routes
+		protected.GET("/requests/tenant", requestHandler.ListTenantRequests)
+		protected.GET("/requests/quota", requestHandler.ListQuotaRequests)
+		protected.PUT("/requests/:id/approve", requestHandler.ApproveRequest)
+		protected.PUT("/requests/:id/reject", requestHandler.DenyRequest)
 
-	// Nhóm các API quản lý Access Key
-	accessKeys := rg.Group("/access-keys")
-	accessKeys.Use(handler.AuthMiddleware(tokenService, roleService, "access_keys:read"))
-	{
-		accessKeys.POST("/groups", handler.AuthMiddleware(tokenService, roleService, "access_keys:create_group"), accessKeyHandler.CreateAccessKeyGroup)
-		accessKeys.POST("/groups/:groupId/keys", handler.AuthMiddleware(tokenService, roleService, "access_keys:create_key"), accessKeyHandler.CreateAccessKey)
-		accessKeys.GET("", accessKeyHandler.ListAccessKeyGroups)
-		accessKeys.DELETE("/keys/:keyId", handler.AuthMiddleware(tokenService, roleService, "access_keys:delete_key"), accessKeyHandler.DeleteAccessKey)
-		accessKeys.DELETE("/groups/:groupId", handler.AuthMiddleware(tokenService, roleService, "access_keys:delete_group"), accessKeyHandler.DeleteAccessKeyGroup)
-	}
+		// Policy routes
+		protected.GET("/policies", policyHandler.ListPolicies)
+		protected.POST("/policies", policyHandler.CreatePolicy)
+		protected.GET("/policies/:id", policyHandler.GetPolicy)
+		protected.PUT("/policies/:id", policyHandler.UpdatePolicy)
+		protected.DELETE("/policies/:id", policyHandler.DeletePolicy)
 
-	// Nhóm các API quản lý Webhook
-	webhooks := rg.Group("/webhooks")
-	webhooks.Use(handler.AuthMiddleware(tokenService, roleService, "webhooks:read"))
-	{
-		webhooks.POST("", handler.AuthMiddleware(tokenService, roleService, "webhooks:create"), webhookHandler.CreateWebhook)
-		webhooks.GET("", webhookHandler.ListWebhooks)
-		webhooks.GET("/:id", webhookHandler.GetWebhook)
-		webhooks.PUT("/:id", handler.AuthMiddleware(tokenService, roleService, "webhooks:update"), webhookHandler.UpdateWebhook)
-		webhooks.DELETE("/:id", handler.AuthMiddleware(tokenService, roleService, "webhooks:delete"), webhookHandler.DeleteWebhook)
-	}
+		// SSO routes
+		protected.GET("/sso", ssoHandler.GetSsoConfig)
+		protected.PUT("/sso", ssoHandler.UpdateSsoConfig)
+		protected.DELETE("/sso", ssoHandler.DeleteSsoConfig)
 
-	// Nhóm các API quản lý Ticket
-	tickets := rg.Group("/tickets")
-	tickets.Use(handler.AuthMiddleware(tokenService, roleService, "tickets:read"))
-	{
-		tickets.POST("", handler.AuthMiddleware(tokenService, roleService, "tickets:create"), ticketHandler.CreateTicket)
-		tickets.GET("/:id", ticketHandler.GetTicket)
-		tickets.PUT("/:id/status", handler.AuthMiddleware(tokenService, roleService, "tickets:update_status"), ticketHandler.UpdateTicketStatus)
-		tickets.POST("/:id/reply", handler.AuthMiddleware(tokenService, roleService, "tickets:reply"), ticketHandler.ReplyToTicket)
-	}
+		// Access Key routes
+		protected.GET("/access-keys", accessKeyHandler.ListAccessKeyGroups)
+		protected.POST("/access-keys", accessKeyHandler.CreateAccessKey)
+		protected.DELETE("/access-keys/:id", accessKeyHandler.DeleteAccessKey)
 
-	// Nhóm các API quản lý Audit Log
-	auditLogs := rg.Group("/audit-logs")
-	auditLogs.Use(handler.AuthMiddleware(tokenService, roleService, "audit_logs:read"))
-	{
-		auditLogs.GET("", auditLogHandler.ListAuditLogs)
-	}
+		// Webhook routes
+		protected.GET("/webhooks", webhookHandler.ListWebhooks)
+		protected.POST("/webhooks", webhookHandler.CreateWebhook)
+		protected.GET("/webhooks/:id", webhookHandler.GetWebhook)
+		protected.PUT("/webhooks/:id", webhookHandler.UpdateWebhook)
+		protected.DELETE("/webhooks/:id", webhookHandler.DeleteWebhook)
 
-	// Nhóm các API quản lý MFA
-	mfa := rg.Group("/mfa")
-	{
-		mfa.POST("/enable", userHandler.EnableMFA)
-		mfa.POST("/verify", userHandler.VerifyMFA)
-		mfa.POST("/disable", userHandler.DisableMFA)
-	}
+		// Ticket routes
+		protected.GET("/tickets", ticketHandler.ListTickets)
+		protected.POST("/tickets", ticketHandler.CreateTicket)
+		protected.GET("/tickets/:id", ticketHandler.GetTicket)
+		protected.POST("/tickets/:id/replies", ticketHandler.ReplyToTicket)
 
-	// Nhóm các API quản lý Subscription
-	subscriptions := rg.Group("/subscriptions")
-	subscriptions.Use(handler.AuthMiddleware(tokenService, roleService, "subscriptions:read"))
-	{
-		subscriptions.GET("", subscriptionHandler.GetSubscription)
+		// Audit Log routes
+		protected.GET("/audit-logs", auditLogHandler.ListAuditLogs)
+
+		// Subscription routes
+		protected.GET("/subscriptions", subscriptionHandler.GetSubscription)
+
+		// Alert routes
+		protected.GET("/alerts", alertHandler.ListAlerts)
+		protected.PUT("/alerts/:id/acknowledge", alertHandler.UpdateAlertStatus)
+
+		// Integration routes
+		protected.GET("/integrations", integrationHandler.ListIntegrations)
+		protected.GET("/integrations/:id", integrationHandler.GetIntegration)
+		protected.PUT("/integrations/:id", integrationHandler.UpdateIntegrationStatus)
+
+		// Service Role routes
+		protected.GET("/service-roles", serviceRoleHandler.ListServiceRoles)
+		protected.POST("/service-roles", serviceRoleHandler.CreateServiceRole)
+		protected.GET("/service-roles/:id", serviceRoleHandler.GetServiceRole)
+		protected.PUT("/service-roles/:id", serviceRoleHandler.UpdateServiceRole)
+		protected.DELETE("/service-roles/:id", serviceRoleHandler.DeleteServiceRole)
+
+		// Session routes
+		protected.GET("/sessions", sessionHandler.ListSessions)
+		protected.DELETE("/sessions/:id", sessionHandler.RevokeSession)
 	}
 }

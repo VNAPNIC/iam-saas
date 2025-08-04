@@ -1,3 +1,4 @@
+@import url("../../../template/style.css");
 @import "tailwindcss";
 
 /* General Body and Font Styles */
@@ -43,55 +44,112 @@ input, select, textarea {
 .status-read { background-color: #DBEAFE; color: #1E40AF; }
 .status-resolved { background-color: #D1FAE5; color: #059669; }
 
-/* Dark Mode Styles */
+/* Light Mode Default Styles - Force override dark mode */
+body:not(.dark-mode) {
+    background-color: #f3f4f6 !important; /* Light gray background */
+    color: #111827 !important;
+}
+
+body:not(.dark-mode) .card,
+body:not(.dark-mode) .bg-white {
+    background-color: #ffffff !important;
+    color: #111827 !important;
+    border-color: #e5e7eb !important;
+}
+
+body:not(.dark-mode) .bg-gray-100 {
+    background-color: #f3f4f6 !important;
+}
+
+body:not(.dark-mode) .text-gray-900 {
+    color: #111827 !important;
+}
+
+body:not(.dark-mode) .text-gray-700 {
+    color: #374151 !important;
+}
+
+body:not(.dark-mode) .text-gray-600 {
+    color: #4b5563 !important;
+}
+
+body:not(.dark-mode) .text-gray-500 {
+    color: #6b7280 !important;
+}
+
+/* Dark Mode Styles - Support both .dark and body.dark-mode */
+.dark,
 body.dark-mode {
+    background-color: #111827 !important; /* Darker background */
+    color: #d1d5db !important;
+}
+
+body.dark {
     background-color: #111827; /* Darker background */
     color: #d1d5db;
 }
+.dark .sidebar,
 .dark-mode .sidebar {
     background-color: #1f2937;
     border-color: #374151;
 }
+.dark header,
+.dark .card,
+.dark .bg-white,
 .dark-mode header,
 .dark-mode .card,
 .dark-mode .bg-white {
     background-color: #1f2937 !important;
     border-color: #374151;
 }
+.dark .text-gray-900,
 .dark-mode .text-gray-900 { color: #f9fafb !important; }
+.dark .text-gray-800,
 .dark-mode .text-gray-800 { color: #f3f4f6 !important; }
+.dark .text-gray-700,
 .dark-mode .text-gray-700 { color: #e5e7eb !important; }
+.dark .text-gray-600,
 .dark-mode .text-gray-600 { color: #d1d5db !important; }
+.dark .text-gray-500,
 .dark-mode .text-gray-500 { color: #9ca3af !important; }
 
+.dark .border-gray-200,
 .dark-mode .border-gray-200 { border-color: #374151 !important; }
+.dark .border-gray-300,
+.dark-mode .border-gray-300 { border-color: #4b5563 !important; }
+.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]),
 .dark-mode .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
     border-color: #374151 !important;
 }
+.dark .bg-gray-50,
 .dark-mode .bg-gray-50 { background-color: #374151 !important; }
+.dark .bg-gray-100,
+.dark-mode .bg-gray-100 { background-color: #111827 !important; }
+.dark .hover\:bg-gray-50:hover,
 .dark-mode .hover\:bg-gray-50:hover { background-color: #374151 !important; }
 
+.dark input, .dark select, .dark textarea,
 .dark-mode input, .dark-mode select, .dark-mode textarea {
-    background-color: #374151;
-    color: #f9fafb;
-    border-color: #4b5563;
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
 }
-.dark-mode input::placeholder,
-.dark-mode textarea::placeholder {
+.dark input::placeholder,
+.dark textarea::placeholder {
     color: #9ca3af;
 }
-.dark-mode .bg-blue-50 {
+.dark .bg-blue-50 {
     background-color: #1e40af !important;
 }
-.dark-mode .text-blue-600 {
+.dark .text-blue-600 {
     color: #60a5fa !important;
 }
 
 /* Modal/Dialog Dark Mode Fix */
-.dark-mode .fixed.inset-0 {
+.dark .fixed.inset-0 {
     background-color: rgba(10, 10, 10, 0.7);
 }
-.dark-mode .fixed > .bg-white {
+.dark .fixed > .bg-white {
     background-color: #1f2937 !important;
 }
 
@@ -138,13 +196,13 @@ select {
 }
 
 /* Dark Mode Override for select */
-.dark-mode select {
+.dark select {
     background-color: #374151; /* Dark gray for dark mode */
     color: #f9fafb;
     border-color: #4b5563;
 }
 
-.dark-mode .bg-gray-200.text-gray-800 {
+.dark .bg-gray-200.text-gray-800 {
     background-color: #374151 !important; /* Màu nền tối hơn một chút */
     color: #9ca3af !important;      /* Màu chữ xám nhạt để dễ đọc */
 }

@@ -1,0 +1,65 @@
+/* Template Dark Mode Styles - Copy từ template/style.css */
+
+/* General Body and Font Styles */
+body {
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Card, Header, Background Styles */
+.card, .bg-white, header {
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* Form Elements */
+input, select, textarea {
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #111827 !important; /* Darker background */
+    color: #d1d5db !important;
+}
+
+.dark-mode .card,
+.dark-mode .bg-white {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+}
+
+.dark-mode .text-gray-900 { color: #f9fafb !important; }
+.dark-mode .text-gray-800 { color: #f3f4f6 !important; }
+.dark-mode .text-gray-700 { color: #e5e7eb !important; }
+.dark-mode .text-gray-600 { color: #d1d5db !important; }
+.dark-mode .text-gray-500 { color: #9ca3af !important; }
+
+.dark-mode .border-gray-200 { border-color: #374151 !important; }
+.dark-mode .border-gray-300 { border-color: #4b5563 !important; }
+.dark-mode .border-gray-600 { border-color: #4b5563 !important; }
+.dark-mode .border-gray-700 { border-color: #374151 !important; }
+
+.dark-mode .bg-gray-50 { background-color: #374151 !important; }
+.dark-mode .bg-gray-100 { background-color: #111827 !important; }
+.dark-mode .bg-gray-700 { background-color: #374151 !important; }
+.dark-mode .bg-gray-800 { background-color: #1f2937 !important; }
+
+.dark-mode .hover\:bg-gray-50:hover { background-color: #374151 !important; }
+.dark-mode .hover\:bg-gray-600:hover { background-color: #4b5563 !important; }
+
+.dark-mode input, .dark-mode select, .dark-mode textarea {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+    color: #9ca3af !important;
+}
+
+.dark-mode .text-blue-400 { color: #60a5fa !important; }
+.dark-mode .text-blue-500 { color: #60a5fa !important; }
+.dark-mode .hover\:text-blue-700:hover { color: #93c5fd !important; }
+
+.dark-mode .text-red-400 { color: #f87171 !important; }
+.dark-mode .text-green-600 { color: #34d399 !important; }

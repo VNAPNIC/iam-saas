@@ -9,6 +9,11 @@ type Policy struct {
 	Target    string    `json:"target"`    // e.g., "role:admin", "all_users"
 	Condition string    `json:"condition"` // e.g., "time_range:0900-1700", "ip_range:192.168.1.0/24"
 	Status    string    `json:"status"`    // "active", "inactive"
+	Effect    string    `json:"effect"`    // "allow", "deny"
+	Priority  int       `json:"priority"`  // Priority for policy evaluation
+	Conditions string   `json:"conditions"` // JSON conditions
+	Actions   string    `json:"actions"`   // JSON actions
+	Resources string    `json:"resources"` // JSON resources
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

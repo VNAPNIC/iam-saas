@@ -76,6 +76,30 @@ func (h *AlertHandler) UpdateAlertStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, NewSuccessResponse(alert, string(i18n.ActionSuccessful)))
 }
 
+func (h *AlertHandler) DeleteAlert(c *gin.Context) {
+	alertID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		h.handleError(c, app_error.NewInvalidInputError(err.Error()))
+		return
+	}
+
+	// Check if alert exists first
+	_, err = h.alertService.GetAlertByID(c.Request.Context(), alertID)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+
+	// Delete the alert (implement soft delete in repository)
+	err = h.alertService.DeleteAlert(c.Request.Context(), alertID)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, NewSuccessResponse(nil, string(i18n.ActionSuccessful)))
+}
+
 func (h *AlertHandler) handleError(c *gin.Context, err error) {
 	if appErr, ok := err.(*app_error.AppError); ok {
 		response := NewErrorResponse(appErr.Message, string(appErr.Code), nil)
