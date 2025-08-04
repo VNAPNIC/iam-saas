@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { ThemeLanguageControls } from '@/components/ui/theme-language-controls';
 
 import { publicApiClient } from '@/lib/apiClient';
 import { AxiosError } from 'axios';
+import { LanguageSelector } from '@/components/ui/language-selector';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 function SignupFormContent() {
   const [formData, setFormData] = useState({
@@ -73,10 +74,11 @@ function SignupFormContent() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 py-12">
       <div className="w-full max-w-md p-4">
         {/* Theme and Language Controls */}
-        <div className="flex justify-center mb-4">
-          <ThemeLanguageControls />
+        <div className="flex justify-center mt-4 space-x-4">
+          <ThemeToggle />
+          <LanguageSelector />
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-center mb-6">
             <div className="w-12 h-12 bg-blue-500 rounded-md flex items-center justify-center text-white font-bold">
@@ -133,6 +135,10 @@ function SignupFormContent() {
             <Link href="/login" className="text-blue-500 hover:text-blue-700 dark:text-blue-400">{t('signup.signInLink')}</Link>
           </p>
           {errors.general && <p className="text-sm text-center mt-4 text-red-600 dark:text-red-400">{errors.general}</p>}
+        </div>
+        <div className="flex justify-center mt-4 space-x-4">
+          <ThemeToggle />
+          <LanguageSelector />
         </div>
       </div>
     </div>

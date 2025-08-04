@@ -148,14 +148,25 @@
     "errorOccurred": "Đã xảy ra lỗi."
   },
   "verifyEmail": {
+    "title": "Xác thực Email",
+    "subtitle": "Bảo mật tài khoản của bạn",
     "verifying": "Đang xác thực...",
     "pleaseWait": "Vui lòng chờ trong giây lát.",
     "successTitle": "Xác thực Thành công!",
     "successMessage": "Email của bạn đã được xác thực. Bây giờ bạn có thể đăng nhập.",
+    "redirecting": "Đang chuyển hướng...",
     "failedTitle": "Xác thực Thất bại",
     "failedMessage": "Liên kết xác thực không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.",
     "goToLogin": "Đi đến trang Đăng nhập",
-    "resendLink": "Gửi lại liên kết"
+    "resendLink": "Gửi lại liên kết",
+    "resending": "Đang gửi...",
+    "linkSent": "Một liên kết xác thực đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư đến (và cả thư mục spam).",
+    "tokenNotFound": "Không tìm thấy thông tin xác thực.",
+    "resendSuccess": "Đã gửi lại liên kết xác thực mới! Vui lòng kiểm tra email.",
+    "resendFailed": "Không thể gửi lại liên kết xác thực.",
+    "checkEmailTitle": "Kiểm tra Email của bạn",
+    "expiredTitle": "Liên kết đã hết hạn",
+    "backTo": "Quay lại trang"
   },
   "common": {
     "action_successful": "Thao tác hoàn tất thành công.",

@@ -148,14 +148,25 @@
     "errorOccurred": "An error occurred."
   },
   "verifyEmail": {
+    "title": "Verify Email",
+    "subtitle": "Secure your account",
     "verifying": "Verifying...",
     "pleaseWait": "Please wait a moment.",
     "successTitle": "Verification Successful!",
     "successMessage": "Your email has been verified. You can now log in.",
+    "redirecting": "Redirecting...",
     "failedTitle": "Verification Failed",
     "failedMessage": "The verification link is invalid or has expired. Please try again.",
     "goToLogin": "Go to Login Page",
-    "resendLink": "Resend Link"
+    "resendLink": "Resend Link",
+    "resending": "Sending...",
+    "linkSent": "A verification link has been sent to your email. Please check your inbox (and spam folder).",
+    "tokenNotFound": "Verification information not found.",
+    "resendSuccess": "A new verification link has been resent! Please check your email.",
+    "resendFailed": "Failed to resend verification link.",
+    "checkEmailTitle": "Check Your Email",
+    "expiredTitle": "Link Expired",
+    "backTo": "Back to"
   },
   "common": {
     "action_successful": "Action completed successfully.",
